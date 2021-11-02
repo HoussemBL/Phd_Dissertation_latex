@@ -1,0 +1,190 @@
+\section{Evolution provenance dissemination in visual computing}
+Our evolution provenance model was also disseminated into visual computing processes.
+One use case that we collaborate into it is visual computing processes to interactively analyze large dynamic graphs.
+Indeed, a first visual computing approach was initially proposed in~\cite{bruder:18} where authors perform a volumetric representation of the dynamic large graphs that are temporal graphs evolving over time.
+%based on the concept of space-time cubes, created by stacking the adjacency matrices of all time steps.
+
+This approach supports three analytics methods fundamental to explore large and complex graph that are data views, aggregation and filtering and comparison.
+We extended this approach to support the collection of evolution provenance. Thereby, the extended version of this approach supports a fourth analytic method that is evolution provenance visualization and exploration.
+%Implementations of the respective methods are presented in an integrated application, enabling interactive exploration and analysis of large data sets.
+Implementations of the respective method is integrated seamlessly in the existing visual computing prototype, enabling interactive exploration and analysis of large data sets. This results in the second version of the system published in~\cite{Bruder2019}.
+	
+In what follows we give an overview about the initial approach (in Section~\ref{A02:overview}). After that, we discuss necessary changes applied to adjust our evolution provenance model to track visual exploration of large dynamic graphs (in Section~\ref{A02:evoDM}). Finally, we describe in Section~\ref{A02:evoVIS} how to explore visually collected evolution provenance.
+For that, we rely mainly on methods and results reported in our paper~\cite{Bruder2019}.
+	
+	
+	
+	
+			
+\subsection{Overview}\label{A02:overview}
+	Bruder et al.~\cite{bruder:18} propose recently a visual analytics approach that allows for interactive analysis of dynamic graphs containing several thousand time steps and hundreds of nodes.
+	
+	%The proposed approach centers mainly around a volumetric representation of the dynamic graph similar to a space time cube~\cite{bach:2017}.
+	Inspired by space-time cube approaches e.g.,~\cite{bach:2017} and~\cite{Bach_CHI:14}, the proposed approach adopts a volumetric representation of the dynamic graph based on its adjacency matrices.
+These concepts have in common that they stack representations of individual time steps to gain a three dimensional data structure.
+As illustrated in Figure~\ref{fig:illu}, adjacency matrices are 2D structures that are stacked to incorporate the temporal evolution of the graph.
+In the resulting three dimensional cuboid structure, the $x$- and $y$-axes represent nodes, while entries in the plane defined by those two axes represent edges (including their weights). 
+The $z$-axis represents time.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1.0\linewidth]{figures/evoDM/stacking-crop}
+	\caption{Sample of explored adjacency matrices~\cite{Bruder2019}}
+	\label{fig:illu}
+\end{figure}
+
+
+%In this representation, every time step of the dynamic graph is represented by an adjacency matrix of the node link structure. 
+%Given a third dimension of time,  those adjacency matrices are stacked behind one another to generate a three dimensional cuboid structure.
+This cuboid is a concise and static representation of the whole dynamic graph that preserves the mental map~\cite{Misue:95,Archambault:11}. 
+To allow for fluent user interactions (e.g., rotating and zooming into the cuboid or filtering values), GPU-accelerated volume rendering methods are employed to generate the graph data visualizations. 
+Using those techniques, the proposed approach~\cite{bruder:18} is capable to render several thousand time steps and hundreds of nodes at the same time without loosing interactivity.
+
+
+This approach offers a set of analytic methods, used to perform typical analysis tasks such as detecting temporal patterns, e.g., clusters forming or repeating occurrences of similar node-link structures.
+Essentially, we distinguish three classes of analytic methods.
+
+\begin{description}
+	\item[Data Views.] 
+	Large dynamic graphs typically exhibit a lot of information covering different aspects of interest. 
+	A single visualization is often not capable to convey them all.
+	Therefore, it is important to offer distinct perspectives on the data using multiple views with suitable visualizations. 
+	The volume view is the primary visualization adopted by this approach.  Indeed, it provides a direct visualization of the full graph volume. This latter could be split into sub-volumes along the time axis. This is possible using the volume partitioning perspective.
+	Other views include for instance the timeline plot used to show different graph metrics on a 2D plot over time. 
+	This approach offers also detailed visualization such as Slice view that provides information of individual, selected time steps with 2D slice  views. 
+%	\textbf{Timeline Plot.}
+%The timeline shows different graph metrics on a 2D plot over time (Figure~\ref{fig:gui}a). 
+%Those metrics include for instance, the number of edges in each time step, or the linear arrangement of the matrices.
+%This visualization is intended to give an overview of the temporal evolution of the graph and thereby reveal recurring patterns. 
+%The timeline plot is also an interface for interaction tasks such as selecting and highlighting a single time step, browsing through the time slices or setting split marks (see Volume Partitioning below).
+	\item[Aggregation and Filtering.] 
+	Showing all edges of a large dynamic graph, especially a dense one, quickly leads to visual clutter, overload, and occlusion using our volumetric approach. 
+	This makes filtering and aggregation of adjacent edges an essential part of the analysis process to reduce the visualization to relevant information.
+	Examples of aggregation functions include for instance minimum, maximum, average weight and density of edges. These methods could be applied either on in the spacial domain i.e. aggregating neighboring edges or in the time domain.
+	Filtering methods consists of omitting edges not satisfying such predicate e.g. filter out edges with low density.
+	\item[Comparison.] 
+	Comparing different sections within a temporal graph or even several distinct dynamic graphs becomes challenging using the methods discussed above. 
+	The support of a dedicated visualization for this specific task is therefore important for the analysis process.
+	This is possible using this approach. Indeed, an analyst can select starting points and a range of time steps to compare them against one another.
+	In this case, a matrix view is generated to render commonality and irregularities resulting from comparing the different time sequences.
+%A matrix view is presented that shows the different time sequences on the main diagonal.
+%We use the upper and lower triangles of the matrix to show different aspects: The upper one shows a comparison of the existence of edges, i.e. edges that appear, disappear, or exist in both sequences are highlighted by color and/or filtered by transparency.
+%The lower triangle shows the difference in weights between the sections.
+%The number of time sequences that are shown can be dynamically adjusted.
+
+	%\item[Evolution provenance navigation.] 
+	%Oftentimes during an analysis process, a parameter configuration is selected that shows interesting features of the data. 
+	%Going back to such a analysis step can be very useful during data exploration.
+	%Furthermore, tracking and navigating the provenance evolution also helps to understand and reconstruct the analysis process.
+	%Our implementation of this class in described in Section~\ref{Prov:Sec}.
+\end{description}
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+\subsection{Evolution provenance model}\label{A02:evoDM}
+It is appearing from the previous section, that the user can benefit from a bench of analytics method supported in~\cite{bruder:18} to visually analyze large dynamic graphs. 
+Using these methods, the users can perform completely different analysis over large dynamic graphs and can get various results and observations. In this case, remembering past actions of the analytic process is important e.g., to speed up the analytical process, to provide full story how insights were surfaced and to increase reproducibility e.g. showing best practices to visually explore large dynamic graphs.
+
+The collection of ``history'' of manipulations was shown in~\cite{Herschel2017survey} to be effective for reproducibility as well as in remembering intermediate steps done to reach insights.
+
+To this end, we extend the previous approach described in the previous section, to support the evolution provenance tracking when analyzing visually  large dynamic graphs.
+
+Traditionally, users are engaged in a \emph{visual analysis session} where they perform various \emph{visual analysis steps} iteratively. 
+In this case, evolution provenance keeps track of the set of visual analysis steps performed and thereby construct the ``full story'' of a visual analysis session.
+For that, we have adjusted slightly our evolution provenance model presented in Section~\ref{subsec:evo} to track the visual analytics process of large dynamic graphs. 
+%The collection of evolution provenance is implemented and seamlessly integrated in the existing prototype.
+%Another main contribution is the visualization of evolution provenance. Indeed, this information is presented to the user in a plot that supports the navigation of the analysis process.
+
+In what follows, we detail the evolution provenance model adopted in~\cite{Bruder2019} to extend the discussed approach in~\cite{bruder:18}. To do that, we define necessary concepts necessary to define the evolution provenance.
+
+%\input{chapterEvoDM/provenance.tex}
+\begin{definition}[Visual analysis step] 
+Given an initial dynamic graph $G_i$ that contains a set of timesteps $\{t_1..t_i\}$, we define a visual analysis step as $\exploreStep$ where a dynamic graph $G_s$  that contains $\{t_i..t_j\}$ timesteps  (where $1 \leq i \leq j \leq k $) is visualized using a set of views $V_s=\{v_1..v_p\}$.
+\end{definition}
+
+
+Notice that view is a generic term that covers visualization structures possibly obtained using \emph{data views} analytic method.
+In our current implementation, the evolution provenance collector tracks visual analysis steps encompassing the volumetric representation as our main view.
+{\color{Fuchsia}For future work, we also plan to integrate tracking of slice views and the timeline plot.}
+
+\begin{table}[t]
+
+\taburowcolors[2]{white .. black!10}
+\sffamily\footnotesize
+\tabulinesep=4pt
+\begin{tabu}{|X[cm]|X[cm]|X[cm]|}
+\hline
+\rowcolor{black!80} \color{white}Operation type &   \color{white}Parameters& \color{white}Output\\
+Selection&  $\{t_{i'}..t_{j'}\}$; selected range of timesteps & $G'_{s}=\{t_{i'}..t_{j'}\}$,  $V'_{s}=\{v'_{1}..v'_{p}\}$\\
+Partition&$\{m_1..m_y\}$; the set of split marks & $G'_{s}=[\{t_1..t_m\},\{t_{m+1}..t_l\},..]$ ,  $V'_{s}=\{v'_{1}..v'_{p}\}$ \\
+Aggregation&    $l$, where $l$ is a level & $G_{s}$,  $V'_{s}=\{v'_{1}..v'_{p}\}$ \\
+Filtering&    $cond$, where $cond$ is a predicate& $G_{s}$,  $V'_{s}=\{v'_{1}..v'_{p}\}$ \\
+Color mapping&  $d \times rgb $, where $rgb$ is color and $d$ a graph property &$G_{s}$,  $V'_{s}=\{v'_{1}..v'_{p}\}$ \\
+Camera configuration&  $configuration$   & $G_{s}$, $V'_{s}=\{v'_{1}..v'_{p}\}$ \\
+\hline
+\end{tabu}
+\caption{Permitted analytics operations~\cite{Bruder2019}}
+\label{table:ops}
+\end{table}
+
+Table~\ref{table:ops} summarizes supported analytical operations enabling the navigation from a visual analysis step $\exploreStep$ to another step $\exploreStepDest$.
+It presents also the set of parameters needed for each operation as well as the structure of the output analysis step $S'$.
+Essentially, we distinguish six operation types that handle various views seen over several analysis steps.
+All proposed operations to track in evolution provenance are derived from the three fundamental analytic methods thoroughly discussed in Section~\ref{A02:overview},
+% defined in~\cite{bruder:18} 
+ that are data views, filtering/aggregation and comparison.
+
+
+The \emph{selection function} is associated to the timeline plot feature where the user gets a 2D-visualization whose x-axis depicts a set of timesteps $\{t_i..t_j\}$.
+Using this function, the user can select a single or a range of timesteps $\{t_{i'}..t_{j'}\}$  with $t_i \leq t_{i'} \leq t_{j'} \leq t_{j}$ to analyze them visually in the next step.
+
+The \emph{partition operation} corresponds to the volume partitioning analysis feature 
+%(e.g., \hou{should we provide a figure for example?}) 
+where the user specifies interactively some split marks $\{m_1..m_y\}$ to split the timesteps $\{t_1..t_i\}$ associated to a visual analysis step $S$ into sub-ranges $[\{t_1..t_m\},\{t_{m+1}..t_l\},\ldots]$. 
+
+
+Our evolution provenance model encompasses also the \emph{aggregation operation} and the \emph{filtering operation} (via opacity). 
+The former aggregates to a specific level $l$ to alleviate the complexity of a view $V$, while the latter operation omits information available in the current view that do not satisfy a predicate $cond$. As shown in Table~\ref{table:ops}, the two aforementioned operations introduce changes only on the set of views to analyze in the step $S'$ in comparison to step $S$ while keeping the same dynamic graph $G_s$.
+
+The list of analytics operations recorded by our provenance model also contains the \emph{color mapping operation} where a user maps a graph property $d$ (e.g., weights of edges) to a specific range of colors $rgb$ to produce new views $V'_{s}=\{v_{i'}..v_{j'}\}$ for the same dynamic graph $G_s$, seen in the analysis step $S$. 
+Finally, we record selected \emph{camera configurations}, where the user selects a certain zoom level, rotation and panning of the camera to get new views $V'_s$ in the next analysis step $S'$.
+
+
+
+
+Overall, the evolution provenance is modelled by an analysis session graph that gathers all visual analysis steps made by the analyst. 
+Figure~\ref{fig:expo-session} shows an example of such an analysis session graph (augmented with exemplary screenshots of the analytics step), defined as follows.
+
+\begin{figure}[t]
+	\begin{center}
+	\includegraphics[scale=0.35]{figures/evoDM/sessionGraph-crop}
+			\end{center}
+			\caption{Example of an analysis session graph, augmented with images of the respective analytics steps~\cite{Bruder2019}}
+			\label{fig:expo-session}
+\end{figure}
+
+\begin{definition}[Analysis session graph]
+An analysis session graph summarizes user's manipulations over a large Dynamic Graph $D_i$ where $i$ refers to the set of timesteps.
+The analysis session graph is a labeled directed acyclic graph (DAG) $\sessionGraph{}_{D_i}(\sessionV{}, \sessionE{})$ where $\sessionV{}$ is a set of nodes and $\sessionE{}$ a set of labeled edges. 
+Each node $n \in \sessionV$ corresponds to a visual analytics step $S$.
+An edge $e = (n, n', \sessionL{})$ represents the transition from one visual analytics step $S = \{{G_s}, V_s\}$ to the next visual analytics step $S' = \{{G'_s}, V'_s\}$. $\sessionL{}$ is a pair $\langle \labelOp{}, param \rangle$ where $\labelOp{}$ is an identifier of the analytical operation type (see Table~\ref{table:ops}) and $param$ is the set of parameters used to navigate from $S$ to $S'$.
+\label{def:sessionA02}
+\end{definition}
+
+
+
+
+
+Using our proposed approach, all analysis session graphs processing the same large dynamic graph $D_i$ start necessarily with the same analysis step. 
+Initially, we provide a general overview that contains a set of volume views encompassing various degrees of aggregation.

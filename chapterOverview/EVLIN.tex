@@ -1,0 +1,108 @@
+
+
+\prototype\ supports interactive visual data exploration over a multidimensional relational dataset $D$, typically stored in a data warehouse with star-schema. 
+In this case, the data warehouse corresponds to the \emph{data} input discussed in Section~\ref{sec:frame-comp}.
+We benefit also from the DBMS used to store the data warehouse in relational way. Accordingly, the DBMS corresponds to the \emph{data retrieval component} present in the architecture of our framework \framework{}. Hence, it is responsible for processing exploration queries investigated by the user.  We point out that a sample of data warehouses that we can explore using~\prototype{} is already discussed in Example~\ref{ex:DW}.
+
+
+
+An initial user-specified query $Q$ is input via a graphical user interface implemented in our system \prototype{}.
+The seed exploration query issued by the user is defined as follows.
+
+\begin{definition}[Exploration query] Given a data warehouse~$D$ with a fact table~$T$, a set of measures~$M$ in~$T$, a set of dimension tables~$A$, and a set of aggregate functions~$F$, an exploration query~$Q$ is an SQL query of the form\\
+\vspace{-1em}
+\[\texttt{SELECT }a_1,..., a_n, f(m) \texttt{ FROM } rel(D)\texttt{ WHERE }cond \texttt{ GROUP BY }a_1, .., a_n \]
+%\vspace{-1em}
+\noindent where $m \in M$, $a_i \in schema(A)$, $f \in F$, $rel(D)$ refers to one or more relations in $D$, and $cond$ is a (conjunction of) predicates.
+\label{def:exp-query}
+\end{definition}
+
+\begin{example}[Sample exploration query]
+\label{ex:query}
+In this example we consider the data warehouse of US domestic flights depicted in Figure~\ref{fig:flights-DW} and the following seed exploration query $Q$ that determines the number of delayed flights per state of departure.\\
+ \textsf{SELECT} count(*), A.state \textsf{ FROM } Flights \texttt{ as F}, Airports \texttt{ as A} \textsf{ WHERE }A.iata=F.origin \texttt{ AND } $F.depdelay>0$\textsf{ GROUP BY }A.state
+\end{example}
+
+
+
+The exploration query $Q$ over the data warehouse $D$ is executed and its result $Q(D)$ is input to the \emph{Recommendation engine module} present in the architecture of our framework \framework{} (cf.~Figure~\ref{fig:archi-FW}) and implemented in \prototype{}.
+It is worth stressing that the \emph{Recommendation engine module}, implemented in \prototype{} leverages provenance information collected by the \emph{Provenance engine module} implemented also in~\prototype{}. 
+This latter produces two types of provenance that are why provenance and evolution provenance.
+While we postpone the discussion of the \emph{Provenance engine module} to Chapter~\ref{chap:evoDM}, we describe in what follows the recommendations output by the \emph{Recommendation engine module}.
+
+First, the user's initial query result $Q(D)$ is input to \emph{Recommendation engine module}. This latter determines an adequate visualization for $Q(D)$ to be displayed to the user. 
+Note that \prototype{} targets 2D visualizations (bar, scatter, line, and bubble charts), so we limit the number of grouped attributes in exploration query Definition~\ref{def:exp-query} to two, i.e., $n \leq 2$ in practice. 
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.45]{figures/EVLIN-overview/queryVis.pdf}
+\caption{Example of recommended visualization for $Q(D)$}
+\label{fig:Q}
+\end{figure}
+
+
+\begin{example}[Sample recommended visualization]
+\label{ex:VIS}
+As example,  Figure~\ref{fig:Q} displays the recommended bar-chart visualization for our sample query $Q$ discussed in Example~\ref{ex:query} . 
+The x-axis of this visualization enumerates the set of states of departure where delayed flights occur.  The y-axis reflects the number of delayed flights.  Bars rendered in green color (ignore so far the orange color that will be discussed later) depict flights per states of departure.
+\end{example}
+
+
+
+\prototype{} generates interactive visualizations. Thereby, the users can inspect (by mouse hovering) the data and select a sub-result $r_i \in Q(D)$ that has attracted their attention, to pursue the exploration.
+
+
+\begin{example}[User's interaction]
+\label{ex:interaction}
+\sloppy
+Going back to our running example, the highest bar that designates the state ``CA'' drew the analyst's attention when investigating results depicted in Figure~\ref{fig:Q}. Then, this latter double clicked this sub-result. 
+This is reflected in Figure~\ref{fig:Q} where the bar associated with the state ``CA''  is highlighted in orange color. 
+\end{example}
+
+%In Step (5),
+%{\color{Fuchsia}
+The selected sub-result $r_i$ is processed by the \emph{Recommendation engine module} that identifies which information may be of interest to the user at the next step of exploration. 
+%More precisely, 
+Ultimately, the \emph{Recommendation engine module} thoroughly discussed in Chapter~\ref{chap:EVLIN}
+returns a set of triples (recommended query, recommended visualization, and an interestingness score).
+This output is rendered to the user in the form of an \emph{impact matrix} (e.g., Figure~\ref{fig:matrixSample}).  
+
+The rows represent the set of attribute-value pairs identified by the \emph{Recommendation engine module} component  as information strongly related to the user's interaction.
+ %Columns of the impact matrix reflect possible formulation types supported by the \emph{Recommendation engine module} when constructing recommended queries.
+Columns of the impact matrix reflect various OLAP operations types suitable to navigate in the data warehouse (cf.~Section~\ref{sec:olap}).
+Thereby, each cell maps to a recommendation.
+The cell color encodes the interestingness score of each recommendation. The score of each recommendation, thoroughly discussed in Chapter~\ref{chap:EVLIN}, reflects the potential utility of the recommendation as well as its popularity among previous explorations made on the same data warehouse by multiple users.
+
+
+\begin{figure}[b]
+\centering
+  %\scalebox{.4}{\includegraphics{figures/EVLIN-overview/query/matrix-sample.pdf}}
+  \scalebox{.4}{\includegraphics{figures/EVLIN-core/MatrixOnlyDeviation}}
+\caption{Example of an impact matrix}
+\label{fig:matrixSample}
+\end{figure}
+
+%\mel{You are quite general in the example, more or less repeating what you said before. Be closer to the example
+%% say: For instance, the second row indicates that flight numbers in CA ... stand out for airports in San Diego, Los Angeles, and San Francisco, whereas the first line suggests to further investigate with respect to three major airlines. 
+%Then pick 1 or 2 cells and say precisely what they mean.}
+\begin{example}[Impact matrix] 
+\label{ex:sampleMatrix}
+Referring back to our running example exploration discussed in Example~\ref{ex:query}, Figure~\ref{fig:matrixSample} shows the impact matrix associated with the user's interaction discussed in Example~\ref{ex:interaction}.
+This matrix encompasses two rows corresponding to the two attribute-values pairs deemed strongly related to the user interaction described in Example~\ref{ex:interaction}. 
+%For each interesting pair information, the \emph{Recommendation engine module} component generates recommended queries having different types suitable to navigate in data warehouses such as ZoomIn, Drill and other types that will be explained in Chapter~\ref{chap:EVLIN}. Ultimately, different query formulation types supported  in \prototype{} are presented in Figure~\ref{fig:matrixSample} as columns.
+For instance, the second row indicates that delayed flights stand out when departing from airports in San Diego, Los Angeles, and San Francisco, whereas the first line suggests to further investigate with respect to three major airlines. 
+For each interesting pair information, the \emph{Recommendation engine module} component generates several recommended queries having different types suitable to navigate in data warehouses such as ZoomIn, Drill and other types that will be explained in Chapter~\ref{chap:EVLIN}. 
+For instance the \emph{Zoom/In\_Slice} recommended query associated with the pair $(airport, \{San Diego, Los Angeles, San Francisco\})$ shows the distribution of delayed flights when departing from these three airports.
+Another example of recommendation is the \emph{Zoom/In} recommended query associated with the pair $(airlineID, \{WN,UA,OO\})$. This latter groups delayed flights by airlines and by states of departure. The rationale behind that is to study the performance of these three airlines in California compared with other states.
+\end{example}
+
+
+
+As shown above, scored recommended queries are visualized in form of an impact matrix, allowing the user to choose which of the suggested queries $Q'$ to execute next. At this point, the next exploration step of the exploration session starts, by setting $Q$ to $Q'$. 
+\begin{example}[User's navigation] After inspecting interestingness scores of recommendations shown in the impact matrix depicted in Figure~\ref{fig:matrixSample}, the user selects the cell corresponding to the ``ExtensionSlice\_Airports'' type and associated with the attribute-values pair $(airlineID, \{WN,UA,OO\})$ as it has a dark red color.
+In this case, a new exploration step starts where $Q$ is equal to the query present in the selected cell.
+\end{example}
+
+
+
+

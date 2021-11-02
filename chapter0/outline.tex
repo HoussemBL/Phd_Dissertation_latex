@@ -1,0 +1,52 @@
+The remainder of this thesis is organized as follows:
+
+
+\bigskip Chapter~\ref{chap:background} presents an overview of the concepts and paradigms necessary to grasp the contributions of this thesis. 
+More precisely, we give an overview of the visual data exploration process that we tackle in this work. Furthermore, we discuss the most prominent work related to this research area. 
+%Accordingly, we review the most important concepts related to our contributions proposed in the subsequent chapters.
+%This includes namely the data warehouse as well as provenance (its definition and its types). 
+Note that work more specially relating to our individual contributions are discussed in subsequent chapters.
+
+\bigskip 
+Chapter~\ref{chap:overview} introduces our framework \framework{} meant to visually explore data.
+This framework integrates all the scientific contributions discussed later in this manuscript. 
+For that, we describe the components present in our visual data exploration framework. 
+Furthermore, we introduce a running example that uses \prototype{}, an instance of our framework meant to explore data warehouses.
+The description of our visual data exploration framework in this chapter relies on scenarios discussed in our paper~\cite{BHBK18:Demo}.
+
+\bigskip Chapter~\ref{chap:evoDM} introduces all formalizations and definitions necessary to describe the evolution provenance model that we have proposed to track visual data exploration processes performed by users using our framework. 
+Note that the content of this chapter is based on~\cite{Houssem:17:tapp}.
+
+
+
+
+%{\color{Fuchsia}
+\bigskip 
+Chapter~\ref{chap:EVLIN} discusses our provenance-based methods  proposed and implemented in \prototype{}, the instance of our visual data exploration framework \framework{}.
+Our proposed provenance-based methods include a content-based query recommendation approach, a collaborative-filtering query recommendation approach, a method proposed to quantify the interestingness of recommendations, and a visualization recommendation approach.
+All methods and algorithms discussed in this chapter are based on our papers~\cite{Houssem:17:tapp,BHBK18:Demo,Houssem:19:adbis,Houssem:19:IS}.
+
+
+\bigskip Chapter~\ref{chap:eval} presents the evaluation and validation of the proposed methods
+and algorithms discussed in Chapter~\ref{chap:EVLIN} and implemented in \prototype{}. %, the instance of our visual data exploration framework \framework{}. 
+For that, we introduce first the implementation aspects and then the experiments setups that we used to validate our contributions. After that, we discuss the set of quantitive and qualitative experiments performed to study the efficiency and the effectiveness of our contributions.
+Quantitative experiment results show the efficiency and the effectiveness of our provenance-based methods proposed for interactive visual data exploration while qualitative experiments results show that \prototype{} facilitates users' exploration tasks and contributes to an effective visual data exploration experience.
+Note that the content of this chapter is based mainly on~\cite{Houssem:17:tapp,Houssem:19:adbis,Houssem:19:IS}.
+
+
+%{\color{Fuchsia}
+%\bigskip Chapter~\ref{chap:TaPP19} introduces other instances (a part from \prototype{}) of our visual data exploration framework \framework{} that permit the visual exploration of other sorts of data.
+%More precisely, we discuss first a solution for visual exploration of large dynamic graphs. Subsequently, we discuss a second instance of our visual data exploration framework that offers visual exploration of provenance data.
+%Note that these two instances implement so far partially our visual data exploration framework \framework{}. Hence, we limit our discussion to the novel approaches proposed so far for the two instances of our visual data exploration framework.
+%To do that, we rely on discussions made in our papers~\cite{Bruder2019,Houssem:19:TaPP}.
+%\mel{Are your new phrasing is quite repetitive. Try to be more concise.} \hou{rem not clear}
+%}
+
+\bigskip Chapter~\ref{chap:TaPP19} presents our approach that summarizes a set of provenance traces available in PROV-JSON format. 
+Furthermore, we provide in this chapter some illustrative use cases that showcase possible visual analytics tasks that may be applied to this type of summary. We perform a preliminary experimental evaluation that studies both the runtime and conciseness of summaries output by our approach. 
+The description of our proposed approach relies on discussions made in our paper~\cite{Houssem:19:TaPP}.
+
+\bigskip Chapter~\ref{chap:conc} concludes this thesis by summarizing the contributions. We further discuss possible follow-up research as well as new research challenges.
+
+
+

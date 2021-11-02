@@ -1,0 +1,39 @@
+\section{Introduction}
+\label{sec:intro}
+
+After presenting all concepts and definitions related to our visual data exploration framework {\color{Fuchsia}\framework{}}, we delve into details of the following scientific contributions proposed to improve user's experience when exploring visually data.
+
+%\noindent \textbf{Contributions.} \prototype{} focuses on recommendations for visual data exploration of data stored in a relational data warehouse. Our contributions are the following:
+\begin{itemize}
+
+
+
+\item We propose a content-based query recommendation algorithm that leverages data provenance to guide users to different portions of the studied data sets. 
+%The recommended queries follow typical data warehouse operations such as drill-down, roll-up, or slice.
+
+
+\item We outline a method that recommends visualizations for a query result, once a user has selected a (recommended) query. The rationale behind these recommendations is to provide visualizations that render clearly the data.  This allows users to more easily recognize information encountered earlier, potentially increasing the understandability and thereby the efficiency of visual data exploration.
+
+\item  We propose a method to quantify recommendation quality.  Given the high diversity and possibly large number of recommended queries (and associated visualizations) produced by our content-based query recommendation approach, we propose to support users to navigate through the exploration space by quantifying the ``interestingness'' of recommended queries. The computed scores are then visualized in an interactive impact matrix, pointing users to potentially interesting recommendations to study next.
+%data visualizations for different data warehouse operations.
+
+%\item We discuss several techniques to incrementally merge evolution provenance graphs, which
+% describe individual user exploration sessions, into a global graph. The different approaches trade off merge efficiency and effectiveness. The proposed approaches are meant to analyze global trends adopted by users when exploring visually the same data.
+% 
+%
+%\item We propose a collaborative-filtering method for query recommendation that leverages the merged graph (discussed in the previous point) to promote recommendations highly appreciated previously by users. 
+%Our collaborative-filtering query recommendation approach is blended with our content-based query recommendation approach to improve the recommendation process by taking into account globally interesting trends in addition to (limited) locally important insights.
+
+\end{itemize}
+
+
+
+In what follows, we discuss in Section~\ref{sec:content-query-rec}, our content-based query recommendation approach. Section~\ref{quantification-rec} covers our approach proposed to quantify the interestingness of recommended queries. Subsequently, we discuss in Section~\ref{sec:vis-rec} our visual recommendation approach proposed to render appropriately recommended queries' results. 
+%Then, we discuss in Section~\ref{collaborative-query-rec} our proposed method to merge evolution provenance representative of users 'exploration sessions before presenting our collaborative-filtering query recommendation approach that leverages the merged multi-user graph. 
+%We describe also in the same Section~\ref{collaborative-query-rec} how information output by our collaborative recommendation approach could be harnessed to improve the recommendation quantification process (discussed in Section~\ref{quantification-rec}) by taking into account globally interesting trends as well as locally interesting information.
+Alongside the description available in each aforementioned section, we review important work related to each contribution.
+{\color{Fuchsia}Finally, we evaluate the efficiency and the effectiveness of our contribution in Section~\ref{sec:evaluation-part1}.}
+
+Finally, we point out that the content of this chapter is mainly based on methods and approaches described in~\cite{Houssem:17:tapp,BHBK18:Demo}.
+
+

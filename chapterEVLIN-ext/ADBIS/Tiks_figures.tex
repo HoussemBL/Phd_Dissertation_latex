@@ -1,0 +1,174 @@
+begin{figure}[t]
+		\begin{minipage}{0.55\textwidth}
+			\begin{center}
+				\resizebox {\textwidth} {!} {
+		\begin{figure}[t]
+			\begin{tikzpicture}[-latex, auto, node distance = 4 cm and 5cm, on grid, semithick, state/.style ={circle, top color = white, bottom color = processblue!20, draw, processblue, text = blue, minimum width = 0.5 cm}, fused_state/.style = {circle, top color = white, bottom color = antiquebrass!40, draw, antiquebrass, text = black, minimum width = 0.5cm}]
+						\node[state] (A) at (-4.5, 6) {$Q_0$, $V_0$};
+						\node[state] (B1) at (-1, 4.3) {$Q_1$, $V_1$};
+						\node[state] (B2) at (-1, 6) {$Q_2$, $V_2$};
+						\node[state] (B3) at (-1, 9) {$Q_3$, $V_3$};
+						\node[state] (C1) at (4, 8) {$Q_{32}$, $V_{32}$};
+						\node[state] (C2) at (4, 6) {$Q_{21}$, $V_{21}$};
+						\node[state] (C3) at (4, 4.3) {$Q_{11}$, $V_{11}$};
+						\node[fused_state] (D) at (-4.5, -0.5) {$Q^{'}_0$, $V^{'}_0$};
+						\node[fused_state] (E) at (-1, -0.5) {$Q^{'}_1$, $V^{'}_1$};
+						\node[fused_state] (F1) at (4, 2.5) {$Q^{'}_{13}$, $V^{'}_{13}$};
+						\node[fused_state] (F2) at (4, 0.5) {$Q^{'}_{12}$, $V^{'}_{12}$};
+						\node[fused_state] (F3) at (4, -1.5) {$Q^{'}_{11}$, $V^{'}_{11}$};
+						\node[fused_state] (G1) at (9, 2.5) {$Q^{'}_{132}$, $V^{'}_{132}$};
+						\node[fused_state] (G2) at (9, 0.4) {$Q^{'}_{112}$, $V^{'}_{112}$};
+						\node[fused_state] (G3) at (9, -1.6) {$Q^{'}_{111}$, $V^{'}_{111}$};
+						\path [very node/.style={sloped,anchor=south,auto=false}] (A) edge node[above,sloped] {$<Drill, a_2>, 2$} (B1);
+						\path [very node/.style={sloped,anchor=south,auto=false}] (A) edge node[above,sloped]  {$<ZoomIn, a_k>, 2$} (B2);
+						\path [very node/.style={sloped,anchor=south,auto=false}] (A) edge node[above,sloped]  {$<Extension, a_n>, 3$} (B3);
+						\path [very node/.style={sloped,anchor=south,auto=false}] (B3) edge node [above,sloped]{$<ZoomIn/Slice, a_m>, 1$} (C1);
+						\path [very node/.style={sloped,anchor=south,auto=false}] (B3) edge node[above,sloped] {$<ZoomIn/Slice, a_k>, 1$} (C2);
+						\path [very node/.style={sloped,anchor=south,auto=false}] (B2) edge node[above,sloped] {$<Extension/Slice, a_n>, 1$} (C2);
+						\path [very node/.style={sloped,anchor=south,auto=false}] (B1) edge node[above,sloped] {$<ZoomIn, a_i>, 1$} (C3);
+						\path [very node/.style={sloped,anchor=south,auto=false}] (D) edge node[above,sloped] {$<ZoomIn, a_n>, 9$} (E);
+						\path [very node/.style={sloped,anchor=south,auto=false}] (E) edge node[above,sloped] {$<Drill/Slice, a_s>, 2$} (F1);
+						\path [very node/.style={sloped,anchor=south,auto=false}] (E) edge node [above,sloped] {$<Drill, a_2>, 3$} (F2);
+						\path [very node/.style={sloped,anchor=south,auto=false}] (E) edge node[above,sloped] {$<Extension, a_2>, 3$} (F3);
+						\path [very node/.style={sloped,anchor=south,auto=false}] (F1) edge node[above,sloped] {$<ZoomIn, a_k>, 1>, 1$} (G1);
+						\path [very node/.style={sloped,anchor=south,auto=false}] (F2) edge node [above,sloped]{$<Extension/Slice, a_n>, 1$} (G1);
+						\path [very node/.style={sloped,anchor=south,auto=false}] (F2) edge node[above,sloped] {$<Drill/Slice, a_h>, 1$} (G2);
+						\path [very node/.style={sloped,anchor=south,auto=false}] (F3) edge node[above,sloped] {$<Drill, a_i>, 1$} (G2);
+						\path [very node/.style={sloped,anchor=south,auto=false}] (F3) edge node[above,sloped] {$<Drill, a_t>, 1$} (G3);
+					\end{tikzpicture}
+
+				}
+			\end{center}
+			\caption{Users exploration graphs samples}
+			\label{fig:expo-session}
+
+\caption{Users exploration graphs samples}
+\label{fig:expo-session}
+		\end{minipage}
+		\hspace{0.2cm}
+		\begin{minipage}{0.45\textwidth}
+			\begin{center}
+				\resizebox {\textwidth} {!} {
+					\begin{tikzpicture}[-latex, auto, node distance = 4 cm and 5cm, on grid, semithick, state/.style ={circle, top color = white, bottom color = processblue!20, draw, processblue, text = blue, minimum width = 0.7 cm}, fused_state/.style = {circle, top color = white, bottom color = antiquebrass!40, draw, antiquebrass, text = black, minimum width = 0.7 cm}, edge_style/.style = {draw = processblue!60, dashed}, alt_state/.style = {circle, top color = white, bottom color = antiquefuchsia, draw, antiquefuchsia, text = white, minimum width = 0.5 cm}]
+						\node[alt_state] (A) at (0, 7) {$Q_0$, $V_0$};
+						\node[alt_state] (B) at (0, 3) {$Q_1$, $V_1$};
+						\node[state] (B1) at (2.5, 12) {$Q_3$, $V_3$};
+						\node[state] (B2) at (3.5, 9.5) {$Q_2$, $V_2$};
+						\node[state] (C1) at (8, 12) {$Q_{32}$, $V_{32}$};
+						\node[state] (C2) at (9, 10) {$Q_{21}$, $V_{21}$};
+						\node[state] (C3) at (3.5, 7.5) {$Q_{11}$, $V_{11}$};
+						\node[fused_state] (D1) at (4, 5.5) {$Q^{'}_{13}$, $V^{'}_{13}$};
+						\node[fused_state] (D2) at (4, 3.5) {$Q^{'}_{12}$, $V^{'}_{12}$};
+						\node[fused_state] (D3) at (4, 1.5) {$Q^{'}_{11}$, $V^{'}_{11}$};
+						\node[fused_state] (E1) at (10, 6.2) {$Q^{'}_{132}$, $V^{'}_{132}$};
+						\node[fused_state] (E2) at (10, 4) {$Q^{'}_{111}$, $V^{'}_{111}$};
+						\node[fused_state] (E3) at (10, 1.8) {$Q^{'}_{112}$, $V^{'}_{112}$};
+						\path [every node/.style={sloped,anchor=south,auto=false}] (A) edge node {$<ZoomIn, a_n>, 10$} (B);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (A) edge node {$<ZoomIn, a_k>, 2$} (B1);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (A) edge node {$<Extension, a_n>, 3$} (B2);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (B1) edge node {$<ZoomIn/Slice, a_m>, 1$} (C1);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (B1) edge node {$<ZoomIn/Slice, a_k>, 1$} (C2);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (B2) edge node {$<Extension/Slice, a_n>, 1$} (C2);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (B) edge node {$<ZoomIn, a_i>, 1$} (C3);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (B) edge node {$<Drill/Slice,a_s>, 2$} (D1);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (B) edge node {$<Drill, a_2>, 3$} (D2);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (B) edge node {$<Extension, a_2>, 3$} (D3);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (D1) edge node {$<ZoomIn, a_k>, 1$} (E1);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (D2) edge node {$<Extension/Slice, a_n>, 1$} (E1);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (D2) edge node {$<Drill/Slice, a_h>, 1$} (E2);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (D3) edge node {$<Drill, a_i>, 1$} (E2);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (D3) edge node {$<Drill, a_t>, 1$} (E3);
+					\end{tikzpicture}
+				}
+			\end{center}
+			\caption{Fused mutli-users exploration graph}
+			\label{fig:fuse3}
+		\end{minipage}
+	\end{figure}
+
+
+
+
+
+
+
+  	\begin{figure}[ht!]
+		\begin{center}
+			\begin{tikzpicture}[-latex, auto, node distance = 2 cm and 3cm, on grid, semithick, state/.style ={circle, top color = white, bottom color = processblue!20, draw, processblue, text = blue, minimum width = 0.5 cm}, 		fused_state/.style = {circle, top color = white, bottom color = antiquebrass!20, draw, antiquebrass, text = black, minimum width = 0.5 cm}, edge_style/.style = {draw = processblue!60, dashed}]
+				\node[fused_state] (A3) at (5.5,2.75) {A3};
+				\node[fused_state] (B0) at (5.5,4) {B0};
+				\node[fused_state] (2C) at (7,2.75) {2C};
+				\node[state] (11) at (7,4) {1};
+				\node[state] (A) at (2,4) {A};
+				\node[state] (B) at (1.5,2.75) {B};
+				\node[state] (C) at (3.5,3) {C};
+				\node[state] (0) at (0,4) {0};
+				\node[state] (1) at (-2.5,4) {1};
+				\node[state] (2) at (-1.5,3.5) {2};
+				\node[state] (3) at (-2.5,2.75) {3};
+				\path [->] (A) edge node {$$} (B);
+				\path [->] (A) edge node {$$} (C);
+				\path [->] (0) edge node {$$} (1);
+				\path [->] (1) edge node {$$} (2);
+				\path [->] (1) edge node {$$} (3);
+				\path [edge_style] (3) edge node {$$} (A);
+				\path [edge_style] (0) edge node {$$} (B);
+				\path [edge_style] (2) edge node {$$} (C);
+				\path [edge_style] (B0) edge node {$$} (11);
+				\path [edge_style] (A3) edge node {$$} (B0);
+				\path [edge_style] (11) edge node {$$} (A3);
+				\path [->] (11) edge node {$$} (2C);
+				\path [->] (A3) edge node {$$} (2C);
+			\end{tikzpicture}
+		\end{center}
+		\caption{Stable marriage application on exploration sessions}
+		\label{fig:stab-marr}
+	\end{figure}
+
+
+
+
+
+
+\begin{figure}[ht!]
+		\begin{center}
+			\resizebox {0.7\textwidth} {0.7\height} {
+				\begin{tikzpicture}[-latex, auto, node distance = 4 cm and 5cm, on grid, semithick, state/.style ={circle, top color = white, bottom color = processblue!20, draw, processblue, text = blue, minimum width = 0.7 cm}, fused_state/.style = {circle, top color = white, bottom color = antiquebrass!40, draw, antiquebrass, text = black, minimum width = 0.7 cm}, edge_style/.style = {draw = processblue!60, dashed}, alt_state/.style = {circle, top color = white, bottom color = antiquefuchsia, draw, antiquefuchsia, text = white, minimum width = 0.5 cm}]
+					\node[alt_state] (A1) at (-1, 0) {$Q_0$, $V_0$};
+					\node[fused_state] (A2) at (-1, 4) {$Q^{'}_0$, $V^{'}_0$};
+					\node[alt_state] (B) at (3.5, -1) {$Q_1$, $V_1$};
+					\node[state] (B1) at (3, 3.5) {$Q_3$, $V_3$};
+					\node[state] (B2) at (4, 2) {$Q_2$, $V_2$};
+					\node[fused_state] (C1) at (4, 0.5) {$Q^{'}_{13}$, $V^{'}_{13}$};
+					\node[fused_state] (C2) at (3, -3) {$Q^{'}_{11}$, $V^{'}_{11}$};
+					\node[state] (D1) at (8, 4.5) {$Q_{32}$, $V_{32}$};
+					\node[state] (D2) at (9.5, 3) {$Q_{21}$, $V_{21}$};
+					\node[fused_state] (E) at (9, 1) {$Q^{'}_{132}$, $V^{'}_{132}$};
+					\node[alt_state] (F) at (10, -0.5) {$Q_{11}$, $V_{11}$};
+					\node[fused_state] (G) at (10, -3) {$Q^{'}_{112}$, $V^{'}_{112}$};
+					\path [every node/.style={sloped,anchor=south,auto=false}] (A1) edge node {$<Extension, a_n>, 3$} (B1);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (A1) edge node {$<ZoomIn, a_k>, 2$} (B2);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (A1) edge node {$<Drill, a_2>, 4$} (B);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (A1) edge node {$<Drill/Slice, a_s>, 3$} (C1);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (A1) edge node {$<Extension, a_2>, 3$} (C2);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (A2) edge node {$<ZoomIn, a_n>, 8$} (A1);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (B1) edge node {$<ZoomIn/Slice, a_m>, 1$} (D1);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (B1) edge node {$<ZoomIn/Slice, a_k>, 1$} (D2);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (B2) edge node {$<Extension/Slice, a_n>, 1$} (D2);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (B) edge node {$<Drill/Slice, a_h>, 1$} (F);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (C1) edge node {$<ZoomIn, a_k>, 1$} (E);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (B) edge node {$<Extension/Slice, a_n>, 1$} (E);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (C2) edge node {$<Drill, a_i>, 1$} (F);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (C2) edge node {$<Drill, a_t>, 1$} (G);
+				\end{tikzpicture}
+			}
+		\end{center}
+		\caption{Example of dynamic matching \mel{change title}}
+		\label{fig:dynamicity}
+	\end{figure}
+
+
+
+
+
+

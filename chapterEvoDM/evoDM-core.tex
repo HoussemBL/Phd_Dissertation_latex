@@ -1,0 +1,313 @@
+\label{sec:evo-core}
+
+We have introduced in Chapter~\ref{chap:overview} \framework{}, our visual data exploration framework. Overall, it is clear from this description that our framework \framework{} offers users the possibility to perform a set of consecutive exploration steps where they explore visually at each step a different region of the data. More precisely, we define an exploration step as follows. 
+
+  \subsection{Exploration step}     
+  \label{subsec:explorStep}
+\begin{definition}[Exploration step] 
+\label{def:expo-step}An exploration step over data in $D$ is defined as $X^D=\{Q,V\}$ where $Q$ is the exploration query whose result $Q(D)$ over dataset $D$ is rendered with an interactive visualization described by $V$. 
+\end{definition}
+
+
+ 
+ Inspired by~\cite{WuPMZR17}, we record meta-data about \emph{visual exploration resources} used to render visualizations in a relational database. The design of this schema draws on a set of visualization specifications such as Vega~\cite{vega17} and D3~\cite{2011-d3}, which define a visualization using four fundamental components. (1)~The \emph{scale} component maps data values to visual values, e.g., specification of position, color or shape encodings for such data value. (2)~The \emph{axis} component provides a reference for reading the visual/data mapping defined by the \emph{scale} component. (3)~Graphical \emph{marks} describe the graphical forms adopted to visually represent data, e.g., circles, rectangles, or points. (4)~Finally, a given graphical form is further specified using a set of encoding \emph{channels} that describe the visual mapping of each attribute.  In addition to these main components, we further store information about data to render, or the width and the height of a visualization. 
+ 
+
+\sloppy
+
+ This gives rise to the following relational schema depicted in Figure~\ref{fig:VisSchema}.
+ \begin{figure}[b]
+    {\fontfamily{cmt}\selectfont
+    $Visualization(\underline{idVisualization}, width, length,idQuery), \newline
+     Mark(\underline{idMark}, markType, idVis \rightarrow Visualization), \newline
+     AxisUsage(\underline{idAxisUsage}, typeUsage, idAxis \rightarrow Axis, \newline$ \hspace*{1.6cm} $idVis \rightarrow Visualization) \newline
+     Axis(\underline{idAxis}, tiltle, tick, type, idScale \rightarrow Scale) \newline
+     Scale(\underline{idScale}, typeScale, nameScale, fieldDom, fieldRange,  \newline$ \hspace*{0.9cm} $Literal, idDataset \rightarrow Dataset) \newline
+       Dataset(\underline{idDataset}, value, name, transformation, Literal, source) \newline
+      Channel(\underline{idChannel}, typeChannel, typeChannel, idScale \rightarrow Scale) \newline
+      ChannelUsage(\underline{idChannelUsage}, typeUsage, idChannel \rightarrow Channel, \newline$ \hspace*{2.2cm} $ idMark \rightarrow Mark) %\newline
+     $
+}
+\caption{$Sch_{VIS}$ : the relational schema modelling visualizations}
+\label{fig:VisSchema}
+\end{figure}    
+   
+
+In this relational schema, we present first the name of each relation. Furthermore, we list the set of attributes present in each relation.
+Note that underlined attributes refer to the primary keys of each proposed relation while arrows refer  to the foreign keys.
+
+In what follows, we use $Sch_{VIS}$ to refer to this relational schema (depicted in Figure~\ref{fig:VisSchema}).
+This relational schema $Sch_{VIS}$ stores separately information about \emph{Visualization}, \emph{Axis}, \emph{Scale}, \emph{Mark}, and \emph{Channel}. Given that an axis may be used by more than one visualization in the course of the visual data exploration process, $Sch_{VIS}$ encompasses a table \emph{AxisUsage} that stores information about relationships between visualization and used axis. Similarly, $Sch_{VIS}$ contains a table \emph{ChannelUsage} that stores relationships information between encoding channels and graphical marks given that an encoding channel may be used by many graphical marks.
+
+Based on this design of visualization resources, a visualization $V$ generated in an exploration step is defined as a query over $Sch_{VIS}$.
+%, the schema modelling visual exploration resources. 
+The query that specifies a visualization $V$ is defined as follows.
+
+\begin{definition}[Visual exploration resource] 
+\label{def:vis-resource}
+A visualization $V$ for an exploration step $X^D=\{Q,V\}$  is defined as the following query over %the schema depicted in Figure~\ref{fig:VisSchema}.
+the relational schema $Sch_{VIS}$.
+\begin{eqnarray*}
+V &= &  \Pi_{Vis.*, Scale.*, Dataset.*, Mark.*, Channel.*, Axis.*}(\\
+& & \sigma_{query = Q}(Visualization) \Join Mark \Join ChannelUsage\\
+& & Channel \Join Scale \Join Dataset  \Join AxisUsage \Join Axis)
+\end{eqnarray*}
+\end{definition} 
+
+
+
+\subsection{Exploration path} 
+\label{sec:expo-path}
+As described in Section~\ref{sec:frame-navi}, the user can navigate using our framework \framework{}  from an exploration step to another to acquire more knowledge.
+These navigations result in exploration paths defined as follows.
+
+
+
+ \begin{definition}[Exploration path] \label{explo:path} 
+We denote the exploration path that leads to the currently investigated exploration step $X_{curr}^D=\{Q_{curr},V_{curr}\}$ as $P_X = [X_0^D, X_1^D, \ldots, X_k^D, X_{curr}^D]$ where $P_X$ encompasses all $X_i^D$  $\forall i \in [0,n]$ explored by the user, and $P_X$ is the path from the seed exploration step 
+  $X_0^D$ until reaching $X_{curr}^D$.
+\end{definition}
+
+
+	\subsection{Evolution provenance graph}
+	\label{subsec:evo}
+
+The automata depicted in Figure~\ref{fig:automata} shows that the user can enjoy using our framework \framework{} a flexible navigation model to explore the data. This results in many exploration paths (see Definition~\ref{explo:path}). These paths can be gathered  to get the full story about the user's manipulations over an exploration session.
+% To do that, we propose a new structure to store the flow of information generated within the automata in understandable way.
+%As it describes the evolution of the visual data exploration process,  we refer to this new structure as \emph{the evolution provenance} in what follows.
+The result is an \emph{evolution provenance} graph. As its name indicates, the evolution provenance graph tracks  the evolution of the visual data exploration process in the course of a user's exploration session.
+%The evolution provenance is a graph that tracks 
+Hence, it records a user's exploration session including, for each exploration step, meta-data about the explored data, the query issued to reach this particular region of data, and the visualization resources used to render the explored data. Overall, we define the evolution provenance as follows.\\
+
+%\begin{definition}[Evolution provenance graph]
+%\label{def:session}
+%An evolution provenance graph describes an exploration session over a {\color{Fuchsia}dataset } $D$.
+%It  is a labeled directed acyclic graph (DAG) $\sessionGraph{}_{,D}(\sessionV{}, \sessionE{})$ where $\sessionV{}$ is a set of nodes and $\sessionE{}$ a set of labeled edges. 
+%Each node $n \in \sessionV$ corresponds to an exploration step $X$.
+%An edge $e = (n, n', \sessionL{})$ represents the transition from one exploration step $X_D = \{Q, V\}$ to the next exploration step $X'_D = \{Q', V'\}$ whose query $Q'$ is a recommendation directly derived from $Q$ over the same $D$. $\sessionL{}$ is a 3-tuple $\langle \labelOp{}, a, s \rangle$ where $\labelOp{}$ is an identifier of the query type of $Q'$ wrt $Q$, $a$ is the relevant attribute used to construct $Q'$ based on $Q$, and $s$ an impact score computed as $s(e) = 1+\sum_{e_c = (n', n_i, \sessionL') \in E} s(e_c)$.
+%\end{definition}	 
+\begin{definition}[Evolution provenance graph]
+\label{def:session}
+An evolution provenance graph describes an exploration session over a dataset  $D$.
+It is a labeled directed acyclic graph (DAG) $\sessionGraph{}_{,D}(\sessionV{}, \sessionE{})$ where $\sessionV{}$ is a set of nodes and $\sessionE{}$ a set of labeled edges. 
+Each node $n \in \sessionV$ corresponds to an exploration step $X$.
+An edge $e = (n, n', \sessionL{})$ represents the transition (see navigations in Section~\ref{sec:frame-navi}) from one exploration step $X_D = \{Q, V\}$ to the next exploration step $X'_D = \{Q', V'\}$ whose query $Q'$ is a recommendation directly derived from $Q$ over the same $D$. $\sessionL{}$ is a 2-tuple $\langle const, s \rangle$ where $const$ is metadata that describes the derivation process of $Q'$ from $Q$, and $s$ is an impact score computed as $s(e) = 1+\sum_{e_c = (n', n_i, \sessionL') \in E} s(e_c)$.
+\end{definition}	 
+
+
+%Note that when $D$ is clear from the context, we omit in what follows the subscript $D$ from $X_D$ and $\sessionGraph{}_{,D}$.
+Note that when $D$ is clear from the context, we omit the subscript $D$ from $X_D$ and $\sessionGraph{}_{,D}$.
+
+Based on this definition, the evolution provenance graph represents the full exploration session made by a user. 
+The utility of each edge (navigation) is measured using a score $s(e)$.
+This score reflects the impact of the transition from an exploration step to another on the rest of the exploration session. 
+Accordingly, the score $s(e)$ is computed as the number of subsequent exploration steps stemming from this navigation $e$ augmented with one.
+
+
+%{\color{Fuchsia}
+Note that the DAG property is an important aspect of the evolution provenance graph. Indeed, using the direction of edges, we can understand the impact of each performed exploration step on the acquirement of knowledge in the rest of the exploration session. Accordingly, we leverage this information as we will show later to recommend exploration steps having high impacts, to users exploring later the same dataset.
+%}
+ The direction property of the DAG is also useful for the storytelling process~\cite{2016_eurovis_clue} where an analyst needs to explain to an audience how such insight was discovered.
+Finally, we point out that the acyclicity property ensured by the DAG, is also an important property in the context of visual data exploration as it maintains the rationale of recommendation by prohibiting suggesting exploration steps already investigated by the user.
+
+		
+	
+
+		
+\begin{example}[Sample evolution provenance graph]
+\label{ex:expo-session}
+Figure~\ref{fig:session} shows an example of evolution provenance graph. It describes a user's exploration session made using \prototype{}.%, the instance of our framework meant to explore data warehouses.
+Nodes in this graph represent exploration steps. Edges in this graph contain two labels: (i)~the first refers to the type of recommended query and the attribute-value pair used do construct the recommendation (cf.~Example~\ref{ex:sampleMatrix}), and (ii)~the second label is the score referring to the number of subsequent explorations reached when traversing this edge.
+The user initially queries the set of delayed flights as described in Examples~\ref{ex:query} and~\ref{ex:VIS}. Later, the user double clicks on state California (see Example~\ref{ex:interaction}) as it has the highest number of delayed flights. This triggers the computation of recommendation visualized in Example~\ref{ex:sampleMatrix}. 
+
+At this stage, the user selects first the \emph{Extension} recommendation with airport of destination query associated to the  $\{(airline\_Id, \{WN,UA,OO,AS\})$ pair. This leads to the generation of node $X_1$ and an edge $e$ from $X_0$ to $X_1$. These information are stored in the evolution provenance graph.   
+Now let us assume that the user goes one step back to explore other recommendations visualized in Example~\ref{ex:sampleMatrix}.  In this case, the edge $e$ from $X_0$ to $X_1$ has an impact score equal to 1 as the exploration step $X_1$ has no subsequent steps. 
+Now, the user inspects two recommendations related to the exploration step $X_0$. This leads to the generation of two new navigations (edge from $X_0$ to $X_2$ and edge from $X_0$ to $X_3$) in the evolution provenance graph. 
+Subsequently, the user continues exploring information related to the result inspected in the step $X_3$. Accordingly, the user navigates to the exploration step $X_4$. 
+Based on user's interactions, the score labeling the edge from $X_0$ to $X_3$  is set to 2, to reflect the number of exploration steps, pursued upon reaching $X_3$, indicating thereby how many potentially interesting steps can be reached from this exploration step.
+\end{example}
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.52]{figures/evoDM/session.pdf}
+\caption{Sample evolution provenance graph}
+\label{fig:session}
+\end{figure}
+
+
+Now, we discuss the mapping process performed to model the flow of information incurred from the automata depicted in Figure~\ref{fig:automata} following our evolution provenance data model.
+This relies mainly on inference rules depicted in Figure~\ref{fig:Evoinf}.
+
+
+
+
+Essentially, our evolution provenance graph maintains a pointer that we call \emph{context}. This latter presents the current entry to expand the provenance graph. Accordingly, any subsequent exploration step performed later, will be considered as a direct descendant of the \emph{context}.
+Our evolution provenance graph is initialized by a first exploration step as specified in the \emph{Initialization} inference rule (shown in Figure~\ref{fig:Evoinf}). This first exploration step is introduced in the evolution provenance graph as a node. It is then designated as a \emph{context}. 
+This latter is updated in the course of the exploration session via inference rules \emph{context update1} and \emph{context update2} when the user performs a navigation of type \emph{interact} or of type \emph{recover} (cf.~Figure~\ref{fig:automata}).
+Finally, the \emph{getNextRec} navigation (cf.~Figure~\ref{fig:automata}) is responsible for the generation of new edges and nodes that will be added to the evolution provenance graph.
+Hence for this particular type of navigation, the user inspects the set of recommendations triples ($L_{T_i}$) output by our framework and selects a particular triple $T_i$ (corresponding to a new recommended exploration step $ES_{new}$) to study next. This leads to the inference of a new node added to the evolution provenance graph (see inference rule \emph{node inference}).
+%{\color{Fuchsia}
+Similarly, a new edge $(context \rightarrow ES_{new})$ between the \emph{context} and the new node corresponding to $ES_{new}$ is added to the evolution provenance graph.
+This is done using the inference rule \emph{edge inference} described in Figure~\ref{fig:Evoinf}.
+%}
+
+
+
+\begin{figure}[t]
+ \centering
+\scalemath{0.8}{
+ \begin{tabular}{lll}
+
+%$E' = \left(E' \setminus \{(p, n, l)\} \right) \cup \{ (p, N_{merged}, updateLabel()) \} $
+ \multicolumn{1}{c}{
+ \staterule{(\textsc{Initialization})}
+  {evolution graph = \emptyset}
+ %{  node (ES_{i}), context= ES_{i}   }
+{  V \leftarrow V \cup \{ES_{i}\}, context  \leftarrow  ES_{i} }
+}
+   &
+      \multicolumn{1}{c}{\staterule{(\textsc{context inference})}
+ {Interact(ES_i)=L_{T_i} }
+%{  context= ES_{i}   }
+{ context  \leftarrow  ES_{i} }
+ }
+  \\ \\
+   \multicolumn{1}{c}{\staterule{(\textsc{context update1 })}
+ {recover(ES_i)=ES_{i-k} }
+%{  context= ES_{i-k}   }
+{ context  \leftarrow  ES_{i-k}  }
+ }
+
+&
+   \multicolumn{1}{c}{\staterule{(\textsc{context update2})}
+% {recover(M_i)=ES_{i-k} }
+  {recover(L_{T_i})=ES_{i-k} }
+%{  context= ES_{i-k}   }
+{ context  \leftarrow  ES_{i-k}  }
+ }
+  \\ \\
+      \multicolumn{1}{c}{\staterule{(\textsc{Node inference})}
+% {getNextRec(M_i)=ES_{new} }
+  {getNextRec(L_{T_i},T_j)=ES_{new} }
+% {node (ES_{new})} 
+{  V \leftarrow V \cup \{ES_{new}\}}
+ }
+&
+      \multicolumn{1}{c}{\staterule{(\textsc{Edge inference})}
+        {getNextRec(L_{T_i},T_j)=ES_{new} }
+% {getNextRec(M_i)=ES_{new} }
+ %{edge(context,ES_{new})} 
+ {  E \leftarrow E' \cup \{(context \rightarrow ES_{new})\}}
+ }
+ \end{tabular}
+}
+
+ \caption{\label{fig:Evoinf}Evolution provenance graph inference rules.}
+ \end{figure}
+
+
+
+Finally, we point out that the evolution provenance graph is stored in a relation database alongside, the visualization resources discussed previously in Section~\ref{subsec:explorStep}.
+
+
+ 
+
+
+
+	\subsection{Multi-user graph}  
+%{\color{Fuchsia}
+The evolution provenance graph above describes the visual data exploration process of a single user. As we shall see when discussing our recommendation algorithms, a graph summarizing multiple exploration sessions made by multiple users can %provide further valuable information. 
+support recommendations based on collaborative-filtering.
+We therefore define such summarized graph, called multi-user exploration graph next as follows.
+%}
+
+%\hou{check that we are using $\usersV{}$ everywhere}
+\begin{definition}[Multi-user exploration graph]
+\label{def:MUg}
+%A multi-user exploration graph $\usersGraph{}(\usersV{}, \usersE{})$ is the result of merging many evolution provenance graphs $\{\sessionGraph{}_1, \ldots, \sessionGraph{}_n\}$. 
+%Formally, a multi-user exploration graph $\usersGraph{}(\usersV{}, \usersE{}) =  \bigcup_{i=1}^n  \sessionGraph{}_i$ where each $\sessionGraph{}_i=(R_{XSi} ,E_{XSi} )$ is an evolution provenance graph.
+%$G_{MU}$ has a surjective map $M$: $ \bigcup_{i=1}^n R_{XSi} \longrightarrow \usersV{}$ such that:\begin{itemize}
+%\item  $\forall e=(n_1,n_2,L) \in E_{XSi},  \exists$ $e^*=(n^*_1,n^*_2,L^*) \in E_{MU}$ such that the metadata of the two edges are similar, i.e. $e.L[const]=e^*.L^*[const]$ and we have two matchings: $M(n_1)=n^*_1$ and $M(n_2)=n^*_2$.
+%\item  $\forall e^*=(n^*_1,n^*_2,L^*) \in E_{MU}$, there exists at least one evolution provenance session graph $\sessionGraph{}_i$ with $n_1,n_2 \in N_{XSi}$ such that $M(n_1)=n^*_1$, $M(n_2)=n^*_2$, $e.L[const]=e^*.L^*[const]$ and $(n_1,n_2,L) \in E_{XSi}$.
+%\item  $\forall n_1 \in R_{XSi}$ and $n_2 \in N_{XSj}$, $M(n_1)=M(n_2)$ implies $i \neq j$.
+A multi-user exploration graph $\usersGraph{}(\usersV{}, \usersE{})$ is the result of merging many evolution provenance graphs $\{\sessionGraph{}_1, \ldots, \sessionGraph{}_n\}$. 
+Formally, a multi-user exploration graph $\usersGraph{}(\usersV{}, \usersE{}) =  \bigcup_{i=1}^n  \sessionGraph{}_i$ where each $\sessionGraph{}_i=(N_{XSi} ,E_{XSi} )$ is an evolution provenance graph.
+$G_{MU}$ has a surjective map $M$: $\bigcup_{i=1}^n \sessionGraph{}_i \longrightarrow \usersGraph{}$ such that:
+\begin{itemize}
+\item  $\forall n \in N_{XSi},  \exists$ $n^* \in \usersV{}$ such that $M(n)=n^*$.
+\item  $\forall e=(n_1,n_2,L) \in E_{XSi},  \exists$ $e^*=(n^*_1,n^*_2,L^*) \in E_{MU}$ such that the metadata of the two edges are similar, i.e. $e.L[const]=e^*.L^*[const]$ and we have two matchings: $M(n_1)=n^*_1$ and $M(n_2)=n^*_2$. 
+\item  $\forall n_1 \in N_{XSi}$ and $n_2 \in N_{XSj}$, $M(n_1)=M(n_2)$ implies $i \neq j$.
+\end{itemize}
+
+\end{definition}  
+The first two properties of the surjective map $M$ ensures that each edge (similarly for node) in an input evolution provenance graphs $\sessionGraph{}_i$ has necessary a corresponding edge (similarly for node) in the multi-user exploration graph $\usersGraph{}$. 
+Finally, the third property of the surjective map $M$ ensures that no two nodes belonging to the same input evolution provenance graph map to the same target node in $\usersGraph{}$.
+
+
+In other words, the multi-user exploration graph of a collection of evolution provenance graphs is a single labeled directed acyclic graph 
+where each node (edge) represents many nodes (edges), each belonging to a different input evolution provenance graph $\sessionGraph{}_i$. $|M^{-1}(n)|$ denotes the set of nodes in $\bigcup_{i=1}^n \sessionGraph{}_i$ that are mapped to a node $n \in \usersV{}$.
+The connectivities and the directions defined in each input $\sessionGraph{}_i$ are maintained in the $\usersGraph{}$.
+ The multi-user exploration graph follows the definition of evolution provenance graphs (see Definition~\ref{def:session}). We merely adjust the definition of edge scores. 
+For an edge $e = (n', n, \sessionL{})$, we compute its score as $ s(e) = 1+|M^{-1}(n)|+\sum_{e_c = (n, n_i, \sessionL) \in E} s(e_c)$. Intuitively, $s(e)$ reflects the frequency of $n$ (the number of exploration steps in the individual graphs that are mapped to $n$) as well as the number of exploration steps reached by this navigation $e$.
+
+
+
+
+\begin{example}[Example of multi-user graph]
+\label{ex:multi-userG}
+Consider another user exploring the same region of data studied in Example~\ref{ex:expo-session} using \prototype{} the instance of our framework \framework{}. The evolution provenance tracking the exploration session of this second user is depicted in Figure~\ref{fig:session2}.
+
+%Towards constructing a multi-user graph, we merge the evolution provenance graph shown in Figure~\ref{fig:session2} with the evolution provenance graph discussed in Example~\ref{ex:expo-session}. Assume in this scenario that our merge approach fuses the following exploration step pairs \{($X_0,X_0'$), ($X_{1},X'_{1}$), ($X_{4},X'_{2}$), and ($X_{3},X'_{4}$)\} into nodes $X_{00}$, $X_{11}$, $X_{42}$, and $X_{34}$ respectively.
+%The resulting multi-user graph is depicted in Figure~\ref{fig:gmu}.
+%Merged exploration steps $ES_{merged}$ are highlighted in red.
+%{\color{Fuchsia}Accordingly, edges $e_{merged}$ pointing to $ES_{merged}$ are also updated (e.g., edge pointing to the node $X_1$). More precisely, we augment impact scores of $e_{merged}$ to reflect the frequency of each item present in $ES_{merged}$}. Consequently, scores of edges pointing to merged exploration steps  $X_{11}$ , $X_{42}$ and $X_{34}$ are increased. 
+Towards constructing a multi-user graph, we merge the evolution provenance graph shown in Figure~\ref{fig:session2} with the evolution provenance graph discussed in Example~\ref{ex:expo-session}. Assume in this scenario that our merge approach fuses the following exploration step pairs \{($X_0,X_0'$), ($X_{1},X'_{1}$), and ($X_{2},X'_{2}$)\} into nodes $X_{00}$, $X_{11}$, and $X_{22}$ respectively.
+The resulting multi-user graph is depicted in Figure~\ref{fig:gmu}.
+Merged exploration steps $ES_{merged}$ are highlighted in red.
+Accordingly, edges $e_{merged}$ pointing to $ES_{merged}$ are also updated (e.g., edge pointing to the node $X_1$). More precisely, we augment impact scores of $e_{merged}$ to reflect the frequency of each item present in $ES_{merged}$. Consequently, scores of edges pointing to merged exploration steps   $X_{11}$ and $X_{22}$ are increased. 
+\end{example}
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.45]{figures/evoDM/session2.pdf}
+\caption{Another example of an exploration session graph}
+\label{fig:session2}
+\end{figure}
+
+
+\begin{figure}[t]
+\centering
+\resizebox {0.8\textwidth} {!} 
+	{
+  \begin{tikzpicture}[-latex, auto, node distance = 4 cm and 5cm, on grid, semithick, state/.style ={circle, top color = white, bottom color = processblue!20, draw, processblue, text = blue, minimum width = 0.7 cm}, fused_state/.style = {circle, top color = white, bottom color = antiquebrass!40, draw, antiquebrass, text = black, minimum width = 0.7 cm}, edge_style/.style = {draw = processblue!60, dashed}, alt_state/.style = {circle,  top color = white, bottom color = processblue!60, draw, Emerald, text = black, minimum width = 0.7 cm},alt_state2/.style = {circle,  top color = white, bottom color = Emerald!60, draw, Emerald, text = black, minimum width = 0.7 cm}]
+
+
+						\node[fused_state] (X0) at (-2, 9.2) {$X_{00}$};
+						\node[fused_state] (X1) at (-2, 2.5) {$X_{11}$};
+						\node[fused_state] (X2) at (3.8, 4.2) {$X_{22}$};
+						\node[alt_state2] (X4) at (9.5, 8) {$X_{4}$};	
+						\node[alt_state2] (X3) at (4.2, 8.2) {$X_{3}$};
+						\node[alt_state] (X'3) at (10, 5)  {$X'_{3}$};
+						
+						\node[alt_state] (a) at (12, 5)  {$$};
+						\node[alt_state2] (a) at (12, 6)  {$$};
+						\node[fused_state] (a) at (12, 7)  {$$};
+						\node[text width=2.5cm] at (14, 5) {   nodes from $G_1$};
+						\node[text width=2.5cm ] at (14, 6) {  nodes from $G_2$};
+						\node[text width=2.5cm] at (14, 7) {  merged nodes};
+
+					\path [every node/.style={sloped,anchor=south,auto=false}] (X0) edge node[above,sloped] {$Extension-airport(airlineId),2>$} (X1);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (X0) edge node[above,sloped] {$<Extension-airport(airlineId),3>$} (X2);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (X0) edge node[above,sloped] {$<Zoom-In Slice(airlineId),2>$} (X3);
+			
+						\path [every node/.style={sloped,anchor=south,auto=false}] (X3) edge node[above,sloped] {$<Zoom-In Slice(year),1>$} (X4);
+
+					\path [every node/.style={sloped,anchor=south,auto=false}] (X2) edge node[above,sloped] {$<Zoom-In Slice(distance),1>$} (X'3);
+
+						
+			
+					\end{tikzpicture}	
+					}
+%\caption{Example of multi-user graph (with nodes in green color belong to graph $G_1$ depicted in Figure~\ref{fig:session}, nodes in blue belong to graph $G_2$ depicted in Figure~\ref{fig:session2}, and nodes in red color are result of the merge process)}
+\caption{Example of multi-user graph}
+\label{fig:gmu}
+\end{figure}

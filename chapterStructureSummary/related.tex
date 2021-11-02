@@ -1,0 +1,35 @@
+This section reviews research in fields related to our work, i.e., provenance summary and schema inference and integration.
+\subsection{Summary of provenance traces}
+Several strategies have been proposed to simplify a single provenance trace.
+One of them is the temporal-based strategy which was widely adopted by many works including~\cite{Bork13,Stitz:2016}. 
+%\mel{how it is working? briefly}
+This strategy consists of clustering provenance information that was tracked in the same time frame. While this strategy reduces successfully the complexity when dealing with one provenance trace, it does not apply on a set of provenance traces collected at different periods.
+
+Other strategies include semantic summaries~\cite{Ainy:2015,OliveiraMOOB16,KoopFS13}.
+These require expert knowledge to define semantic mappings between provenance components. The same holds for the user-defined summaries~\cite{MissierBGCD14,Biton:2007}, where sufficient user knowledge about the processed provenance trace is required to appropriately perform grouping operations.
+
+Template-based summarization consists in merging sub-parts of an analyzed provenance trace when they have the same shape (template)~\cite{Stitz:2016}. However, the specification of these templates is left to users, i.e., they have to specify patterns they expect in their provenance traces that can be collapsed in a simplified visualization.
+In the same context, Moreau et al.~\cite{Moreau15} propose a parametric summary solution that compresses firstly paths of size $k$ and then merges compressed paths having the same shapes. While this solution could be applied on a set of provenance traces, it is still unclear how to set a reasonable value of $k$ that generates a concise summary neither too general nor too specific.
+
+
+
+
+Finally, approaches such as~\cite{Moreau18,Curcin:2017} declare a template subsequently collected provenance follows. This template can be seen as a static summary that is independent of the set of analyzed provenance traces. 
+Opposed to generating a static summary, our approach considers actual provenance traces and exposes their similarities and differences. Our approach reveals also which parts of the static summary are actually covered by the set of analyzed provenance traces. 
+
+
+
+
+%Overall, our work differs from discussed works in two main aspects: (i)~most of the discussed works rely on expert knowledge to summarize provenance. This is not required using our approach; (ii)~opposed to approaches generating provenance templates using a top-down approach, we follow a bottom-up strategy to infer structures from analyzed provenance traces.
+
+\subsection{Schema inference and schema integration}
+Our approach is close in spirit to schema inference, where given a set of datasets, a common, generalized schema in a predefined data model is derived. Given our focus on semi-structured W3C PROV provenance traces, our work is closely related to schema inference for XML and JSON data~\cite{hegewald:icdews06,baazizi2017}.
+
+Our work is also related to schema integration, especially for semi-structured data~\cite{chiticariu:sigmod08}  where, given a set of schemas, a unified schema is determined. This latter covers all concepts and properties of the input schemas and correctly models the constraints defined in these input schemas.  
+
+While the above methods may complement our approach, they are left for future research. In particular, integrating such techniques requires to further investigate the information loss and associated impact on analytical applications on provenance traces.
+Our current focus lies on inferring a structural summary that reports primitive types of provenance components and that highlights dependencies (an important aspect for provenance analysis) between inferred structures. 
+%\mel{not convincing}
+
+
+

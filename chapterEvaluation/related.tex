@@ -1,0 +1,233 @@
+In the following, we review most relevant research area related to our three main contributions: content-based query recommendation, visual recommendation and content-based query recommendation.\\
+\noindent \textbf{Query recommendation.} 
+Visual data exploration tools support users in investigating data by providing facilities to express queries and to visualize their results. However, visual data exploration remains a tedious process and users may likely overlook important phenomena especially when analyzing large datasets.
+To this end, recent visual data exploration tools~\cite{BHBK18:Demo,Milo:2018,Tang:2017,Vartak,Wongsuphasawat:2017} offer recommendations to assist users in querying and in visualizing interesting regions of the data.
+
+In general, these work employ either content-based or collaborative filtering recommendation techniques. 
+In the collaborative filtering approach, they rely on a set of previous explorations made by multiple users to identify prior exploration queries worth of recommending to the current user. 
+Examples include for instance REACT~\cite{Milo:2018} that provides collaborative recommendations based on previous queries made by users exploring various data sets. 
+ 
+ Considering systems relying on content-based recommendation (e.g.,~\cite{Sellam:16,Tang:2017,Vartak,Wongsuphasawat:2017}), these base their recommendations on prior queries of the same user to find sub-regions highly interesting to the user's context.
+%Yet, it remains unclear how prior explorations over various data sets can provide an accurate recommendation compared to a data set-specific history. 
+To the best of our knowledge, there is no existing visual data exploration systems that blend the two recommendation techniques (content and collaborative). 
+%This holds also for our \prototype{} system~\cite{Houssem:17:tapp,BHBK18:Demo}, that recommends queries together with appropriate visualizations during the interactive exploration of data stored in a data warehouse. 
+%Indeed, \prototype{} relies so far solely on content-based recommendations, recommending queries based on a user?s past interactions over previously seen explorations. Each recommended query is associated with a score that quantifies its potential interestingness.
+Indeed, \prototype{} is considered as the first visual data exploration system that combines content-based and collaborative-filtering techniques to recommend interesting queries.
+Initially, we have presented in Section.~\ref{content-query-rec} our content-based approach that uses data provenance to recommend queries strongly related to the content of data regions explored by the user. Subsequently, we have presented in Section.~\ref{collaborative-query-rec} our collaborative-filtering approach. Essentially, we leverage the evolution provenance aggregated continuously into a global multi-user. This latter is used to compute recommendations for next exploration steps by first searching exploration steps similar to a user's current step in the global graph and then recommending and scoring steps adjacent to those in the global graph. \\
+
+
+
+
+
+\noindent \textbf{Visual recommendation.}   
+%Mackinlay developed a formal language to generate graphical presentations for relational information and defined expressiveness: whether a graphical language can express the desired information, and effectiveness: whether the graphical language exploits the capabilities of the output medium and the human visual system [Mackinlay 1986].
+%Card and Mackinlay categorized data in terms of its attributes (e.g., nominal, ordinal, quantitative) and analyzed their mapping to visual variables in scientific visualizations [Stuart and Jock 1997].
+
+Several prior work have focused on recommending visualizations given a query result to investigate.
+Based on previous work of Cleveland et al on graphical perception~\cite{Cleveland.McGill1984}, Mackinlay's APT~\cite{Mackinlay86} proposes a formal language to generate suitable visualizations. This latter leverages two metrics to prune and rank visualization candidates. The expressiveness metric verifies whether a visualization expresses all the desired information and nothing else. The effectiveness metric determines whether a visualization effectively conveys the information in a way more readily perceived than other visualizations.
+%\hou{est ce je utilise les expressiveness and effectiveness? ou seulement effectiveness}\\
+%\hou{yes, the built-in design constraints represent the expressiveness criteria while the visual encoding rankings represent the effectiveness criteria.}
+
+Many systems build on Mackinlay's approach~\cite{Mackinlay86}.
+For instance, Voyager~\cite{Wongsuphasawat2016} adopts the same metrics (expressiveness and effectiveness) to recommend visual encodings. Similarly, Show Me proposed in~\cite{Mackinlay:2007}, applied APT~\cite{Mackinlay86}  to help analysts generate appropriately visualizations. However, these aforementioned approach are limited to question answer processes where users specifies the input data and get as a result the suitable visualization to inspect results.
+This does not fit the context of visual data explorations where users are exposed to many visualizations. Indeed, adopting only expressiveness and effectiveness metrics, may lead to the generation of inconsistent visualization within the same exploration session. This may disturb the interpretation of results and leads thereby to misleading interepretations. To this end, we adopt a third metric to recommend visualizations.  Our third metric is the consistency. This metric is inspired by Wu et al~\cite{Qu:2016:EVS}
+ where authors in~\cite{Qu:2016:EVS} propose a set of rules to avoid and minimize conflicts between rendered visualizations. 
+ %Based on that, our goal is to recommend consistent visualizations within an exploration session and increase thereby user's perception by avoiding conflicts.
+Inspired by this work~\cite{Qu:2016:EVS}, we adopt a third metric of consistency visualizations where we maximize the use of visual encodings already constructed in previous visualization. This allows users to more easily recognize information seen earlier, potentially increasing the understandability and the efficiency of visual data exploration.
+
+In a similar approach, VizRec~\cite{Mutlu:2016} mixed metrics proposed in APT with the collaborative-filtering recommendation strategy to recommend visualizations. 
+This approach differs from our approach in two main points: (i) they use tags to describe the content of visualizations while we leverage the evolution provenance to get visualizations content; (ii) authors in~\cite{Mutlu:2016} leverage previous users ratings over visualizations to find previous users with similar preferences to the active user while we focus only on prior visualizations of the active user. 
+While the above method may complement our visual recommendation approach, it is left for future research.
+ %Indeed, this system takes into account previous users ratings over visualizations and matches current user rating with previous users profile. Based on matched information, the VizRec~\cite{Mutlu:2016} improves the visual encoding of the recommended visualization. \hou{interesting avenue of research}
+
+
+\noindent \textbf{Visual and query recommendation.} 
+Most data and visualization recommendation techniques work independently from one another, meaning that the result of query recommendation, i.e., the data set $Q'(D)$ returned by executing a recommended query $Q'$ over $D$, has no impact on the visualization recommendation process, and vice versa. This becomes apparent in Tab.~\ref{tab:rw} that summarizes works most closely related to ours. For each approach, it describes (i)~the expressiveness of input queries (e.g., select-project-join (SPJ) queries, select-project-aggregate (SPA) queries, or cube queries corresponding to SPJA queries), (ii)~the type of recommended output queries, (iii)~the information used to compute query recommendations, (iv)~ the type of recommended visualization, and (v)~the information used to compute visualization recommendations. This summary clearly shows that there is a gap between query recommendation systems such as YmalDB~\cite{Drosou2013}, SeeDB~\cite{Vartak},Ziggy~\cite{Sellam:16},~\cite{Tang:2017} or REACT~\cite{Milo:2016} for expressive data exploration on the one hand, and visualization recommendation systems %such as Voyager~\cite{Wongsuphasawat2016,DBLP:conf/chi/WongsuphasawatQ17} and Tableau's.
+such as VisRec~\cite{Mutlu:2016}, Voyager~\cite{Wongsuphasawat2016,Wongsuphasawat:2017} and Tableau's Show Me~\cite{Mackinlay:2007} on the other hand. Indeed, whereas the former may support the full range of typical OLAP queries, they do not offer any visualization recommendation. 
+
+Typically, there is a one to one mapping between the result relation and a displayed table~\cite{Drosou2013,Milo:2016} or bar chart~\cite{Vartak}. Opposed to that, visualization recommendation solutions typically offer no or very limited support for query recommendation. 
+\begin{table}[h]
+ \centering \scriptsize
+ \begin{tabular}{|p{2cm}||p{0.5cm}|p{0.9cm}|p{1.9cm}||p{0.9cm}|p{1.2cm}|} \hline
+\textbf{System} & \textbf{input query} & \textbf{recom. query} & \textbf{input for query recom.} & \textbf{recom. vis.} & \textbf{input for vis. recom.} \\ \hline
+YmalDB~\cite{Drosou2013} & SPJ & SPJ & $D$, $Q(D)$ & - & - \\ \hline
+SeeDB~\cite{Vartak} & cube & sub-cube &  $D$, $Q(D)$ & - & -  \\ \hline
+Ziggy~\cite{Sellam:16} & SJ & SPJ &  metadata of $D$ (schema, statistics), $Q(D)$ & - & -  \\ \hline
+~\cite{Tang:2017} & cube & sub-cube &  $D$, $Q(D)$ & - & -  \\ \hline
+%Muve~\cite{Tang:2017} & cube & sub-cube &  $D$, $Q(D)$ & - & -  \\ \hline 
+%DIVE~\cite{Tang:2017} & cube & sub-cube &  $D$, $Q(D)$ & - & -  \\ \hline
+REACT~\cite{Milo:2016,Milo:2018} & cube & OLAP queries & previous exploration sessions' query history & - & - \\ \hline
+Show Me~\cite{Mackinlay:2007}& SPA & - & - & diverse & data types \\ \hline
+VisRec~\cite{Mutlu:2016}& SPA & - & - & diverse & data types, previous users history \\ \hline
+ Voyager~\cite{Wongsuphasawat2016,Wongsuphasawat:2017} & SPA & Changed SELECT-clause & $D$, $Q$, metadata of $D$ (schema, statistics) &  diverse & data types, visual encoding channels  \\ \hline
+ \textbf{\prototype} & \textbf{cube} & \textbf{OLAP queries} & \textbf{$D$,  $Q$, data \& evolution provenance}  & \textbf{diverse} & \textbf{$Q(D)$, evolution provenance} \\ \hline
+\end{tabular}
+\caption{Summary of data exploration systems leveraging query recommendation or visualization recommendation}
+ \label{tab:rw}
+ \end{table}
+ 
+To conclude, to the best of our knowledge, our system \prototype\ is the first visual data exploration system that bridges the gap between these two approaches. 
+
+
+
+%\subsubsection*{Content-based query recommendation.}   
+%Prior work has also investigated statistical techniques to aid data field selection for a fixed set of encoding templates. SeeDB [138] calculates deviation scores between data subsets to recommend aggregate views. Quality metrics [32] and scagnostics-based techniques (e.g., [23, 147]) can also help identify interesting data fields. However, the use of fixed visualization templates limits the utility of these tools for exploratory analysis. 
+%
+%\subsubsection*{Collaborative-filtering query recommendation.}   
+%Prominent works in this area belong to two classes (i) systems that assist SQL query formulation with limited visual interaction facilities and (ii) visual data exploration systems that provide recommendations to assist users in browsing visually through interesting data. 
+%
+%The first class includes several approaches, e.g.,~\cite{Eirinaki14,Khoussainova:2010} that employ collaborative recommendation to assist users (lacking SQL knowledge) in writing queries. Yet, these works rely on a basic form of history traditionally presented as a serial trace, whereas we focus on interactive visual exploration whose history contains various users' navigations and forms thereby a direct graph. Accordingly, we benefit from our rich history model  to infer ratings of exploration steps (via edges' scores), used later in our collaborative-filtering recommendation framework. 
+%
+%
+%
+%For the second class of collaborative recommendation work, we find REACT~\cite{Milo:2018} that uses prior explorations made by users exploring various data sets to provide collaborative recommendations.
+%While REACT leverages the history of users' explorations over different datasets to mitigate the problem of cold-start e.g., absence of history about the explored data set, our work remedies the cold-start situation by providing both content and collaborative recommendations. 
+
+
+\noindent \textbf{Graph matching.}  
+
+Our collaborative filtering recommendation approach analyzes previous users' explorations to match the current exploration. A straightforward solution would be to use top-k similar graphs techniques e.g.,~\cite{Zhu:2012} to find previous exploration sessions having excerpts highly similar to the current exploration. 
+Yet, this strategy requires the traversal of all individual previous exploration session graphs that may encompass redundancy. This is costly and does not fit our interactive visual data exploration context. Accordingly, we adopt a top-k similar items search strategy to provide recommendations. 
+This strategy is applied to our compact multi-user graph that is periodically maintained. We show in Sec.~\ref{subsec:child-parent} that the high connectivity incurred by the incremental merge of the multi-user graph improves the top-k similar items search.
+
+\noindent \textbf{Graph merging.}  
+ 
+Our merge approach used to update iteratively the multi-user graph, fits in the scope of inexact matching where two exploration queries are matched if they are highly similar.
+Traditionally, inexact matching is presented as an assignment problem where a cost function is introduced to compute the optimal assignment.
+This leads to two formulations of the graph matching problem. 
+The first formulation called Linear Sum Assignment Problem, considers only information about the vertices. Several Hungarian-type algorithms~\cite{Kuhn55thehungarian,JonkerV87} exist to solve these kind of problems. 
+ However, applying these solutions to our directed exploration session graphs may lead to cycles as shown in Paragraph.~\ref{sec:fuse-cycles}.
+ 
+The second formulation, called quadratic assignment problem (QAP)~\cite{RePEc:cwl} leverages vertices and edges information.
+Indeed, it aims at minimizing the number of adjacency disagreements between the two matched graphs. % and the proposed matching.
+Yet, it was proven in~\cite{rainier:09} that QAP is NP-Hard, and some approximate solutions can be found in polynomial time. 
+Compared with the QAP formulation, our work is more oriented to graphs integration rather than matching. 
+Thus, we aim at maximizing the integration of a small graph representative of a user exploration on a bigger graph corresponding to the multi-users graph.
+This ``one-way matching'' relieves the complexity of the tackled problem. 
+Hence, we match initially the user 's exploration graph nodes to the global graph in order to identify seed pair vertices whose children are later matched recursively.
+
+ 
+ 
+
+\noindent \textbf{Graphs Summary.}  
+ Our merge approach used to update iteratively the multi-user graph, relates also to the graph summarization area where several approaches surveyed in~\cite{Liu:2018:GSM} were proposed to generate a graph summary beneficial for several purposes, e.g., efficient storage and query processing. While these work focus mainly on compressing  all similar nodes inside the same graph or between homogeneous graphs, we focus only on performing a 1:1 merge of two similar nodes belonging to different graphs. Indeed, our goal is to increase connectivity between individual user exploration sessions rather than compressing the multi-users graph. Yet, graph summary techniques could be an interesting research avenue to further minimize our multi-user graph.
+
+
+\noindent \textbf{Quantification of recommendation.}   
+%\hou{See Muve paper}
+%Diversification adopted by Muve and Ziggy\\
+%Ziggy utility cosutomized function\\
+%isights also has two functions
+%SeeDB
+
+Traditionally, visual data exploration systems adopt a common approach where candidates for recommendation (data regions or queries) undergo a quantification process to evaluate their interestingness.
+To do that, several quantitative metrics were proposed e.g.~\cite{Sellam:16,Vartak,Tang:2017}.
+
+Among those metrics, recent case studies done in~\cite{Vartak} have shown that a deviation-based metric is able to identify interesting recommendations.
+Based on the definition available in~\cite{Ehsan:18}, the deviation-based metric measures the distance between data region $D(Q)$ versus the entire database $D$, where $D(Q)$ denotes the candidate data region whose interestingness is under investigation.
+
+In contrast to previous approaches e.g.~\cite{Vartak,Ehsan:18} that leverage the deviation to identify queries worth recommending, we use this metric to quantify our recommended queries already computed based on the approach discussed in Section.~\ref{content-query-rec}.  
+
+In a second phase of quantification, we use the collaborative-filtering recommendation approach to update interestingness quantification made so far using the deviation metric. 
+Hence, our collaborative-filtering recommendation approach assigns scores for each recommendations. These scores reflects the popularity of recommendation e.i, how many times it was inspected previously by users. These scores reflects also the knowledge impact of recommendations. This is done by mining the multi-user graph maintained by \prototype{} to retrieve the set of adjacent explorations that could be performed once we investigate the evaluated recommendation.
+
+
+
+%Towards automated visual data exploration, recent approaches have been proposed for recommending interesting visualizations based on some objective, well-defined quantitative metrics (e.g., [19], [20], [30], [31]). 
+%Among those metrics, recent case studies have shown that a deviation-based metric is able to provide analysts with interesting visualizations that highlight some of the particular trends of the analyzed datasets [31].
+%Among those metrics, recent case studies done in~\cite{Vartak} have shown that a deviation-based metric is able to provide analysts with interesting recommendations.
+%In particular, the deviation-based metric measures the dis- tance between Vi ðDQ Þ and Vi ðDB Þ. That is, it measures the deviation between the aggregate view Vi generated from the subset data DQ versus that generated from the entire database DB, where ViðDQÞ is denoted as target view, whereas ViðDBÞ is denoted as comparison view. 
+
+%%%%%%%%%%%%%TApp%%%%%%%%%%
+%As mentioned in the introduction, visual data exploration systems either rely on query recommendation or visualization recommendation. Opposed to \prototype\ that considers both types of recommendations, most data and visualization recommendation techniques work independently from one another, meaning that the result of query recommendation, i.e., $Q'(D)$ has no impact on the visualization recommendation process, and vice versa. 
+%
+%Tab.~\ref{tab:rw} provides a quick overview of works most closely related to ours. For each approach, it describes (1)~the supported types of input queries (e.g., select-project-join (SPJ) queries, project-aggregate (PA) queries, or cube queries corresponding to SPJA queries), (2)~the type of recommended output queries, and (3)  the type of recommended or used visualization. We observe that while query recommendation systems such as YmalDB~\cite{Drosou2013}, SeeDB~\cite{Vartak}, or REACT~\cite{Milo:2016} allow for expressive data exploration by supporting (mostly) the full range of typical OLAP queries, they do not offer any visualization recommendation and simply use predefined visualization (table or bar chart). Opposed to that, visualization recommendation systems such as Voyager~\cite{Wongsuphasawat2016} do not yet offer or have only very limited support for query recommendation. Our system aims at bridging the gap between these two approaches. In addition, to the best of our knowledge, \prototype\ is the first system that considers data provenance and evolution provenance during its recommendation processes. 
+%
+%    \begin{table}[t]
+% \centering \scriptsize
+% \begin{tabular}{|@{}p{3.8cm}@{}|@{}c@{}|@{}c@{}|@{}c@{}|} \hline
+% \textbf{System} & \textbf{input } & \textbf{recom. } &  \textbf{recom.} \\ 
+%  & \textbf{ query} & \textbf{query} &  \textbf{vis.} \\ 
+% \hline
+%  YmalDB \cite{Drosou2013} & SPJ & SPJ &   table  \\ \hline
+% SeeDB \cite{Vartak} & cube & sub-cube & bar chart  \\ \hline
+% REACT \cite{Milo:2016} & cube & OLAP queries & table   \\ \hline
+% Voyager \cite{Wongsuphasawat2016} &PA & Changed SELECT-clause &  diverse  \\ \hline
+%% \textbf{\prototype} & \textbf{cube} & \textbf{OLAP queries} & \textbf{bar chart} \\ \hline
+%
+%\end{tabular}
+% \caption{Summary of related work}
+% \vspace{-0.4cm}
+% \label{tab:rw}
+% \end{table}
+
+
+%%%%%%%%%%%%%EDBT%%%%%%%%%%
+%\noindent \textbf{State-of-the-art.} Most data and visualization recommendation techniques work independently from one another, meaning that the result of query recommendation, i.e., the data set $Q'(D)$ returned by executing a recommended query $Q'$ over $D$, has no impact on the visualization recommendation process, and vice versa. This becomes apparent in Tab.~\ref{tab:rw} that summarizes works most closely related to ours. For each approach, it describes (i)~the expressiveness of input queries (e.g., select-project-join (SPJ) queries, select-project-aggregate (SPA) queries, or cube queries corresponding to SPJA queries), (ii)~the type of recommended output queries, (iii)~the information used to compute query recommendations, (iv)~ the type of recommended visualization, and (v)~the information used to compute visualization recommendations. This summary clearly shows that there is a gap between query recommendation systems such as YmalDB~\cite{Drosou2013}, SeeDB~\cite{Vartak}, or REACT~\cite{Milo:2016} for expressive data exploration on the one hand, and visualization recommendation systems %such as Voyager~\cite{Wongsuphasawat2016,DBLP:conf/chi/WongsuphasawatQ17} and Tableau's.
+%such as Voyager~\cite{Wongsuphasawat2016,DBLP:conf/chi/WongsuphasawatQ17} and Tableau's Show Me~\cite{Mackinlay:2007} on the other hand. Indeed, whereas the former may support the full range of typical OLAP queries, they do not offer any visualization recommendation. Typically, there is a one to one mapping between the result relation and a displayed table~\cite{Drosou2013,Milo:2016} or bar chart~\cite{Vartak}. Opposed to that, visualization recommendation solutions typically offer no or very limited support for query recommendation. 
+%\begin{table}[H]
+% \centering \scriptsize
+%  \resizebox{0.47\textwidth}{!}{
+% \begin{tabular}{|p{1.1cm}||p{0.5cm}|p{0.9cm}|p{1.4cm}||p{0.5cm}|p{1.2cm}|} \hline
+%\textbf{System} & \textbf{input query} & \textbf{recom. query} & \textbf{input for query recom.} & \textbf{recom. vis.} & \textbf{input for vis. recom.} \\ \hline
+%YmalDB~\cite{Drosou2013} & SPJ & SPJ & $D$, $Q(D)$ & - & - \\ \hline
+%SeeDB~\cite{Vartak} & cube & sub-cube &  $D$, $Q(D)$ & - & -  \\ \hline
+%REACT~\cite{Milo:2016} & cube & OLAP queries & previous exploration sessions' query history & - & - \\ \hline
+%Show Me~\cite{Mackinlay:2007}& SPA & - & - & diverse & data types \\ \hline
+% Voyager~\cite{Wongsuphasawat2016,WongsuphasawatQ17} & SPA & Changed SELECT-clause & $D$, $Q$, metadata of $D$ (schema, statistics) &  diverse & data types, visual encoding channels  \\ \hline
+% \textbf{\prototype} & \textbf{cube} & \textbf{OLAP queries} & \textbf{$D$,  $Q$, data \& evolution provenance}  & \textbf{diverse} & \textbf{$Q(D)$, evolution provenance} \\ \hline
+%\end{tabular}}
+%\caption{Summary of data exploration systems leveraging query recommendation or visualization recommendation}
+% \label{tab:rw}
+% \end{table}
+ 
+ 
+
+%%%%%%%%%%ADBIS%%%%%%%%%%%%
+%In the following, we review most relevant research area related to our two main contributions: exploration sessions merge and the collaborative recommendation.
+%
+%\subsubsection*{Collaborative query recommendation.}   
+%Prominent works in this area belong to two classes (i) systems that assist SQL query formulation with limited visual interaction facilities and (ii) visual data exploration systems that provide recommendations to assist users in browsing visually through interesting data. 
+%
+%The first class includes several approaches, e.g.,~\cite{Eirinaki14,Khoussainova:2010} that employ collaborative recommendation to assist users (lacking SQL knowledge) in writing queries. Yet, these works rely on a basic form of history traditionally presented as a serial trace, whereas we focus on interactive visual exploration whose history contains various users' navigations and forms thereby a direct graph. Accordingly, we benefit from our rich history model  to infer ratings of exploration steps (via edges' scores), used later in our collaborative-filtering recommendation framework. 
+%
+%
+%
+%For the second class of collaborative recommendation work, we find REACT~\cite{Milo:2018} that uses prior explorations made by users exploring various data sets to provide collaborative recommendations.
+%While REACT leverages the history of users' explorations over different datasets to mitigate the problem of cold-start e.g., absence of history about the explored data set, our work remedies the cold-start situation by providing both content and collaborative recommendations. 
+%
+%
+%\subsubsection*{Graph matching.}  
+%
+%Our collaborative filtering recommendation approach analyzes previous users' explorations to match the current exploration. A straightforward solution would be to use top-k similar graphs techniques e.g.,~\cite{Zhu:2012} to find previous exploration sessions having excerpts highly similar to the current exploration. 
+%Yet, this strategy requires the traversal of all individual previous exploration session graphs that may encompass redundancy. This is costly and does not fit our interactive visual data exploration context. Accordingly, we adopt a top-k similar items search strategy to provide recommendations. 
+%This strategy is applied to our compact multi-user graph that is periodically maintained. We show in Sec.~\ref{subsec:child-parent} that the high connectivity incurred by the incremental merge of the multi-user graph improves the top-k similar items search.
+%
+%\subsubsection*{Graph merging.}  
+% 
+%Our merge approach fits in the scope of inexact matching where two exploration queries are matched if they are highly similar.
+%Traditionally, inexact matching is presented as an assignment problem where a cost function is introduced to compute the optimal assignment.
+%This leads to two formulations of the graph matching problem. 
+%The first formulation called Linear Sum Assignment Problem, considers only information about the vertices. Several Hungarian-type algorithms~\cite{Kuhn55thehungarian,JonkerV87} exist to solve these kind of problems. 
+% However, applying these solutions to our directed exploration session graphs may lead to cycles as shown in Sec.~\ref{sec:fuse-cycles}.
+%The second formulation, called quadratic assignment problem (QAP)~\cite{RePEc:cwl} leverages vertices and edges information.
+%Indeed, it aims at minimizing the number of adjacency disagreements between the two matched graphs. % and the proposed matching.
+%Yet, it was proven in~\cite{rainier:09} that QAP is NP-Hard, and some approximate solutions can be found in polynomial time. 
+%Compared with the QAP formulation, our work is more oriented to graphs integration rather than matching. 
+%Thus, we aim at maximizing the integration of a small graph representative of a user exploration on a bigger graph corresponding to the multi-users graph.
+%This ``one-way matching'' relieves the complexity of the tackled problem. 
+%Hence, we match initially the user 's exploration graph nodes to the global graph in order to identify seed pair vertices whose children are later matched recursively.
+%
+% 
+% 
+%
+% \subsubsection*{Graphs Summary.}  
+% Our merge approach also relates to the graph summarization area where several approaches surveyed in~\cite{Liu:2018:GSM} were proposed to generate a graph summary beneficial for several purposes, e.g., efficient storage and query processing. While these work focus mainly on compressing  all similar nodes inside the same graph or between homogeneous graphs, we focus only on performing a 1:1 merge of two similar nodes belonging to different graphs. Indeed, our current goal is to increase connectivity between individual user exploration sessions rather than compressing the multi-users graph. Yet, graph summary techniques could be an interesting research avenue to further minimize our multi-user graph.
+%
+% %This increase the efficiency of our pruning rule proposed in Sec.\ref{subsec:child-parent}). Yet, graphs summary techniques could certainly be used to further minimize our multi-user graph.
+
+
+
+
+
+    

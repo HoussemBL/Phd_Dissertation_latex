@@ -1,0 +1,34 @@
+\section{Introduction}
+\sloppy
+
+
+We have seen in Chapter~\ref{chap:overview} that our framework \framework{} relies on provenance, i.e.,~meta-data about a user's exploration process to determine and quantify recommended queries and visualizations. This chapter now introduces the novel provenance model that allows us to provide such interrelated recommendations.   
+This relies mainly on formalizations and definitions elaborated in our work~\cite{Houssem:17:tapp,Houssem:19:adbis}.
+
+For that, we discuss first in Section~\ref{sec:evo-DM-related} existing evolution provenance data models. Then, we introduce in Section~\ref{sec:evo-core} the evolution provenance data model adopted in our framework \framework{}.  
+%Finally, we conclude this chapter before introducing for the next chapter.
+
+\section{State of the art of evolution provenance}
+\input{chapterEvoDM/EvoDM-related}
+
+\section{Evolution provenance data model representation}
+\input{chapterEvoDM/evoDM-core}
+
+
+%\section{Evolution provenance dissemination in visual computing}
+%\input{chapterEvoDM/evoDM-examples}
+
+
+\section{Conclusion}
+In this chapter, we formalized the evolution provenance model adopted in our visual data exploration framework \framework{}. 
+Our novel evolution provenance model ensures the collection of visualization-related properties as well as query-related properties inferred through visual data exploration processes.
+It is worth stressing that the evolution provenance is the basis on which recommendations shall be computed in our framework. Accordingly, we show in the next chapter how such provenance can indeed be used for recommendations.
+This is done by devising algorithms specialized to the exploration of data stored in data warehouses.
+
+
+Finally, we point out that our evolution provenance model was also adopted in the context of interactive analysis of dynamic graphs. 
+ Further details about the incorporation of our evolution provenance model in the context of dynamic graphs are available in~\cite{Bruder2019}.
+
+
+
+

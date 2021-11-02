@@ -1,0 +1,95 @@
+%To achieve our overarching goal of provenance-based visual data exploration, we answer the following questions in this thesis: 
+%(i) can we offer users a holistic visual data exploration framework that assists them in the whole process of the visual data exploration?
+%(ii) which data model should we adopt to capture provenance through the visual data exploration process?, (iii) which methods should we adopt to analyze provenance? (iv) how can we leverage provenance to support users in the whole process of visual data exploration with various recommendations? 
+
+To address the problems mentioned above, this thesis makes the following contributions.
+
+\bigskip 
+\noindent \textbf{Proposal of an evolution provenance model.} 
+Any recommendation algorithm requires data to determine what users may be interested in. To recommend next queries and visualizations to users in the course of visual data exploration process, we collect provenance of (previous) user explorations made by same or other users. 
+This meta-data about user exploration sessions comprises users' queries, users' interactions and visual encoding parameters of rendered visualizations. We call it \emph{evolution provenance}.
+We describe later the evolution provenance model, which has been published in the following paper.
+\begin{itemize}
+\item \cite{Houssem:17:tapp}: H. Ben Lahmar, M. Herschel, \emph{Provenance-based recommendations for visual data exploration}, in the USENIX Workshop on the Theory and Practice of Provenance, TaPP, 2017.
+
+\end{itemize}
+We point out that our evolution provenance model is general enough to capture different visual exploration use cases, as demonstrated by its adoption in the following paper.
+
+\begin{itemize}
+\item \cite{Bruder2019}: V. Bruder, H. Ben Lahmar, M. Hlawatsch, S. Frey, M. Burch, D. Weiskopf, M. Herschel , T. Ertl, \emph{Volume-Based Large Dynamic Graph Analysis Supporting Evolution Provenance}, in the Multimedia Tools and Applications Journal, MTAP, 2019.
+\end{itemize}
+ 
+
+ \bigskip 
+ \noindent \textbf{Provenance-based recommendation approaches.} We aim in this thesis at bridging the gap between visual and query recommendation for visual data exploration to provide a more efficient visual data exploration experience.
+To this end, we propose several recommendation approaches that assist users in the whole process of visual data exploration. More specifically, we propose three recommendation approaches that are: (i)~content-based query recommendation, (ii)~collaborative-filtering query recommendation, and (iii)~visualization recommendation. The content-based query recommendation approach leverages data provenance of users' interactions to identify information strongly related to users' current focus. Beside taking into account users' proper interests (via content-based query recommendation approach), we propose a novel query recommendation approach to take also into account global trends commonly opted previously by several users. This corresponds to our collaborative-filtering query recommendation approach.
+ To support collaborative-filtering recommendations, we propose several techniques to incrementally merge evolution provenance records, which describe individual user exploration sessions, into a global graph. 
+Finally, we propose a visualization recommendation approach that recommends suitable visualizations to render query results. To do that, our visual recommendation approach leverages evolution provenance that tracks all manipulations performed by the current user.
+
+
+
+  We have evaluated the performance of our three provenance-based recommendation approaches. 
+Results show the effectiveness of our approaches in terms of runtime, and the interestingness of recommendations output by these methods.
+We have also investigated the performance of our proposed merge approaches in terms of merge quality, runtime, and conciseness of merged graphs. Results of experiments were beneficial to identify the suitable merge method to adopt among our proposed methods. 
+
+
+The discussion of algorithms and evaluation results of our proposed recommendation approaches relies mainly on the following papers.
+\begin{itemize}
+\item \cite{Houssem:17:tapp}: H. Ben Lahmar, M. Herschel, \emph{Provenance-based recommendations for visual data exploration}, in the USENIX Workshop on the Theory and Practice of Provenance, TaPP, 2017.
+\item \cite{Houssem:19:adbis}: H. Ben Lahmar and M. Herschel, \emph{Towards integrating collaborative filtering in visual data exploration systems}, in the European Conference on Advances in Databases and Information Systems, ADBIS, 2019.
+\item \cite{Houssem:19:IS}: H. Ben Lahmar and M. Herschel, \emph{Collaborative filtering over evolution provenance data for interactive visual data exploration} (under submission).
+\end{itemize}
+
+
+
+\sloppy 
+ \bigskip 
+ \noindent \textbf{Quantification of recommendation interestingness.}
+ Using our provenance-based recommendation approaches, users receive at each iteration of the visual data exploration process a possibly large set of recommendations.
+Accordingly, the user could be left with a large number of recommendations to choose from to explore next. Intuitively, the choice of the recommendation to study next is difficult.
+Therefore, we contribute a quantification approach that assesses the interestingness of each recommendation. The rationale behind that is to guide users to select the most interesting recommendations worth inspecting next.
+% We have evaluated our approach proposed to quantify the interestingness of recommendations. 
+We have evaluated our quantification approach in terms of runtime and accuracy of quantification.
+Results show that the computation of recommendations' interestingness scores is fast enough for an interactive visual data exploration process. Furthermore, experiment results give an insight into the accuracy performances of the diverse implementations of our quantification approach.
+%We describe later thoroughly our approach to quantify recommendations the interestingness. 
+Overall, the description of this contribution relies mainly on the following paper.
+\begin{itemize}
+%\item \cite{BHBK18:Demo}: H. Ben Lahmar, M. Herschel, M. Blumenschein, D.A  Keim, \emph{Provenance-based visual data exploration with EVLIN}, in the International Conference on Extending Database Technology, EDBT, pp. 686--689, 2018. 
+\item \cite{Houssem:19:IS}: H. Ben Lahmar and M. Herschel, \emph{Collaborative filtering over evolution provenance data for interactive visual data exploration} (under submission).
+\end{itemize}
+
+
+%\item Provenance-based framework for visual data exploration
+ \bigskip
+  \noindent \textbf{Provenance-based framework for visual data exploration.}
+We integrate and generalize our work through a provenance-based framework for visual data exploration that provides a holistic approach to support users in the whole process. Accordingly, our provenance-based framework for visual data exploration assembles our aforementioned contributions including evolution provenance capture, provenance-based recommendation approaches, and methods quantifying recommendation interestingness. 
+
+
+We provide in this thesis evidences about the feasibility of our proposed framework. 
+We discuss an instance of our framework that targets the visual exploration of data warehouses. 
+The discussion of our proposed framework and its instance extends the following paper:
+\begin{itemize}
+\item \cite{BHBK18:Demo}: H. Ben Lahmar, M. Herschel, M. Blumenschein, D.A  Keim, \emph{Provenance-based visual data exploration with EVLIN}, in the International Conference on Extending Database Technology, EDBT, pp. 686--689, 2018. 
+\end{itemize}
+%\end{itemize}
+
+
+
+ \bigskip
+    \noindent \textbf {Structure-based provenance summary.} 
+  While the previous contributions focus on using provenance for visual data exploration, we noticed during our research, in particular for our collaborative-filtering recommendation approach, that there is a more general research question of analyzing a set of provenance traces. 
+    This motivated us to conduct seminal research on summarizing multiple provenance traces.
+
+More specifically, we propose an end to end solution that infers a structure-based summary from a set of provenance traces that respect the PROV-JSON format. Furthermore, we discuss our proposed solution as well as possible visual analytics tasks that may be applied to this type of summary. Finally, we perform a preliminary experimental evaluation that studies both the runtime and conciseness of our proposed provenance summarization algorithm. 
+ The explanation of our proposed approach relies on discussions and evaluation results made in the following paper.
+\begin{itemize}
+\item ~\cite{Houssem:19:TaPP}: H. Ben Lahmar and M. Herschel, \emph{Structural summaries for visual provenance analysis}, in the workshop on Theory and Practice of Provenance, TaPP, 2019.
+\end{itemize}
+
+
+
+
+
+
+
+

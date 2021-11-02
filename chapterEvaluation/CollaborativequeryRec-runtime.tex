@@ -1,0 +1,155 @@
+\label{subsec:runtimeCollab}
+
+
+In this section, we conduct a series of experiments to study the performance of our collaborative-filtering recommendation approach (cf.~Section~\ref{collaborative-query-rec}) in terms of parameter sensitivity, and runtime.
+To do that, we use the flights data warehouse. %to evaluate the performance of our collaborative-filtering recommendation approach. 
+This is explained by the fact that we need to collect initially a history of explorations targeting the same data warehouse to be able later to perform our collaborative-filtering recommendation approach. 
+Accordingly, we have recorded initially a set of exploration sessions targeting the flights data warehouse. 
+
+
+
+
+
+
+
+ \subsection{Collaborative-filtering recommendation setting}   
+As described in Section~\ref{collaborative-query-rec}, our collaborative-filtering query recommendation approach computes given a current user's exploration within an exploration session $\sessionGraph$, the top-k similar exploration steps present in the multi-user graph $\usersGraph$ with respect to a distance threshold  $\thetaRec$.
+Subsequently, our collaborative-filtering approach recommends explorations succeeding those similar exploration steps.
+
+
+   \begin{table}[t]
+\resizebox{1\linewidth}{!}{ \begin{tabular}{|p{0.8cm}|p{12cm}|p{3.7 cm}|} \hline
+\textbf{Query} &           \textbf{Definition}  & \textbf{User's interaction}\\ \hline
+$Q_1$ & \texttt{SELECT }sum(lateaircraftdelay), T.manufacturer\texttt{ FROM } Tail\texttt{ AS }T, Flights \texttt{ AS }F\texttt{ WHERE }F.tailnum=T.tailnum\texttt{ GROUP BY }T.manufacturer& $manufacturer=$\texttt{Boeing} \\ \hline
+$Q_2$ &\texttt{SELECT }count(*),A.airport\texttt{ FROM }Airports\texttt{ AS }A,Flights\texttt{ AS }F\texttt{ WHERE }A.iata=F.origin\texttt{ AND }$deptime < 200$\texttt{ AND }A.state='NV' \texttt{ GROUP BY }A.airport& $airport=$\texttt{McCarran airport}  \\ \hline
+$Q_3$ &\texttt{SELECT }count(*),A.airport\texttt{ FROM }Airports\texttt{ AS }A,Flights\texttt{ AS }F\texttt{ WHERE }A.iata=F.origin\texttt{ AND }$depdelay>0$\texttt{ AND }month=12\texttt{ GROUP BY }A.airport& $airport=$\texttt{William Hartsfield-Atlanta Intl} \\ \hline 
+$Q_4$ & \texttt{SELECT }sum(lateaircraftdelay),T.year\_t\texttt{ FROM } Tail\texttt{ AS }T, Flights \texttt{ AS }F\texttt{ WHERE }F.tailnum=T.tailnum\texttt{ AND }T.manufacturer='DOUGLAS'\texttt{ GROUP BY }T.year\_t& $T.year\_t=1986$ \\ \hline
+$Q_5$ &\texttt{SELECT }count(*),A.state\texttt{ FROM }Airports\texttt{ AS }A,Flights\texttt{ AS }F\texttt{ WHERE }A.iata=F.origin\texttt{ AND }$deptime <crsdeptime$ \texttt{ GROUP BY }A.state& $state=$\texttt{CA}  \\ \hline
+\end{tabular}} 
+      \captionof{table}{Exploration queries used in the evaluation}
+      \label{tab:queries}
+    \end{table}
+
+
+To ensure an efficient collaborative-filtering recommendation, we need to ensure that the set of similar exploration steps identified in the multi-user graph really match to the current user's exploration.
+Accordingly, we investigate in what follows possible settings of collaborative-filtering recommendation parameters ($\thetaRec$ and top-k) and their impact on providing an effective collaborative-filtering recommendation.
+%More specifically, we compute the standard evaluation metrics adopted in Information Retrieval (already presented in Section~\ref{eval-sec:content}) for various settings of collaborative-filtering recommendation parameters.
+More specifically, we compute the recall, precision, and F1 score for various settings of collaborative-filtering recommendation parameters.
+To do that, we define first an initial collaborative setting $S_0$ that sets the distance threshold $\thetaRec$ to 0.9 and top-k to top-50. 
+This relaxed setting enables us to inspect all possible similar previous explorations in $\usersGraph$, that can be used to output collaborative-filtering recommendations.
+For each exploration query $Q_{curr}$ described in Table~\ref{tab:queries}, we compute its collaborative-filtering recommendations when setting our baseline collaborative recommender (described in Section~\ref{sec:basic-rec}) following $S_0$ and based on a real multi-user graph $\usersGraph$ having roughly 950 nodes.
+This graph results from applying \mlm-CR{} on many individual exploration sessions made by researchers in our department, using a threshold $\thetaFuse$ set to 0.9.
+%{\color{Fuchsia}
+Later, we investigated manually all similar exploration steps found using our setting $S_0$ to label them as interesting or non-interesting items for the collaborative-filtering recommendation.
+ Overall, we investigated the top-50 similar explorations for each exploration query described in Table~\ref{tab:queries}. This leads to the construction of the set $SIM_{valid}$ that comprises 11 previous exploration steps in the multi-user graph $\usersGraph$ that are highly similar to the five exploration queries present in Table~\ref{tab:queries}.
+ %}
+Afterward, we compute again collaborative-filtering recommendations using our baseline collaborative recommender (described in Section~\ref{sec:basic-rec}) applied on all queries present in Table~\ref{tab:queries} with more selective and practically relevant values of the distance threshold $\thetaRec \in [0.1,0.2,0.3,0.4,0.5]$ as well as with various values of $k \in [1,3,5,7]$. At each experiment, we compare the set of similar exploration steps $SIM_{rec}$ output by our collaborative recommendation approach with the explorations steps present in $SIM_{valid}$ in order to compute the following metrics:
+%the recall, the precision, and F1 scores as follows:
+(i)~the recall($=\frac{|SIM_{rec} \cap SIM_{valid}|}{|SIM_{valid}|}$) counts the ratio of similar exploration steps retrieved by our collaborative-filtering recommendation approach to the total number of similar exploration steps found by experts;
+(ii)~the precision($=\frac{|SIM_{rec} \cap SIM_{valid}|}{|SIM_{rec}|}$) counts the ratio of similar exploration steps retrieved by experts as well as by our collaborative-filtering recommendation approach to the total number of exploration steps output by our recommendation approach; and
+(iii)~F1-score($=\frac{2 \times recall \times precision\}}{recall + precision}$) is the trade-off score between the precision and recall. 
+%\end{itemize}
+
+
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.6]{figures/collabQuality/SimThresh-study.pdf}
+\caption{Study of the distance threshold parameter setting in our collaborative-filtering recommendation}
+\label{fig:thresh-sim}
+\end{figure}
+Figure~\ref{fig:thresh-sim} reports the results for varying values of the distance threshold $\thetaRec$.
+For each distance threshold, in this graph, we average recall, precision, and F1 scores obtained with various $k \in [1,3,5,7]$ when computing collaborative recommendations of queries described in Table~\ref{tab:queries}.
+We observe first in Figure~\ref{fig:thresh-sim} that the recall performance is almost stable regardless of the distance threshold value. 
+This is explained by the fact that our collaborative-filtering recommendation approach stores similar exploration steps found in the multi-user graph $\usersGraph$ in a queue that is sorted in descending order of their similarity distance. Thereby the same order of recommendations is guaranteed regardless of the distance threshold value.
+%{\color{Fuchsia}  
+Furthermore, we notice that explorations present in the manually labeled set $SIM_{valid}$ have mostly a similarity distance less than 0.1. This means that this set of interesting exploration steps found when computing collaborative-filtering is unchanged mostly for all distance threshold values in [0.1,0.2,0.3,0.4,0.5].
+%}
+
+
+In contrast to the recall performance, we see a significant drop in precision performance when adopting higher distance threshold values. Accordingly, these results impact the F1 score. Indeed, setting a high value of distance threshold leads to acceptable F1 performances whereas setting $\thetaRec$ to 0.1 leads to the obtention of best F1 performance.
+
+
+
+
+
+
+
+Being aware of $\thetaRec$'s impact on the quality of collaborative-filtering recommendation, we investigate now the top-k variation's impact on the accuracy of our approach.
+We set this time the $\thetaRec$ to 0.1 given its performance discussed previously. For each top-k  $\in [1,3,5,7]$, we average the recall, precision and F1 scores obtained when computing collaborative-filtering recommendations of queries present in Table~\ref{tab:queries} using  our baseline recommender approach applied on the same multi-user graph of size 950 nodes with $\thetaRec$ to 0.1.
+Similarly to the previous experiment, we compare the set of similar exploration steps $SIM_{rec}$ output by our collaborative recommendation approach with the explorations steps present in $SIM_{valid}$ in order to compute the recall, the precision, and F1 scores ( recall$=\frac{|SIM_{rec} \cap SIM_{valid}|}{|SIM_{valid}|}$, precision$=\frac{|SIM_{rec} \cap SIM_{valid}|}{|SIM_{rec}|}$, and F1-score$=\frac{2 \times recall \times precision\}}{recall + precision}$).
+
+
+
+Figure~\ref{fig:top-kstudy} depicts the evolution of recall, precision, and F1 scores for various settings of $k$.
+First, we observe that the recall score increases significantly at the beginning when changing the $k$ from 1 to 3 while this increase of recall score is less significant when passing from $3$ to larger values of $k$. 
+The two observations are explained by the fact that the size of manually identified similar explorations is eleven. This signifies that each query present in Table~\ref{tab:queries} has at most three highly similar exploration steps. Consequently, top-5 and top-7 do not lead to discovering further interesting similar items as our multi-user graph is constructed by the iterative merge of evolution provenance graphs. Accordingly, the rate of similarity in this kind of graph is expected to be lower.
+
+We see that the precision performance drops constantly when increasing $k$ beyond 3. Yet, the precision rate remains acceptable (above 0.7) for all settings.
+
+Based on recall and precision performances, we see that the setting top-3 holds the best F1 score. Indeed, it succeeds to maintain good performance for both recall and precision.
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.55]{figures/collabQuality/top-kStudy}
+\caption{Study of top-k parameter setting in our collaborative-filtering recommendation}
+\label{fig:top-kstudy}
+\end{figure} 
+
+To summarize, our evaluation of collaborative-filtering recommendation settings shows that setting the distance threshold $\thetaRec$ to 0.1 and when applying top-3 similarity search leads to the obtention of a good quality of recommendations that match with users' current explorations. 
+%{\color{Fuchsia}
+Note that experiments made in this section are only based on exploration sessions and evolution provenance tracked when exploring the flights data warehouse.  
+%\mel{there is a remark to see about generalizing my conclusion}
+Hence, we intend in the future to explore other data warehouses and to provide a more thorough quantification mechanism to study extensively the appropriate parameters required to set our collaborative-filtering recommendation approach.
+% }
+
+ 
+
+ \subsection{Runtime and scalability of the collaborative-filtering recommendation}   
+ In this section, we evaluate four collaborative-filtering recommendation implementations discussed in Section~\ref{sec:finding}
+which are: (i)~REC-simple referring to the baseline recommender; (ii)~REC-triangle implementing the triangle inequality discussed in Section~\ref{subsec:triangle}; (iii)~REC-parent implementing the parenthood based pruning discussed in Section~\ref{subsec:child-parent};
+ and (iv)~REC-hybrid that combines both triangle inequality and parenthood pruning.
+ 
+ 
+As the recommendation algorithms rely essentially on a current exploration step within an exploration session $\sessionGraph$, we evaluate them using $\usersGraph$ and randomly generated exploration queries that simulate the current exploration step.
+Table~\ref{tab:queries} shows five representative queries, for which we provide detailed results. Table~\ref{tab:queries} also indicates which interaction triggers the recommendation process for which we compute top-3 recommendations using our four recommendation algorithms and using a distance threshold $\thetaRec$ set to 0.1. 
+%Firstly, 
+We apply these methods on a multi-user graph $\usersGraph$ having roughly 950 nodes.
+This graph results from applying \mlm-CR{} on many individual exploration sessions whose sum size is around 1000, using a threshold $\thetaFuse$ set to 0.9.
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.55]{figures/collabruntime/runtime_1500.pdf}
+\caption{Collaborative-filtering recommendation runtime}
+\label{fig:runtime_1500}
+\end{figure}
+
+Figure~\ref{fig:runtime_1500} presents the runtime of each recommendation algorithm. As expected, REC-simple has the highest runtime ($\approx$5s) that remains constant over all queries as it always traverses the full graph $\usersGraph$. 
+REC-triangle moderately improves on this runtime, with again a stable runtime for all queries. This performance is explained by the small number and size of clusters and the fact that the pruning performance is determined by the number of pre-computed clusters of highly similar exploration steps in $\usersGraph$ that does not vary for different exploration step queries. For REC-parent, we observe that it improves on the runtime of REC-simple by up to an order of magnitude, clearly showing the effectiveness of parenthood-based pruning. This performance can be slightly improved when combining both pruning methods, as shown by the bars for REC-hybrid. 
+
+
+
+
+We also study the scalability of the recommendation algorithms for increasing sizes of $\usersGraph{}$.
+To this end, we generate multi-user graphs with 1000, 2000, and 3500 exploration steps, respectively. 
+For each new multi-user graph, we have computed the average runtime made by each studied recommendation method executed for the same exploration queries described in Table~\ref{tab:queries}.
+ Figure~\ref{fig:multi-recs-runtime} reports the average runtime over the five exploration queries for each algorithm for the different sizes of $\usersGraph{}$.
+
+ \begin{figure}[t]
+\centering
+ \includegraphics[scale=0.6]{figures/collabruntime/multi-recs-runtime.pdf}
+\caption{Collaborative-filtering recommendation runtime  for varying $\usersGraph{}$ sizes}
+\label{fig:multi-recs-runtime}	
+\end{figure}
+
+ 
+As expected, the runtime of REC-simple increases with the size of $\usersGraph{}$.
+For REC-triangle, we see a runtime evolution that is comparable to those depicted for REC-simple.
+However, as the size of $\usersGraph{}$ increases, the gap between REC-simple and REC-triangle becomes more significant. Looking at the number and the size of clusters obtained for the triangle inequality pruning technique, we notice that as the multi-user graph size increases, the number of clusters increases giving thereby more opportunities to apply the triangle inequality pruning technique. Similarly, the parenthood-based pruning used both by REC-parent and REC-hybrid becomes more effective at larger graph sizes. Increasing the graph size also increases the average path length in the graph, giving the parenthood-based pruning more opportunities to prune comparisons, compared to smaller graphs.
+
+
+
+
+
+Overall, the results of experiments discussed in this section show an effective improvement of the efficiency of the collaborative-filtering recommendation computation when employing our proposed optimizations (the triangle inequality pruning and the parenthood-based pruning). Accordingly, we succeed to speed up the computation of the collaborative-filtering recommendations which is crucial for interactive visual exploration. 

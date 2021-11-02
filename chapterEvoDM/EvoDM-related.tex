@@ -1,0 +1,70 @@
+%OLD VERSION
+\label{sec:evo-DM-related}
+Historically, evolution provenance was mainly linked to scientific workflows where it was used to document the (development) process. 
+Thereby, it automatically tracks the changes made between two versions that can be inputs, parameters, or functions invoked. 
+Callahan et al proposed the first approach~\cite{Callahan06} that captures this kind of evolution provenance.
+The rationale behind that was to accelerate the decision process about the correct module semantics since multiple workflow executions can be compared visually using the proposed tool called VisTrails.
+In the same context, Ellkvist et~al.~\cite{Ellkvist:spri08} propose a solution that facilitates collaboration between developers. 
+It tracks changes made by all users in realtime during a collaborative design of the workflow and renders them in the form of branches. 
+This particular type of provenance obtained in the two aforementioned approaches~\cite{Callahan06,Ellkvist:spri08} is known as ``workflow provenance'' or ``provenance of the development process". 
+
+We use the term ``evolution provenance'' proposed  in~\cite{Herschel2017survey} as it was shown that this particular type of provenance also encompasses other applications besides scientific workflows.
+Indeed, unlike aforementioned work~\cite{Callahan06} and~\cite{Ellkvist:spri08} where tracking the evolution provenance in scientific workflow engines is only limited to changes of the workflow specification, we capture in this thesis the evolution provenance for visual data exploration to describe an actual run of a visual exploration session, divided into individual exploration steps. 
+
+
+
+
+In the same context, we find several existing work (e.g.,~\cite{Milo:2016,2016_eurovis_clue}) that collect evolution provenance for visual data exploration processes.
+For instance, REACT~\cite{Milo:2016} computes evolution provenance and uses it to compute collaborative-filtering query recommendations.
+CLUE~\cite{2016_eurovis_clue}, a history based visual exploration system captures the evolution provenance of a visual data exploration process and offers users the capability to assemble states of interest (i.e., interesting explorations tasks) into a story that can be used to explain or to remember exploration tasks made to reach important observations.
+
+
+
+Our review of evolution provenance data models adopted in existing visual data exploration work, (e.g.,~\cite{Milo:2016,2016_eurovis_clue}) shows that these work focus either on collecting visualization-related properties or on collecting query-related properties.
+More specifically, REACT~\cite{Milo:2016} proposes an evolution provenance data model that stores information about inspected queries and navigations types (e.g., data retrieval, cube operations, and data mining) whereas it neglects completely the storage of visualizations information rendered in the course of the exploration.
+Opposed to that, CLUE~\cite{2016_eurovis_clue} offers an evolution provenance data model that focuses mainly on the collection of visualization-related properties. Accordingly, the evolution provenance model proposed in CLUE~\cite{2016_eurovis_clue} stores users' interactions and  visual encodings of rendered visualizations. %properties including visualization techniques and visualization resources.
+Note that CLUE~\cite{2016_eurovis_clue}'s evolution provenance data model has a very limited support to query-related properties. Hence, this model stores inspected data sets. This is not convenient when inspecting large datasets and may incur a costly process of evolution provenance collection and storage.
+
+
+In what follows, we propose a novel evolution provenance model that ensures the collection of 
+visualization-related properties as well as query-related properties.
+
+
+
+%%OLD VERSION
+%\label{sec:evo-DM-related}
+%Historically, evolution provenance was mainly linked to scientific workflows where it was used to document the (development) process. 
+%Thereby, it automatically tracks the changes made between two versions that can be inputs, parameters, or functions invoked. 
+%Callahan et al proposed the first approach~\cite{Callahan06} that captures this kind of evolution provenance.
+%The rational behind that was to accelerate the decision process about the correct module semantics since multiple workflow executions can be compared visually using the proposed tool called VisTrails.
+%In the same context, Ellkvist et~al.~\cite{Ellkvist:spri08} propose a solution that facilitates collaboration between developers. 
+%It tracks changes made by all users in realtime during a collaborative design of the workflow and renders them in the form of branches. 
+%{\color{Fuchsia}This particular type of provenance obtained in the two aforementioned approaches~\cite{Callahan06,Ellkvist:spri08} is known as ``workflow provenance'' or ``provenance of the development process". }
+%
+%We use the term ``evolution provenance'' proposed  in~\cite{Herschel2017survey} as it was shown that this particular type of provenance also encompasses other applications besides scientific workflows.
+%Indeed, unlike aforementioned work~\cite{Callahan06} and~\cite{Ellkvist:spri08} where tracking the evolution provenance in scientific workflow engines is only limited to changes of the workflow specification, we capture in this thesis the evolution provenance for visual data exploration to describe an actual run of a visual exploration session, divided into individual exploration steps. 
+%
+%
+%
+%{\color{Fuchsia}
+%In the same context, we find several existing work (e.g.,~\cite{Milo:2016,2016_eurovis_clue}) that collect evolution provenance for visual data exploration processes.
+%For instance, REACT~\cite{Milo:2016} computes evolution provenance and uses it to compute collaborative-filtering query recommendations.
+%CLUE~\cite{2016_eurovis_clue}, a history based visual exploration system captures the evolution provenance of a visual data exploration process and offers users the capability to assemble states of interest (i.e., interesting explorations tasks) into a story that can be used for presentation and recall applications already discussed in Section~\ref{sec:prov-purposes}.
+%CLUE~\cite{2016_eurovis_clue} fosters also reproducibility of an analysis process by letting the user resume exploration from a specific state stored in the evolution provenance.
+%
+%In the present manuscript, we adopt a similar approach that leverages the evolution provenance to foster reproducibility of results, to provide stories about successful explorations, as well as to assist users with collaborative-filtering query recommendations.
+%
+%
+%
+%Our review of evolution provenance data models adopted in existing visual data exploration work, (e.g.,~\cite{Milo:2016,2016_eurovis_clue}) shows that these work focus either on collecting visualization-related properties or on collecting query-related properties.
+%More specifically, REACT~\cite{Milo:2016} proposes an evolution provenance data model that stores information about inspected queries and navigations types (e.g., data retrieval, cube operations and data mining) whereas it neglects completely the storage of visualizations information rendered in the course of the exploration.
+%Opposed to that, CLUE~\cite{2016_eurovis_clue} offers an evolution provenance data model that focuses mainly on the collection of visualization-related properties. Accordingly, the evolution provenance model proposed in CLUE~\cite{2016_eurovis_clue} stores users' interactions and  visual properties including visualization techniques and visualization resources.
+%Note that CLUE~\cite{2016_eurovis_clue}'s evolution provenance data model has a very limited support to query-related properties. Hence, this model stores inspected data sets. This is not convenient when inspecting large datasets and may incur a costly process of evolution provenance collection and storage.
+%
+%
+%In what follows, we propose our proper evolution provenance model that ensures the collection of 
+%visualization-related properties as well as query-related properties.
+
+
+
+	

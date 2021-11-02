@@ -1,0 +1,400 @@
+
+\newcommand{\json}{JSON}
+\newcommand{\obsol}[1]{\textcolor{gray}{#1}}
+
+
+%\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{conjecture}[theorem]{Conjecture}
+%\newtheorem{corollary}[theorem]{Corollary}
+%\newtheorem{proposition}[theorem]{Proposition}
+%\newtheorem{lemma}[theorem]{Lemma}
+%\newdef{definition}[theorem]{Definition}
+%\newdef{remark}[theorem]{Remark}
+%\newtheorem{example}[theorem]{Example}
+
+\newcommand{\twolines}[2]{\begin{array}{l} #1 \\  #2  \end{array}}
+
+
+%%\newcommand{\comment}[1]{} %%incompatible with acm style
+%\newcommand{\todo}[1]{}
+\newif{\ifMarginalComments}
+% uncomment one or other of the next two lines
+ %\MarginalCommentstrue   %show marginal comments
+ \MarginalCommentsfalse  %suppress marginal comments
+\newcommand{\Margin}[1]{%
+  \ifMarginalComments{\marginpar{\tiny #1}} \else {} \fi}
+
+\newcommand{\DC}[1]{%
+  \ifMarginalComments{\marginpar{\tiny[Dario: #1]}} \else {} \fi}
+
+\newcommand{\CS}[1]{%
+  \ifMarginalComments{\marginpar{\tiny[Carlo: #1]}} \else {} \fi}
+  
+
+
+
+  
+% ---------------------------------------------------------------------
+%
+% Proof rule.
+%
+% ---------------------------------------------------------------------
+%
+
+\newcommand{\staterule}[3]{%
+  $\begin{array}{@{}l}%
+   \mbox{#1}\\%
+   \begin{array}{l}
+   #2\\
+   \hline
+   \raisebox{0ex}[2.5ex]{\strut}#3%
+   \end{array}
+  \end{array}$}
+
+\newlength{\mygap}
+\setlength{\mygap}{0.8ex}
+\newlength{\smallgap}
+\setlength{\smallgap}{0.3ex}
+\newcommand{\GAP}{2ex}
+
+
+% ---------------------------------------------------------------------
+%
+% Horizontal brackets.
+%
+% ---------------------------------------------------------------------
+%
+
+%Amine: the object and array types
+\newcommand{\eset}{\emptyset}
+
+\newcommand{\emprec}{{ \{ \} }}
+\newcommand{\emplis}{{ [\ ]}}
+
+\newcommand{\emptrec}{{ \{ \} }}
+\newcommand{\emptlis}{{[\ ]}}
+
+
+
+\newcommand{\hbra}{
+\hbox to \linewidth{\vrule width0.3mm height 1.8mm depth-0.3mm
+                    \leaders\hrule height1.8mm depth-1.5mm\hfill
+                    \vrule width0.3mm height 1.8mm depth-0.3mm}}
+\newcommand{\hket}{
+\hbox to \linewidth{\vrule width0.3mm height1.5mm
+                    \leaders\hrule height0.3mm\hfill
+                    \vrule width0.3mm height1.5mm}}
+
+% --------------------------------------------------------------------- %
+% Typesetting definitions:              Sample output:                  %
+%                                                                       %
+% \begin{defn}                                                          %
+% \category{M,N}{terms}\\               M, N ::=        terms           %
+% \entry{x}{variable}\\                   x               variable      %
+% \entry{M\ N}{application}\\             M N             application   %
+% \entry{\lambda x.\ M}{abstraction}      \x.M            abstraction   %
+% \end{defn}                                                            %
+%                                                                       %
+% This is a tabbing environment; the last entry should have no \\.      %
+% --------------------------------------------------------------------- %
+
+\newlength{\entryindent}
+\newlength{\reductionind}
+\newlength{\clausetextind}
+\newlength{\entrytextind}
+\newlength{\labelind}
+\setlength{\entryindent}{.05\linewidth}
+\setlength{\reductionind}{.28\linewidth}
+\setlength{\clausetextind}{.31\linewidth}
+\setlength{\entrytextind}{.36\linewidth}
+\setlength{\labelind}{.75\linewidth}
+
+\newlength{\entrytext}
+\newlength{\clausetext}
+
+\setlength{\entrytext}{\linewidth}
+\addtolength{\entrytext}{-\entrytextind}
+\setlength{\clausetext}{\linewidth}
+\addtolength{\clausetext}{-\clausetextind}
+
+
+\newlength{\tabone}
+\newlength{\tabtwo}
+\newlength{\tabthree}
+\newlength{\tabfour}
+\newlength{\tabfive}
+
+\setlength{\tabone}{\entryindent}
+\setlength{\tabtwo}{\reductionind}
+\addtolength{\tabtwo}{-\entryindent}
+\setlength{\tabthree}{\clausetextind}
+\addtolength{\tabthree}{-\reductionind}
+\setlength{\tabfour}{\entrytextind}
+\addtolength{\tabfour}{-\clausetextind}
+\setlength{\tabfive}{\labelind}
+\addtolength{\tabfive}{-\entrytextind}
+
+\newcommand{\ratio}{.18}
+
+%\newlength{\entrytext}
+%\newlength{\clausetext}
+
+\newcounter{displayCounter}[section]
+
+\newcommand{\refDisplay}[2]{\ref{#1}.\ref{#2}}
+\newcommand{\refDisplayHere}[1]{\thesection.\ref{#1}}
+
+\newcommand{\labelDisplay}[1]{\refstepcounter{displayCounter}
+                           \label{#1}
+                           \addtocounter{displayCounter}{-1}}
+
+\newenvironment{display}[1]{
+  \refstepcounter{displayCounter}
+  \setlength{\entrytext}{\linewidth}
+  \addtolength{\entrytext}{-\ratio\linewidth}
+  \addtolength{\entrytext}{-3em}
+  \setlength{\clausetext}{\entrytext}
+  \addtolength{\clausetext}{1.5em}
+\begin{tabbing}
+%\hspace{\tabone}\=\hspace{\tabtwo}\=\hspace{\tabthree}\=\hspace{\tabfour}\=\hspace{\tabfive}\=\kill
+  \hspace{1.5em}\=\hspace{\ratio\linewidth}\=\hspace{1.5em}\= \kill
+  {Table \thesection.\thedisplayCounter. \emph{#1}}\\[-.8ex]
+  \hbra\\[-.8ex]
+  }{\\[-.8ex]\hket
+  \end{tabbing}}
+\newenvironment{displayStar}{\begin{tabbing}
+  \hspace{1.5em} \= \hspace{.40\linewidth - 1.5em} \= \hspace{1.5em} \= \kill
+  \hbra\\[-.8ex]
+  }{\\[-.8ex]\hket
+  \end{tabbing}}
+
+
+%incompatible with acm style
+%%\comment{
+%%\newenvironment{display}[1]{
+%%  \setlength{\entrytext}{\linewidth}
+%%  \addtolength{\entrytext}{-\ratio\linewidth}
+%%  \addtolength{\entrytext}{-3em}
+%%  \setlength{\clausetext}{\entrytext}
+%%  \addtolength{\clausetext}{1.5em}
+%%\begin{tabbing}
+%%%\hspace{\tabone}\=\hspace{\tabtwo}\=\hspace{\tabthree}\=\hspace{\tabfour}\=\hspace{\tabfive}\=\kill
+%%  \hspace{1.5em}\=\hspace{\ratio\linewidth}\=\hspace{1.5em}\= \kill
+%%  \textbf{#1}\\[-.8ex]
+%%  \hbra\\[-.8ex]
+%%  }{\\[-.8ex]\hket
+%%  \end{tabbing}}
+%%\newenvironment{displayStar}{\begin{tabbing}
+%%  \hspace{1.5em} \= \hspace{.40\linewidth - 1.5em} \= \hspace{1.5em} \= \kill
+%%  \hbra\\[-.8ex]
+%%  }{\\[-.8ex]\hket
+%%  \end{tabbing}}
+%%}%end comment
+
+\newcommand{\entry}[2]{\>$#1$\>\>\parbox[t]{\entrytext}{#2\vspace{1mm}}}
+\newcommand{\fentry}[3]{\>$#1$\>\>#2\>\parbox[t]{\entrytext}{#3\vspace{1mm}}}
+\newcommand{\clause}[2]{$#1$\>\>\parbox[t]{\clausetext}{#2\vspace{1mm}}}
+%\newcommand{\eqrule}[2]{$#1$\>#2}
+\newcommand{\eqrule}[2]{$#1$\> }
+\newcommand{\redrule}[3]{$#1$\>\>$#2$\>\>\>#3}
+\newcommand{\redclause}[3]{$#1$\>$#2$\>$\to$\ \ $#3$}
+\newcommand{\defclause}[3]{$#1$\>$#2$\>$\eqdef$\ \ $#3$}
+\newcommand{\eqclause}[3]{$#1$\>$\eqdef$\ \ ${#2}$\>$#3$}
+\newcommand{\noeqclause}[3]{$#1$\>\ \ \qquad \ \ $#2$\>$#3$}
+\newcommand{\iffclause}[3]{$#1$\>$#2$\>$\Iff$\ \ $#3$}
+\newcommand{\noiffclause}[2]{$#1$\>$#2$}
+\newcommand{\xcategory}[2]{\clause{#1::=}{#2}}
+\newcommand{\fcategory}[2]{$#1::=$\>\>#2}
+\newcommand{\subclause}[1]{\>\>\>\>#1}
+
+\newcommand{\iflongmath}[1]{}
+\newcommand{\ifshortmath}[1]{#1}
+\newcommand{\ifveryshort}[1]{}
+\newcommand{\iftimes}[1]{}
+\newcommand{\ifshort}[1]{#1}
+\newcommand{\iflong}[1]{}
+\newcommand{\ifboth}[1]{#1}
+
+
+\newcommand{\mr}{Map/Reduce}
+\newcommand{\map}{Map}
+\newcommand{\redc}{Reduce}
+\newcommand{\pair}[2]{< {#1} ; {#2} >}
+\newcommand{\sub}{<:}
+%\newcommand{\rec}[2]{{\texttt\bf\{}#1 , \ldots , #2\}}
+\newcommand{\rec}[2]{\{#1 , \ldots , #2\}}
+\newcommand{\arr}[2]{[#1 , \ldots , #2]}
+\newcommand{\str}{s}
+\newcommand{\chr}{c}
+\newcommand{\num}{n}
+\newcommand{\nule}{null}
+\newcommand{\rectype}[2]{\{#1 , \ldots , #2\}}
+\newcommand{\arrtype}[2]{[#1 , \ldots , #2]}
+\newcommand{\srectype}[1]{\{ #1 \}}
+\newcommand{\seqT}{T, \ldots , T}
+\newcommand{\arrytype}[1]{\cdot (#1)}
+\newcommand{\uniontype}[1]{+(#1)}
+\newcommand{\rconc}{\circ}
+\newcommand{\tconc}{\cdot}
+\newcommand{\tunion}{\boldsymbol{\scriptscriptstyle +}}
+\newcommand{\ssem}[1]{\llbracket #1 \rrbracket}
+\newcommand{\eqdef}{\ensuremath{\stackrel{\vartriangle}{=}}}
+\newcommand{\noteq}{\not=}
+\newcommand{\base}{\textsf{B}}
+\newcommand{\Set}[1]{\{#1\}}
+\newcommand{\strequiv}{\simeq}
+\newcommand{\subt}{\lesssim}
+\newcommand{\frule}[3]{#1 \mid #2 \rightarrow #3}
+\newcommand{\field}[1]{#1}
+\newcommand{\lbl}[1]{lbl(#1)}
+\newcommand{\sproj}{\subt}
+\newcommand{\Union}{\tunion}
+\newcommand{\Aunion}{\dotplus}%%Amine
+\newcommand{\mc }[1]{{\mathcal #1 }}
+\newcommand{\rectln}{\rectype{l_{1}:T_{1}}{l_{n}:T_{n}}}
+\newcommand{\rectlnp}{\rectype{l_{1}:T_{1}, \ldots , l_{i}:T_{i}^{\prime}, l_{i+1}:T_{i+1}}{l_{n}:T_{n}}}
+\newcommand{\recs}[2]{\srectype{#1:#2}}
+\newcommand{\recss}[2]{(#1, #2)} %%Amine: alternative
+\newcommand{\rop}{\bullet}
+\newcommand{\quant}[2]{#2^{#1}}
+\newcommand{\iquant}[1]{\quant{1}{#1}}
+\newcommand{\oquant}[1]{\quant{?}{#1}}
+\newcommand{\pquant}[1]{\quant{+}{#1}}
+\newcommand{\squant}[1]{\quant{*}{#1}}
+\newcommand{\quantc}{\oast}
+\newcommand{\nobj}{N_{obj}}
+\newcommand{\tin}{T_{in}}
+\newcommand{\perr}{P_{err}}
+\newcommand{\dist}{dist}
+
+\newcommand{\false}{\textit{\bf False}}
+\newcommand{\true}{\textit{\bf True}}
+\newcommand{\isarr}[1]{\text{IsArr}(#1)}
+\newcommand{\isrec}[1]{\text{IsRec}(#1)}
+\newcommand{\labels}[1]{\text{Labels}(#1)}
+
+\newcommand{\fieldd}[2]{#1{:}#2}
+\newcommand{\fieldt}[2]{(#1{:}#2)}
+
+%%%%%% JUDGMENTS
+
+\newcommand{\judbase}[2]{\vdash \; #1 \; : \; #2}
+\newcommand{\judbasee}[2]{\vdash  #1  \leadsto  #2}
+\newcommand{\judbaseeEq}[2]{\vdash  #1  = #2}
+
+\newcommand{\judwf}[1]{\vdash_{WF} \; #1 }
+
+
+%% ALGORITHMS
+
+\newcommand{\infc}{\textsc{INF}$_{C}$}
+\newcommand{\infcmr}{\textsc{INF}$_{CMR}$}
+\newcommand{\infmr}{\textsc{INF}$_{MR}$}
+
+\newcommand{\rmark}[2]{[\textbf{#1}:#2]}
+\newcommand{\rmarkCS}[1]{\rmark{CS}{#1}}
+\newcommand{\rmarkDC}[1]{\rmark{DC}{#1}}
+
+
+%%%%Boolean functions %%%%%
+
+
+\newcommand{\N}[1]{\text{N}(#1)}
+
+\newcommand{\biga}{{\cal A}}
+\newcommand{\bigb}{{\cal B}}
+
+\newcommand{\bigt}{{\cal T}}
+\newcommand{\bigu}{{\cal U}}
+\newcommand{\bigv}{{\cal V}}
+\newcommand{\bigw}{{\cal W}}
+\newcommand{\bigp}{{\cal P}}
+\newcommand{\bigrr}{{\cal R}}
+
+\newcommand{\bigunion}{}
+
+\newcommand{\ft}{{\texttt \bf t}}
+\newcommand{\fu}{{\texttt \bf u}}
+\newcommand{\fv}{{\texttt \bf v}}
+\newcommand{\fw}{{\texttt \bf w}}
+
+\newcommand{\interp}[1]{{\texttt Perm}(#1)}
+
+
+
+
+%%%%%%%%AMINE NEW %%%%%%%
+\newcommand{\listfusion}[1]{\llistfusion(#1)}
+\newcommand{\llistfusion}{LFuse}
+
+\newcommand{\fusion}[2]{\lfusion(#1 \mid #2)}
+\newcommand{\lfusion}{Fuse}
+
+\newcommand{\afusion}[2]{\lafusion(#1 \mid #2)}
+\newcommand{\afusionp}[3]{\lafusion^{#3}(#1 \mid #2)}
+\newcommand{\lafusion}{U\!Fuse}
+
+\newcommand{\opt}{{\bf opt}}
+
+
+\newcommand{\ofusion}[2]{\lofusion(#1 \mid #2)}
+\newcommand{\lofusion}{F\!Fuse}
+
+
+\newcommand{\isbas}[1]{{isBasic}(#1)}
+
+\newcommand{\collaps}[1]{\lcollaps(#1)}
+\newcommand{\lcollaps}{ASimp}
+
+\newcommand{\collapss}[2]{\lcollapss(#1\mid#2)}
+\newcommand{\lcollapss}{ASimpAcc}
+
+
+\newcommand{\forder}{\prec}
+\newcommand{\tnull}{{\texttt Null}}
+\newcommand{\tbool}{{\texttt Bool}}
+\newcommand{\tnum}{{\texttt Num}}
+\newcommand{\tstr}{{\texttt Str}}
+
+\newcommand{\flatn}[1]{Flatten(#1)}
+%\newcommand{\norml}[1]{Normalize(#1)}
+\newcommand{\mmul}{{\texttt m}}
+\newcommand{\nmul}{{\texttt n}}
+\newcommand{\mini}[2]{min(#1,#2)}
+
+\newcommand{\card}[2][]{{\mid}{#2}{\mid_{\scriptsize #1}}}
+\newcommand{\Head}[1]{head(#1)}
+\newcommand{\Tail}[1]{tail(#1)}
+
+
+\newcommand{\kind}[1]{kind(#1)}
+\newcommand{\xmatch}[2]{\lxmatch(#1 \mid #2)}
+\newcommand{\lxmatch}{KMatch}
+
+\newcommand{\xunmatch}[2]{\lxunmatch(#1\mid#2)}
+\newcommand{\lxunmatch}{KUnmatch}
+
+\newcommand{\rmatch}[2]{\lrmatch(#1\mid#2)}
+\newcommand{\lrmatch}{FMatch}
+
+\newcommand{\runmatch}[2]{\lrunmatch(#1\mid#2)}
+\newcommand{\lrunmatch}{FUnMatch}
+
+
+\newcommand{\rextract}[1]{\lrextract(#1)}
+\newcommand{\lrextract}{RExtract}
+
+
+\newcommand{\bigplus}[2]{\stackrel[#1]{#2}{\oplus}}
+%\newcommand{\bigun}[2]{\stackrel[#1]{#2}{\bigcup}}
+\newcommand{\bigun}[2]{\stackrel[#1]{#2}{\bigcirc}}
+
+
+%%color background to highlight new version
+\newcommand{\nversion}[1]{\begin{mdframed}[backgroundcolor=blue!20]
+#1\end{mdframed}
+}
+
+
+\newcommand{\regle}[3][]{\frac{\begin{array}{c}\displaystyle#2\end{array}}{\displaystyle#3}{\ \ {\scriptstyle{#1}}}} 	
+

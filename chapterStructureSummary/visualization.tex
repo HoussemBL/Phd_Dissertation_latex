@@ -1,0 +1,35 @@
+Based on the structure-based summary graph for a collection of provenance traces obtained as described in the previous section, we define several visual analysis tasks that apply to this kind of summary. For each task, we also evoke visualization techniques/interactions that potentially fit the task. 
+%{\color{Fuchsia}Based on the structure-based summary graph output using the instance of our framework \framework{}, we define several visual exploration tasks that apply on this kind of summary. For each task, we also evoke visualization techniques that potentially fit the task and that can be implemented in the \emph{data display} sub-module present in the architecture of our framework \framework{} (cf.~\ref{fig:archi-FW}). }
+
+
+\begin{enumerate}
+%\vspace{-1em}
+\item \emph{High level overview }
+The primary goal of our approach is to generate a structural summary that is  easy to read and that allows analysts to easily grasp which different structures are present in the provenance traces. To avoid overwhelming analysts with too many details at an early stage of their analysis, the visualization should be limited to the rendering of basic information such as vertices and edges representative of structures and provenance relationships. \label{itm:t1}   
+
+
+\item \emph{Interactive visual analysis }  Rendering a simple visualization of structure-based summary facilitates the analysis task. 
+Further information can be offered on demand using interaction, e.g., hovering over nodes or edges. \label{itm:t2} 
+
+
+
+\item \emph{Visual comparison } Possible visual analysis tasks include the comparison between the summary and provenance instances.
+Here, an analyst may compare a particular provenance trace to the inferred structural summary graph. Brushing and linking interaction techniques could be employed in this task to render/highlight structures and their corresponding provenance traces. \label{itm:t3} 
+
+\item \emph{Homogeneity overview } Our approach assigns cardinalities to edges present in the provenance structural summary graph.
+This information should be communicated clearly as it serves to investigate the homogeneity/heterogeneity of analyzed provenance traces. Sankey diagrams~\cite{Riehmann:2015} are a candidate visualization for this task, given their ability to render edges with various width expressing the importance of cardinalities.
+%We can also resort to the change of color encodings to highlight ``outliers'', e.g., in Example~\ref{par:example} where some edges have low cardinalities in comparison to the remaining edges in the summary graph. 
+
+
+\item \emph{Visual identification of patterns }  Using cardinality information, we can reveal recurrent patterns among the set of analyzed provenance traces. The visualization should highlight sub-graphs having high cardinalities  compared to other information present in the summary graph. Sankey diagram~\cite{Riehmann:2015} could be used also for this analysis task. \label{itm:t5} 
+
+\item \emph{Visualization of dense regions of the summary } Structure-based summary graphs may contain dense regions where vertices are highly connected.
+This specific range of nodes may be subject of bottleneck or may present a heavily shared component.
+Note that the presence of high connectivity can easily lead  to a cluttered visualization. 
+To avoid that, we can use force-directed graphs that reduce edge crossings by making edges repel each other. \label{itm:t6} 
+
+
+
+\end{enumerate}
+The list of proposed visual analysis tasks and their visualizations is not exhaustive. Indeed, a thorough investigation of other possible visual analysis tasks is left for future research.
+%{\color{Fuchsia}The list of proposed visual exploration tasks and their visualizations is not exhaustive. Indeed, a thorough investigation of other possible visual exploration tasks that can be made using this instance of our framework \framework{} is left for future research.}

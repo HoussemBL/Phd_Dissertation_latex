@@ -1,0 +1,123 @@
+%\setlength{\arrayrulewidth}{1mm}
+
+\begin{table*}
+%\centering \scriptsize
+
+
+\resizebox{\textwidth}{!}{
+
+\begin{tabular}{|c | c c | c c | c | c c | c c c | c c | c c | c |} \hline
+
+\multicolumn{1}{|c|}{\textbf{Provenance}} & \multicolumn{2}{c|} {\textbf{Runtime}} & \multicolumn{2}{c|}{\textbf{Memory}} & \multicolumn{1}{c|}{\textbf{Scalability}}   & \multicolumn{2}{c|}{\textbf{Interoperability}} &\multicolumn{3}{c|}{\textbf{Query }}& \multicolumn{2}{c|} {\textbf{Integration}} & \multicolumn{2}{c|} {\textbf{Security}}  & \multicolumn{1}{c|}{\textbf{Fault}}\\  
+
+\multicolumn{1}{|c|}{\textbf{work}} & \multicolumn{2}{c|} {\textbf{}} & \multicolumn{2}{c|}{\textbf{footfprint}} & \multicolumn{1}{c|}{\textbf{}}   & \multicolumn{2}{c|}{\textbf{}} &\multicolumn{3}{c|}{\textbf{Expressivness}}& \multicolumn{2}{c|} {\textbf{}} & \multicolumn{2}{c|} {\textbf{\&Privacy}}  & \multicolumn{1}{c|}{\textbf{tolerance}}\\  
+
+
+   & \textbf{\emph{Query}} &\textbf{\emph{Provenance}} & \textbf{\emph{Storage}}&\textbf{\emph{Main}}  & \textbf{\emph{Data}} & \textbf{\emph{Standards}}& \textbf{\emph{Proprietary}}& \textbf{\emph{Search}}& \textbf{\emph{Navigation}}   & \textbf{\emph{Structured}} & \textbf{\emph{Extension}} &\textbf{\emph{Decoupling}} & \textbf{\emph{Access}} & \textbf{\emph{Sanitization}} & 	 \\ 
+   
+   
+      & \textbf{\emph{processing}} &\textbf{\emph{capture}} & \textbf{\emph{}}&\textbf{\emph{memory}}  & \textbf{\emph{volume}} & \textbf{\emph{-based}}& \textbf{\emph{}}& \textbf{\emph{}}& \textbf{\emph{}}& \textbf{\emph{queries}} & \textbf{\emph{}} &\textbf{\emph{}} & \textbf{\emph{control}} & \textbf{\emph{}} & 	 \\ \hline
+
+
+Provenance Browser~\cite{Anand2010} & \checkmark &  & &  &  & & 	 & \checkmark& \checkmark   & \checkmark &  & &  &  & 	 \\ \hline
+~\cite{Karvounarakis2010} & \checkmark &  & &  &  & & 	 & &    & \checkmark &  & &  &  & 	 \\ \hline
+  ~\cite{Szablocs2011}  & \checkmark &  & &  & \checkmark & & 	 & &    &  &  & &  &  & 	 \\ \hline
+  
+   %   &  &  & &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline
+HadoopProv~\cite{Akoush2013}  &  &\checkmark  & \checkmark &   & \checkmark   & & 	 & &    &  &  &\checkmark  &  &  & 	\checkmark  \\ \hline   
+W-Cassandra~\cite{Alkhaldi2015}    &  &\checkmark  & &  &   \checkmark & & 	 & &    &  &  & \checkmark &  &  & \checkmark 	 \\ \hline   
+ Lipstick~\cite{Amsterdamer2011}&  &\checkmark  & &  \checkmark&  & & 	 & &  \checkmark  &  &  & &  &  & 	 \\ \hline   
+ ~\cite{bidoit:cikm15}&  &\checkmark  &  & \checkmark &  & & 	 & &    &  &  & &  &  & 	 \\ \hline   
+ NedExplain~\cite{bidoit:edbt14}&  &\checkmark  & &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline   
+  KVMP~\cite{Kulkarni2013} &  &\checkmark  & &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline   
+~\cite{Braun2009}    &  &\checkmark  &\checkmark &  &  & & 	 & \checkmark&    &  \checkmark&  & &  &  & 	 \\ \hline
+Inspector gadget~\cite{Olston11} &  &\checkmark  & &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline
+Karma2~\cite{simmhan08}&  &\checkmark  & &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline
+
+   %       &  &  & &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline
+          
+~\cite{anand:edbt09}&  &  &\checkmark  &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline    
+REDUX~\cite{Barga2008}&  &  &\checkmark  &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline           
+Wepige~\cite{Caro2014}&  &  &\checkmark  &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline           
+~\cite{Chothia2016} &  &  &\checkmark  &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline    
+~\cite{Curbera2008}&  &  &\checkmark  &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline 
+~\cite{michlmayr:ISWC09}&  &  &\checkmark  &  &  & & 	 & &    &  \checkmark&  & &\checkmark   &  & 	 \\ \hline
+~\cite{Chapman2008}&  &  &\checkmark  &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline
+~\cite{Ainy2015}&  &  &\checkmark  &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline
+ ~\cite{zhang:edbt10}&  &  &\checkmark  &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline
+Titian ~\cite{Interlandi2015}&  &  &  &  \checkmark& \checkmark  & & 	 & &    &  &  &\checkmark  &  &  & \checkmark 	 \\ \hline
+ ~\cite{Muniswamy-Reddy2010}&  &  &  & \checkmark & \checkmark & & 	 & &    &  &  & &  &  & 	 \\ \hline
+ PASS~\cite{reddy:USENIX06}&  &  &  & \checkmark &  & & 	 & &    &  & \checkmark  & &  &  & 	 \\ \hline
+             
+  %   &  &  & &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline         
+          
+Swift~\cite{Gadelha2011}&  &  &  & & \checkmark  & & 	 & &    &  &  & &  &  & 	 \\ \hline  
+~\cite{Craw11}&  &  &  & & \checkmark  & \checkmark& 	 & &    &  &\checkmark   & &  &  & 	 \\ \hline    
+Map Orbiter~\cite{Seltz11}&  &  &  & & \checkmark  & &  &&\checkmark&  &  & &  &  & 	 \\ \hline       
+InProv~\cite{Bork13}&  &  &  & & \checkmark  & & &\checkmark &   \checkmark &  &  & &  &  & 	 \\ \hline    
+ ~\cite{deutsch:icde15} &  &  &  & & \checkmark  & & 	 & &    &  &  & &  &  & 	 \\ \hline     
+%   &  &  & &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline        
+   
+  
+Taverna~\cite{miss08}&  &  &  & & & \checkmark  & 	 & &    &  &  & &  &  & 	 \\ \hline     
+~\cite{Cao2009}&  &  &  & & & \checkmark  & 	 & &    &  &  & &  &  & 	 \\ \hline     
+ ~\cite{Bowers07}  &  &  &  & & & \checkmark  & 	 & &    &  &  & &  &  & 	 \\ \hline   
+~\cite{Nies2013} &  &  &  & & & \checkmark  & 	 & &    &  &  & &  &  & 	 \\ \hline 
+D-Prov~\cite{Missier2013} &  &  &  & & & \checkmark  & 	 & &    &  &  & &  &  & 	 \\ \hline 
+ 
+  
+% &  &  & &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline        
+         
+         
+~\cite{freire:cse08}&  &  &  & & &   &  & \checkmark	&    &  &  & &  &  & 	 \\ \hline    
+Perm~\cite{Glavic:09}&  &  &  & & &   & 	 & \checkmark&    & \checkmark &  & &  &  & 	 \\ \hline           
+Provenance Explorer~\cite{Cheung2006} &  &  &  & & &   & 	 & \checkmark&  \checkmark  &  &  & & \checkmark  &  & 	 \\ \hline  
+          
+   %        &  &  & &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline          
+ Provenance curious~\cite{Huq2013} &  &  &  & & &   & 	 & &  \checkmark  &  &  & &  &  & 	 \\ \hline       
+RDataTracker~\cite{Lerner2014} &  &  &  & & &   & 	 & &  \checkmark  &  &  & \checkmark  &  &  & 	 \\ \hline
+        
+    % &  &  & &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline      
+     
+%Spade~\cite{Gehani2012}&  &  &  & & &   & 	 & &&  &   \checkmark   & &  &  & 	 \\ \hline        
+%Hi-fi~\cite{Pohly:2012:HCH}&  &  &  & & &   & 	 & &&  &   \checkmark   & &  &  & 	 \\ \hline          
+%~\cite{Bates:2015:TWP}&  &  &  & & &   & 	 & &&  &   \checkmark   & &  &  & 	 \\ \hline        
+
+
+
+
+   %           &  &  & &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline         
+~\cite{karvounarakis:tods13} &  &  &  & & &   & 	 & &&  &    &  \checkmark &  &  & 	 \\ \hline                
+~\cite{Fehrenbach:2016:LP}  &  &  &  & & &   & 	 & &&  &    &  \checkmark &  &  & 	 \\ \hline                
+%         &  &  & &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline   
+SecProv~\cite{Chebotko2008}  &  &  &  & & &   & 	 & &&  &    &  &  \checkmark &  & 	 \\ \hline             
+%~\cite{Nguyen:2012:DPP:23}  &  &  &  & & &   & 	 & &&  &    &  &  \checkmark &  & 	 \\ \hline                   
+~\cite{Ni2009} &  &  &  & & &   & 	 & &&  &    &  &  \checkmark &  & 	 \\ \hline                    
+~\cite{Cadenhead:2011:LPA}  &  &  &  & & &   & 	 & &&  &    &  &  \checkmark &  & 	 \\ \hline                   
+~\cite{Balakrishnan:2016}  &  &  &  & & &   & 	 & &&  &    &  &  \checkmark &  & 	 \\ \hline   
+ %    &  &  & &  &  & & 	 & &    &  &  & &  &  & 	 \\ \hline         
+     
+~\cite{cheney:csf11}&  &  &  & & &   & 	 & &&  &    &  &   &\checkmark  & 	 \\ \hline     
+~\cite{Cadenhead:2011:TPU:1}&  &  &  & & &   & 	 & &&  &    &  &   &\checkmark  & 	 \\ \hline          
+~\cite{Biton:2008}&  &  &  & & &   & 	 & &&  &    &  &   &\checkmark  & 	 \\ \hline        
+ProbPup~\cite{Dey2011}&  &  &  & & &   & 	 & &&  &    &  &   &\checkmark  & 	 \\ \hline           
+ProvAbs~\cite{Missier2015}&  &  &  & & &   & 	 & &&  &    &  &   &\checkmark  & 	 \\ \hline         
+ ~\cite{Hussein2015}&  &  &  & & &   & 	 & &&  &    &  &   &\checkmark  & 	 \\ \hline         
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+                             
+\end{tabular}
+}
+\caption{provenances works and their requirements}
+\label{tabreqs}
+\end{table*}

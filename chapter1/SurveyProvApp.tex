@@ -1,0 +1,147 @@
+Provenance has many possible applications. Therefore, we propose in our survey~\cite{Herschel2017survey} a classification of possible applications of provenance. 
+Figure~\ref{fig:purposes} depicts our proposed classes of provenance applications.
+A first layer of the classification encompasses three generic provenance applications that are \emph{understandability}, \emph{reproducibility}, and \emph{quality}. 
+Those applications are further divided (see the second layer).
+Overall, our proposed applications of provenance are thoroughly detailed in our survey~\cite{Herschel2017survey}. Hence, we confine our discussion of provenance applications to a brief overview of each class. Additionally, we discuss those that are taken into account by our proposed approaches discussed subsequently in this thesis.
+
+
+ \begin{figure}[t]
+\centering
+\includegraphics[scale=0.4]{figures/survey/purposes_overview.pdf}
+\caption{Classification of provenance's applications~\cite{Herschel2017survey}}
+\label{fig:purposes}
+\end{figure}
+
+
+
+ \subsubsection{Quality}
+This application of provenance focuses on improving the quality of the end product or the production process. 
+
+
+  
+{\color{Fuchsia}It is worth stressing that our contributions falls mainly under the scope of the \emph{Quality} application.
+Indeed, as stated in the introduction chapter, improving the process of visual data exploration is a main goal to achieve in this thesis. Therefore, we propose several recommendations approaches that leverage various types of provenance to assist users in their exploration jobs.
+These recommendations are meant to facilitate users' tasks by suggesting most interesting queries as well as their convenient visualizations.}
+
+
+
+
+
+
+
+\subsubsection{Understandability}
+\emph{Understandability} is another provenance application. It emphasizes on explaining results or processes to make them transparent to some audience. Research on understandability includes to identify what information to convey and how. 
+%Accordingly, provenance conveys information on how an end product was obtained to expert users or a general audience (the provenance consumers). 
+%The \emph{Understandability}  application contains three important sub-applications that are: (i)~ \emph{Collaboration} where several existing work (e.g.,~\cite{Ellkvist:spri08,Cheung2006,Chirigati2013,zhang:icde13}) use the provenance to convey relevant information beneficial to allow each group member to better understand the actions of others, (ii)~\emph{Presentation} where existing work (e.g.,~\cite{Anand2010,Bavoil2005,Callahan06, Chebotko2008,Karsai:2016,stitz:16,Bork13,Seltz11,Lerner2014,herschel:cikm12}) propose methods to easily display, navigate, and explore provenance, and (iii)~ \emph{Attribution} where existing work (eg.,~\cite{reddy:USENIX06,Macko2011,Souilah09}) use provenance to establish copyright and ownership of data, or determine liability for erroneous data.
+
+It is worth stressing that a part of our contributions are related to the \emph{Understandability} application. 
+Indeed, as we will discuss later, we will propose methods to summarize provenance traces in Chapters~\ref{chap:EVLIN}, and~\ref{chap:TaPP19}. 
+%Furthermore, we show that the visualization of summaries generated using our methods is beneficial and contributes to the acquirement of important observations. This is related to the sub-application~\emph{Presentation}.
+{\color{Fuchsia}Furthermore, we provide examples showing that the visualization of summaries generated using our methods is beneficial and contributes to the acquirement of important observations. 
+
+
+}
+
+
+
+
+
+
+
+
+\subsubsection{Reproducibility}
+
+Following~\cite{Moreau2011}, the reproducibility of a result consists of starting with the same materials and methods and checking if a prior result can be confirmed. As provenance is, in its generality, capable of recording anything happening during processing, it has naturally been used for reproducibility. 
+
+%We divide reproducibility into two sub-classes.  
+%{The first sub-class is \emph{Recall} where provenance is used over extended or intermittent periods of analysis to remember important information such as  intermediate steps invoked during the execution of the tracked process, changes made previously on the tracked process, etc. 
+%
+% The second sub-application is~\emph{Replication} where the provenance is used (for instance in~\cite{Chirigati2013,McPhillips2009,Callahan06}) to improve and to facilitate the reproducibility of a final result or a tracked process.
+% 
+ 
+%We point out that a part of our contributions are related to the two sub-classes of the \emph{Reproducibility} application. 
+%Indeed, as we will discuss later, we will propose methods to track visual data exploration processes in Chapters~\ref{chap:evoDM}. An excerpt of this provenance information is rendered to the user in the course of the exploration process. This corresponds to the  \emph{Recall} sub-application. Indeed, rendering excerpt of provenance collected within the visual data exploration process helps user to remember the process that leads to an important observation.  
+%
+%Our contributions consider also the \emph{Replication} sub-application as we offer the user collaborative-filtering recommendations. Using this type of recommendations, we offer users the possibility to reproduce successful previous visual explorations experiences.
+
+{\color{Fuchsia}
+We point out that a part of our contributions are related to the \emph{Reproducibility} application.
+Indeed, we are proposing methods to track and visualize provenance that records the visual data exploration process. Thereby, we provide users with means to remember the visual data exploration process that leads to an important observation. Furthermore, we offer users the possibility to reproduce successful previous visual explorations experiences.
+ }
+ \hou{to verify again this text}
+
+
+
+%%%%OLD version %%%%%
+%Provenance has many possible applications. Therefore, we propose in our survey~\cite{Herschel2017survey} a classification of possible applications of provenance. 
+%Figure~\ref{fig:purposes} depicts our proposed classes of provenance applications.
+%A first layer of the classification encompasses three generic provenance applications that are \emph{understandability}, \emph{reproducibility}, and \emph{quality}. 
+%Those applications are further divided (see the second layer).
+%{\color{Fuchsia}Overall, our proposed applications of provenance are thoroughly detailed in our survey~\cite{Herschel2017survey}. Hence, we confine our discussion of provenance applications to a brief overview of each class. Additionally, we discuss those that are taken into account by our proposed approaches discussed subsequently in this thesis.}
+%
+%
+% \begin{figure}[t]
+%\centering
+%\includegraphics[scale=0.4]{figures/survey/purposes_overview.pdf}
+%\caption{Classification of provenance's applications~\cite{Herschel2017survey}}
+%\label{fig:purposes}
+%\end{figure}
+%
+%
+%
+% \subsubsection{Quality}
+%This application of provenance focuses on improving the quality of the end product or the production process. 
+%
+%
+%  
+%{\color{Fuchsia}It is worth stressing that our contributions falls mainly under the scope of the \emph{Quality} application.
+%Indeed, as stated in the introduction chapter, improving the process of visual data exploration is a main goal to achieve in this thesis. Therefore, we propose several recommendations approaches that leverage various types of provenance to assist users in their exploration jobs.
+%These recommendations are meant to facilitate users' tasks by suggesting most interesting queries as well as their convenient visualizations.}
+%
+%
+%
+%
+%
+%
+%
+%\subsubsection{Understandability}
+%\emph{Understandability} is another provenance application. It emphasizes on explaining results or processes to make them transparent to some audience. Research on understandability includes to identify what information to convey and how. 
+%%Accordingly, provenance conveys information on how an end product was obtained to expert users or a general audience (the provenance consumers). 
+%The \emph{Understandability}  application contains three important sub-applications that are: (i)~ \emph{Collaboration} where several existing work (e.g.,~\cite{Ellkvist:spri08,Cheung2006,Chirigati2013,zhang:icde13}) use the provenance to convey relevant information beneficial to allow each group member to better understand the actions of others, (ii)~\emph{Presentation} where existing work (e.g.,~\cite{Anand2010,Bavoil2005,Callahan06, Chebotko2008,Karsai:2016,stitz:16,Bork13,Seltz11,Lerner2014,herschel:cikm12}) propose methods to easily display, navigate, and explore provenance, and (iii)~ \emph{Attribution} where existing work (eg.,~\cite{reddy:USENIX06,Macko2011,Souilah09}) use provenance to establish copyright and ownership of data, or determine liability for erroneous data.
+%
+%It is worth stressing that a part of our contributions are related to the \emph{Understandability} application. 
+%Indeed, as we will discuss later, we will propose methods to summarize provenance traces in Chapters~\ref{chap:EVLIN}, and~\ref{chap:TaPP19}. 
+%%Furthermore, we show that the visualization of summaries generated using our methods is beneficial and contributes to the acquirement of important observations. This is related to the sub-application~\emph{Presentation}.
+%{\color{Fuchsia}Furthermore, we provide examples showing that the visualization of summaries generated using our methods is beneficial and contributes to the acquirement of important observations. This is related to the sub-application~\emph{Presentation}.
+%
+%
+%
+%}
+%
+%
+%
+%
+%
+%
+%
+%
+%\subsubsection{Reproducibility}
+%
+%Following~\cite{Moreau2011}, the reproducibility of a result consists of starting with the same materials and methods and checking if a prior result can be confirmed. As provenance is, in its generality, capable of recording anything happening during processing, it has naturally been used for reproducibility. 
+%
+%We divide reproducibility into two sub-classes.  
+%{{\color{Fuchsia}The first sub-class is \emph{Recall} where provenance is used over extended or intermittent periods of analysis to remember important information such as  intermediate steps invoked during the execution of the tracked process, changes made previously on the tracked process, etc. 
+%
+% The second sub-application is~\emph{Replication} where the provenance is used (for instance in~\cite{Chirigati2013,McPhillips2009,Callahan06}) to improve and to facilitate the reproducibility of a final result or a tracked process.
+% 
+% 
+%We point out that a part of our contributions are related to the two sub-classes of the \emph{Reproducibility} application. 
+%Indeed, as we will discuss later, we will propose methods to track visual data exploration processes in Chapters~\ref{chap:evoDM}. An excerpt of this provenance information is rendered to the user in the course of the exploration process. This corresponds to the  \emph{Recall} sub-application. Indeed, rendering excerpt of provenance collected within the visual data exploration process helps user to remember the process that leads to an important observation.  
+%
+%Our contributions consider also the \emph{Replication} sub-application as we offer the user collaborative-filtering recommendations. Using this type of recommendations, we offer users the possibility to reproduce successful previous visual explorations experiences.
+%
+%
+% }
+% 
+%
+

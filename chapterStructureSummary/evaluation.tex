@@ -1,0 +1,73 @@
+{%\color{Fuchsia}
+While the previous section focused on presenting the use cases that illustrate the usefulness of our structure-based provenance summary, this section evaluates our approach qualitatively.
+More specifically, we evaluate in this section the performance of our structure-based provenance summary in terms of conciseness and runtime.
+To this end, we use in this experiment provenance traces of use cases $UC1$, $UC2$, and $UC3$, referring to the three case studies discussed in Section~\ref{sec:casestudy}.
+We implement also two types of provenance generators: (i)~the first generator $gen_{prov}$ generates many provenance traces according to the structure of a real provenance traces, (ii)~$gen_{struct_{prov}}$:  generates  provenance traces having new structures derived from the structures available in the seed provenance traces. It introduces random changes to the structure of each seed. The new structures are used to generated synthetic provenance traces.
+
+
+
+ \begin{table}[b]
+\centering
+\scriptsize
+ \begin{tabu}{|p{1.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|} \hline
+Use case & avg(\#activities) & avg(\#entities) & avg(\#relations)\\ \hline
+ $UC1$&1&11.4& 21.8  \\ 
+  $UC2$&114.2&115.3& 228.6  \\ 
+   $UC3$&5&6& 23  \\ 
+ \hline
+\end{tabu}
+\caption{Overview of processed provenance traces}
+\label{tab:prov-stats}
+\end{table}
+We have studied firstly the conciseness of summary graphs output by our structure-based provenance summary approach.
+%{\color{Fuchsia}
+This metric is computed as the ratio of the number of inferred structures (of type entity, activity, and relations) to the total number of entities, activities, and relations in the input provenance traces set.%}
+As mentioned previously, we considered provenance traces of use cases $UC1$, $UC2$, and $UC3$, referring to the three case studies discussed in Section~\ref{sec:casestudy}. 
+For each use case, we collect ten provenance traces whose graphs information are summarized in Table~\ref{tab:prov-stats}.
+We generate for each provenance set ($UC1$, $UC2$, and $UC3$), its structure-based summary graph. Accordingly, we compute the conciseness rate by comparing the number of inferred structures (of type entity, activity, and relations) with the number of entities, activities, and relations in the input provenance traces set.
+As shown in Figure~\ref{fig:exper1}, our approach performs a high simplification rate above 80\%) for the three studied use cases. This indicates that structure-based summary graphs allow producing concise summaries of collections of provenance traces.
+
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[scale=0.37]{figures/tapp19/simplification_rate.pdf}
+  \caption{Conciseness rate for diverse case studies}
+  \label{fig:exper1}
+\end{figure}
+
+ So far, we have studied the conciseness of our structures-based summary graph when processing provenance sets that are highly homogenous (i.e., processed provenance traces in each set have roughly the same structure). Yet, this conciseness rate may be impacted by the degree of heterogeneity of processed set of provenance traces. 
+To this end, we study in the following experiment the impact of heterogeneity degree (i.e, the inconsistency rate of structures of processed provenance traces) on the conciseness of inferred provenance summaries. 
+%{\color{Fuchsia}Note that we consider that two provenance traces are heterogeneous if their corresponding structures are inconsistent e.i., . }
+To do that, we use first our provenance generator  $gen_{struct_{prov}}$ (described above) to prepare four provenance traces set containing consecutively 10, 25, 50, and 100 provenance traces with different structures. Later, these provenance sets are increased using our provenance generator $gen_{prov}$ (described above) until they reach the size of 200 provenance traces. Ultimately, we have four provenance traces sets, each containing 200 provenance traces but with various degree of heterogeneity (5\%, 12.5\%, 25\% and 50\%).
+Note that the degree of heterogeneity is computed as the set of different structures available in a provenance set divided by the size of the provenance set.
+For instance, to get a heterogeneity degree equal to 5\%, our generator $gen_{struct_{prov}}$ outputs 10 provenance traces with 10 different structures. These structures are used by $gen_{prov}$to generate 200 provenance traces.
+
+At this stage, we employ our structures-based summary approach to process provenance traces. Later, we measure the conciseness of our approach by comparing the number of inferred structures (of type agent, entity, activity, and relations) with the number of agents, entities, activities, and relations in each input provenance traces set.
+For each processed set of provenance traces, we compute the reduction rate that corresponds to the comparison between the size of the output summary graph's size with the size of provenance traces present in the processed set ($\frac{size\_summary\_graph }{\sum size\_processed\_provenance\_traces}$).
+
+\begin{figure}[t]
+  \centering
+ \includegraphics[scale=0.65]{figures/tapp19/heterogeneity.pdf}
+  \caption{Impact of  input provenance heterogeneity on the structural provenance summary conciseness}
+     \label{fig:hetero}
+\end{figure}
+
+Figure~\ref{fig:hetero} depicts the impact of heterogeneity degree on the conciseness of the inferred structure-summary graph. 
+As expected, the heterogeneity of provenance traces impacts the conciseness. Indeed, the conciseness rate decreases as the heterogeneity between processed provenance traces increases. Yet, we see that our structure-based summary approach maintains an acceptable rate of conciseness even for highly heterogeneous provenance traces sets (e.g., when heterogeneity rate= \%50).
+
+
+We have also studied the runtime of our approach implemented using a map-reduce model.
+Accordingly, we generate using $gen_{prov}$ several synthetic provenance traces based on real provenance traces available in $UC1$, $UC2$, and $UC3$.
+This results in several synthetic provenance trace sets of varying sizes, that are summarized later using our approach. We performed our experiments on a cluster containing 3 nodes, each containing 6 cores and 256GB of RAM.
+During experiments, we measured runtimes of the two main steps of our approach (shown in Figure~\ref{fig:overview}): (i)~$LocalInf$ maps to the local inference of structures and (ii)~$GlobalAgg$ concerns the aggregation of structures.
+ Figure~\ref{fig:exper22} reports the runtimes of the two steps on a logarithmic scale over various sizes of provenance trace collections.
+ The two steps have initially similar runtimes when processing small provenance traces sets. Yet, the gap between the two steps increases clearly with the number of processed provenance traces.  
+ Indeed, as the number of provenance traces increases, the size of the hash map storing inferred structures and their associated objects increases. 
+Later, hash map values storing large lists, are accessed during the global aggregation to group edges that are structurally equal. This is costly and leads to an increase of global aggregation runtime.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[scale=0.5]{figures/tapp19/runtime.pdf}
+  \caption{Runtime of summary computation steps}
+    \label{fig:exper22}
+\end{figure}

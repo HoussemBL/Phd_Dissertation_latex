@@ -1,0 +1,100 @@
+In addition to our general framework for open-ended visual data exploration, we propose recommendation techniques tailored to the exploration of data stored in a data warehouse as part of our main framework instantiation named \prototype{}. Therefore, this section covers the necessary background and related work on data warehouses and visual exploration for data warehouses. 
+
+
+\subsection{Main data warehouse concepts}
+
+
+A data warehouse is a database, which is kept separate from the organization's operational database.
+It encompasses consolidated historical data, resulting from the integration of data coming from different sources. 
+These historical data are used subsequently for analysis and evaluations susceptible to improve the decision making process.
+
+%These historical data are commonly represented using a multidimensional model.
+%This model is organized around major subjects that are called \emph{facts}.
+%These facts occur frequently. Accordingly, the multidimensional model stores further quantitative information (known as \emph{measures}) that describe the occurrence of each fact.  
+%These events corresponding to the fact occurrence are obviously too many. Thus, to facilitate the exploration of these events, the multidimensional model arranges them within an n-dimensional space whose axes, called \emph{dimensions} of analysis. This is suitable to perform various exploration operations e.g., aggregation and grouping operations. The concept of dimension gave birth to the concept of \emph{cube} used for representing multidimensional data. This latter contains a set of edges that correspond to dimensions. It contains also a set of cells where each cell corresponds to an event of a fact occurrence.
+These historical data are commonly represented using a multidimensional model.
+This model is organized around major subjects that are called \emph{facts}.
+The multidimensional model stores further quantitative information (known as \emph{measures}) that describe the occurrence of each fact.  
+Typically, the fact occurrences are obviously too many in the data warehouse systems. Thus, to facilitate the exploration of these facts, the multidimensional model arranges them within an n-dimensional space whose axes, called \emph{dimensions}. This is suitable to perform various exploration operations, e.g., aggregation and grouping operations. The concept of dimension gave birth to the concept of \emph{cube} used for representing multidimensional data. This latter contains a set of edges that correspond to dimensions. It contains also a set of cells where each cell corresponds to a fact occurrence.
+
+
+
+
+%Overall, we distinguish three approaches used to implement the multidimensional model adopted in data warehousing systems that are: (1) ROLAP, which stands for relational OLAP, (2) MOLAP, which stands for multidimensional OLAP, and (3) HOLAP that is hybrid OLAP.
+%In what follows, we pay a particular attention on ROLAP as we discuss subsequently the visual exploration of data warehouses stored in relational way.
+
+Note that the literature~\cite{Vassiliadis:99} provides several possible implementations of the multidimensional model adopted in data warehousing systems. In our work,  we pay a particular attention to a specific implementation that is ROLAP which stands for relational On-Line Analytical Processing.
+This is explained by the fact that we will discuss subsequently the visual exploration of data warehouses stored in relational way.
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.4]{figures/EVLIN-overview/flightsDW}
+\caption{US domestic flights data warehouse schema}
+\label{fig:flights-DW}
+\end{figure}
+
+\sloppy
+On a ROLAP implementation, the relational technology is employed to store data in multidimensional form. 
+One popular implementation of relational OLAP is the \emph{star schema}~\cite{Kimball96}. This latter contains  a set of relations called dimension tables and one relation called a fact table. Each dimension table models a hierarchy of a set of columns where each column maps to a granularity of the underlying hierarchy. 
+Example~\ref{ex:DW} presents a sample star schema for a data warehouse of domestic flights done in USA.
+
+
+\begin{example}[Sample data warehouse]
+\label{ex:DW}
+Figure~\ref{fig:flights-DW} depicts a schema of a data warehouse about US domestic flights~\footnote{\url{https://stat-computing.org/dataexpo/2009/}}. 
+It contains a fact table ``Flights'' recording information about one million flights done between 1987 and 2008. The facts recorded for each flight include various numerical attributes such as delays, cancellation, arrival and departure time etc. This data warehouse contains also four dimension tables 
+containing information about departure airports, destination airports, airlines and plane types. These dimensions contain information about 3300 airports and almost 4500 plane types used by more than 1500 airline companies for the covered flights. 
+\end{example}
+
+
+In general, users who target exploring data warehouses, need to issue OLAP (On-Line Analytical Processing)  queries.
+In this context, we find several OLAP operations that have been widely used in the literature~\cite{Vassiliadis:99}. In our thesis, we rely on these widely accepted operations %to permit users exploring visually data warehouses. 
+to intuitively navigate the data warehouse data during exploration.
+Examples of relevant OLAP operations discussed subsequently in our thesis include the following types:
+\begin{itemize}
+\item \emph{Roll-up.} It aggregates data by climbing up a hierarchy or by reducing dimensions. %by dimension reduction.
+\item \emph{Drill-down.}  It is the reverse operation of \emph{Roll-up}. It adds detail to data by stepping down to lower-level data or by introducing new dimensions
+\item \emph{Slice.} It selects data by fixing values or intervals for one dimension.
+\item \emph{Dice.} It selects data by fixing values or intervals for many dimensions.
+%\item \emph{Pivot.} It changes the way of inspecting the results by rotating the cube.
+\end{itemize}
+
+{\color{Fuchsia}}
+
+
+
+
+
+\subsection{Existing work for visual exploration of data warehouses} 
+Several popular products, e.g., QlikView~\cite{url:QlikView} and Tableau~\cite{url:tableau} incorporate modern graphical methods suitable to query and explore data warehouses.  
+More specifically, these tools provide high-quality visualizations of the subsets of data queried by the user.
+However, the specification of queries or data regions to explore remains a user-driven manual task. 
+
+
+Recent works in visual data exploration have tackled the problem of recommending interesting queries when visually exploring data warehouses. 
+ Actually, most prominent work in the context of data warehouse visual exploration, were already discussed in Section~\ref{sec:EDA}. Yet, we evoke again these work with highlighting the data warehouse aspect. 
+
+In fact, our review of existing work for visual exploration of data warehouses (e.g.,~\cite{Vartak,Ehsan:18,MafrurSK18,Tang:2017,Milo:2016,Milo:2018,Sellam:16,Wongsuphasawat2016,Wongsuphasawat:2017}), shows that these work provide only facilities to explore visually data cubes or precomputed summaries. 
+In other words, these work make a precomputed data cube available to all users. In this context, the user cannot navigate to other dimensions not considered in the predefined cube. Accordingly, users never explore the whole data warehouse.
+
+In contrast to existing visual exploration solutions that are limited to the exploration of a specific data cube, we  discuss later an instance of our visual data exploration framework that offers users the possibility to analyze the whole data warehouse.
+
+%\mel{I suggest adding a column to the table that says DW support and lists the supported operations that were described above. Then, this discussion can be much shorter and less repetitive. Partly in the table with the cube queries, but then, no-one knows what these are. Maybe you need to introduce this in the paragraph where you introduce the operations.}
+Note also that the same problem stated in Section~\ref{sec:EDA} holds for approaches that enable the visual exploration of data warehouses. Hence, we observe a gap between systems supporting query recommendation such as~\cite{Vartak,Ehsan:18,MafrurSK18,Sellam:16,Tang:2017,Milo:2016,Milo:2018}, and existing systems supporting visualization recommendation such as Voyager~\cite{Wongsuphasawat2016,Wongsuphasawat:2017,url:tableau,url:QlikView} on the other hand.
+
+
+
+To cope with this problem, we present later our framework for exploring data visually. 
+This framework provides several facilities including the visualization recommendation and query recommendation. Furthermore, we provide an instance of our framework that validates the feasibility of our methods when exploring data warehouses visually. 
+
+Results of experiments in Chapter~\ref{chap:eval} validate the efficiency and the effectiveness of exploring visually data warehouses as a whole using the instance of our visual data exploration framework that we will describe it later.
+
+
+
+
+
+
+
+
+
+

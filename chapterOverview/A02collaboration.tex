@@ -1,0 +1,37 @@
+\label{sec:desc-A02}
+The volume-based large dynamic graph analysis solution is another instance of our visual data exploration framework.
+This instance is based on a volume-based approach proposed in~\cite{bruder:18} where author propose methods to allow for interactive analysis of dynamic graphs containing several thousand time steps and hundreds of nodes.
+	
+
+Inspired by space-time cube approaches e.g.,~\cite{bach:2017} and~\cite{Bach_CHI:14}, authors in~\cite{bruder:18} adopts a volumetric representation of the dynamic graph based on its adjacency matrices.
+These concepts have in common that they stack representations of individual time steps to gain a three dimensional data structure.
+As illustrated in Figure~\ref{fig:illu}, adjacency matrices are 2D structures that are stacked to incorporate the temporal evolution of the graph.
+In the resulting three dimensional cuboid structure, the $x$- and $y$-axes represent nodes, while entries in the plane defined by those two axes represent edges (including their weights). 
+The $z$-axis represents time.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1.0\linewidth]{figures/evoDM/stacking-crop}
+	\caption{Sample of explored adjacency matrices~\cite{Bruder2019}}
+	\label{fig:illu}
+\end{figure}
+
+
+To allow for fluent user interactions, the proposed approach~\cite{bruder:18} offers a set of analytic methods, used to perform typical analysis tasks such as detecting temporal patterns, e.g., clusters forming or repeating occurrences of similar node-link structures.
+Essentially, we distinguish three classes of analytic methods {\color{Fuchsia}(equivalent to queries in our framework)}.
+
+\begin{description}
+	\item[Data Views.] 
+A single visualization is often not capable to convey all information of the exhibited large dynamic graphs.
+Therefore, several data views are proposed to visualize large dynamic graphs.
+This includes for instance the volume view, the timeline plot and slice views that are detailed in~\cite{bruder:18}.
+	\item[Aggregation and Filtering.] 
+Filtering and aggregation of adjacent edges an essential part of the analysis process to reduce the visualization of large dynamic graphs to relevant information.
+Examples of aggregation functions include for instance minimum, maximum, average weight and density of edges. These methods could be applied either on in the spacial domain i.e. aggregating neighboring edges or in the time domain.
+Filtering methods consists of omitting edges not satisfying such predicate e.g. filter out edges with low density.
+\item[Comparison.] 
+Comparing different sections within a temporal graph or even several distinct dynamic graphs is supported via the comparison function. 
+In this case, a matrix view is generated to render commonality and irregularities resulting from comparing the different time sequences or distinct dynamic graphs.
+\end{description}
+
+

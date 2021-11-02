@@ -1,0 +1,45 @@
+\begin{figure}[t]
+
+	\begin{minipage}{0.45\textwidth}
+			\begin{center}
+
+				\resizebox {1\textwidth} {!} {
+\begin{tikzpicture}[every node/.append style={inner sep=0pt, font=\vphantom{$f_p$}},
+                    every path/.append style={shorten >=2.5pt, shorten <=2.5pt}]
+\node (v1)  at (1, 0) {TABLE A};
+\node (v2)  at (4, 0) {TABLE B};
+\node (v3)  at (7, 0)  {TABLE C};
+\node[above of=v1] (p1) {$\pi$};
+\node[right=-1pt of p1] (e2) {$_{metric1,uni\_name}$};
+
+\node[above of=v2] (p2) {$\pi$};
+\node[right=-1pt of p2] (e2) {$_{metric2,uni\_name}$};
+
+\node[above of=v3] (p3) {$\pi$};
+\node[right=-1pt of p3] (e2) {$_{metric3,uni\_name}$};
+
+
+%\node (j1) at (4, 2) {$\bowtie$};
+\node (j1) at (4, 2) {$\fullouterjoin$};
+\node[right=1pt of j1] (e1) {$_{uni\_name}$};
+
+%\node (v) at (4, 3.5) {VIEW};
+\node (v) at (4, 3) {$\pi$};
+\node[right=-1pt of v] (e2) {$_{(\alpha \times metric1 + \beta \times metric2 + \gamma \times metric3), uni\_name}$};
+
+
+\draw (p1) -- (v1);
+\draw (p2) -- (v2);
+\draw (p3) -- (v3);
+\draw (p1) -- (j1);
+\draw (p2) -- (j1);
+\draw (p3) -- (j1);
+\draw (j1) -- (v);
+\end{tikzpicture}
+}
+\end{center}
+\end{minipage}
+ \vspace{-1.3em}
+\caption{Algebraic representation of user's query}
+\label{view-sql}
+\end{figure}

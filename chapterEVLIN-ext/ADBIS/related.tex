@@ -1,0 +1,164 @@
+\subsection{Related work}
+\label{sec:collab-related-work}  
+
+
+In the following, we review the most relevant research related to our contributions discussed in this section.  
+
+
+\noindent \textbf{Graph merging.}  Our merge approach fits in the scope of inexact matching~\cite{Yan:2016} where there are structural differences between processed graphs.
+Traditionally, inexact matching is presented as an assignment problem where a cost function is introduced to compute the optimal assignment.
+ In this case, the problem consists of finding an assignment that minimizes such cost. 
+This leads to two formulations of the graph matching problem. 
+The first formulation called Linear Sum Assignment Problem, considers only information about the vertices. Several Hungarian-type algorithms~\cite{Kuhn55thehungarian,JonkerV87} exist to solve these kind of problems. 
+ However, applying these solutions to our directed exploration session graphs may lead to cycles as shown in Section~\ref{sec:fuse-cycles}.
+ 
+The second formulation, called quadratic assignment problem (QAP)~\cite{RePEc:cwl} leverages vertices and edges information.
+Indeed, it aims at minimizing the number of adjacency disagreements between the two matched graphs. 
+Yet, it was proven in~\cite{rainier:09} that QAP is NP-Hard. Accordingly, several relaxation algorithms, e.g.,~\cite{Leordeanu:2009:IPF,Liu:2014:GNC} have been proposed to find an approximate solution.
+Essentially, these approximate solutions 
+transform the graph matching problem into a sequence of convex problems, such that a given initial solution is improved iteratively by decreasing the cost function up to a fixed point.
+In our work, we adopt a similar approach where we find initially most interesting matchings to perform. Those seed matchings are used to trigger the discovery of further matchings to perform.
+Nonetheless, our work differs from existing approximate solutions such as~\cite{Leordeanu:2009:IPF,Liu:2014:GNC} in the initialization of the seed matching solution that will be subsequently improved.
+Indeed, our work is more oriented to graphs integration rather than matching. 
+Thus, we aim at maximizing the integration of a small graph representative of a user exploration on a bigger graph corresponding to the multi-users graph.
+This ``one-way matching'' relieves the complexity of the problem of finding a seed matching solution to expand later.
+Hence, we match initially the user's exploration graph nodes to the global graph in order to identify seed pair vertices whose children are later matched recursively.
+ 
+~~\\
+\noindent \textbf{Graphs Summary.}  
+Our merge approach that maintains periodically the multi-user graph also relates to the graph summarization.
+ The main goal of graph summarization is to generate a concise graph summary beneficial for several purposes, e.g., efficient storage and query processing. 
+In this context, we mention~\cite{Liu:2018:GSM} as a recent survey on the topic of graph summary. This survey 
+categorizes state-of-the-art graph summary approaches by the type of graphs taken as input as well as by the core methodology employed.
+
+ While these work focus mainly on compressing  all similar nodes inside the same graph or between homogeneous graphs, we focus on performing a 1:1 merge of two similar nodes belonging to different graphs. 
+Indeed, our goal is to increase the compactness of the multi-user graph while preserving the DAG aspect of the merged graph rather than compressing aggressively the multi-user graph.  
+ Yet, graph summary techniques could be an interesting research avenue to further minimize our multi-user graph.
+
+
+
+~~\\
+\noindent \textbf{Graph search.} 
+Our collaborative-filtering recommendation approach supported in \prototype{} analyzes previous users' explorations to match the current exploration. A straightforward solution would be to use top-k similar graphs techniques to find previous exploration sessions having excerpts highly similar to the current exploration.
+In this context, we find several works proposed to find efficiently the top-k similar graphs given an input graph.
+This includes for instance~\cite{Zhu:2012},~\cite{Ranu:2014}, and~\cite{GuptaGYCH14}. Yet, these techniques require the traversal of all individual previous exploration session graphs that may encompass redundancy. This is costly and does not fit our interactive visual data exploration context. 
+Furthermore, this strategy may mitigate the efficiency of collaborative-filtering recommendation since a highly similar exploration session graph does not contain necessarily a node, highly similar to the current user's exploration.
+Accordingly, we adopt a top-k similar items search strategy to provide recommendations. 
+This strategy is applied to our compact multi-user graph that is periodically maintained. Furthermore, we showed in Section~\ref{subsec:child-parent} that the high connectivity incurred by the incremental merge of the multi-user graph is beneficial to optimize the top-k similar items search process.
+
+
+  ~~\\
+\noindent \textbf{Collaborative-filtering query recommendation.} 
+Several existing data exploration tools support users in investigating data by providing facilities to express exploration queries. 
+In general, these work employ either content-based or collaborative-filtering recommendation techniques. 
+As we have covered in Section~\ref{sec:content-based-related} the set of existing work employing content-based recommendations to improve data exploration, we dedicate the rest of this paragraph to discuss existing work employing collaborative-filtering recommendation policy. 
+
+In the collaborative-filtering recommendation approach, existing data exploration work (e.g.,~\cite{Eirinaki14,Khoussainova:2010}) rely on a set of previous explorations made by multiple users to identify prior exploration queries worth recommending to the current user. 
+%Example of existing work supporting the collaborative-filtering approach include for instance~\cite{Eirinaki14,Khoussainova:2010}. 
+Yet, this range of systems provides limited visual interaction facilities when assisting SQL query formulation. Therefore, these works rely on a basic form of history traditionally presented as a serial trace, whereas we focus on interactive visual exploration whose history contains various users' navigations and forms thereby a direct graph. Accordingly, we benefit from our rich history model to infer ratings of exploration steps (via edges' scores), used in our collaborative-filtering recommendation approach.
+Recently, Milo et al proposed REACT~\cite{Milo:2016,Milo:2018}, a visual data exploration tool that provides collaborative recommendations based on previous queries made by users exploring various data sets. 
+While REACT leverages the history of users' explorations over different datasets to mitigate the problem of cold-start, e.g., absence of history about the explored data set, our system \prototype{}  remedies the cold-start situation by providing alongside the collaborative recommendations,  other recommendations.
+
+
+
+%In the following, we review most relevant research area related to our scientific contributions discussed in this chapter.  
+%  ~~\\
+%\noindent \textbf{Query recommendation.} 
+%Several existing data exploration tools support users in investigating data by providing facilities to express exploration queries. 
+%
+%In general, these work employ either content-based or collaborative-filtering recommendation techniques. 
+%{\color{Fuchsia}As we have covered in Section~\ref{sec:content-based-related} the set of existing work employing content-based recommendations to improve data exploration, we dedicate the rest of this paragraph to discuss existing work employing the collaborative-filtering recommendation policy. }
+%
+%In the collaborative-filtering recommendation approach, existing data exploration work rely on a set of previous explorations made by multiple users to identify prior exploration queries worth of recommending to the current user. 
+%%Examples include for instance REACT~\cite{Milo:2018} that provides collaborative recommendations based on previous queries made by users exploring various data sets. 
+%Example of existing work supporting the collaborative-filtering approach, include for instance~\cite{Eirinaki14,Khoussainova:2010}. 
+%Yet, this range of systems provides limited visual interaction facilities when assisting SQL query formulation. Therefore, these works rely on a basic form of history traditionally presented as a serial trace, whereas we focus on interactive visual exploration whose history contains various users' navigations and forms a direct graph thereby. Accordingly, we benefit from our rich history model to infer ratings of exploration steps (via edges' scores), used in our collaborative-filtering recommendation approach.
+%Recently, Milo et al propose REACT~\cite{Milo:2016,Milo:2018}, a visual data exploration tool that provides collaborative recommendations based on previous queries made by users exploring various data sets. 
+%%While REACT leverages the history of users' explorations over different datasets to mitigate the problem of cold-start e.g., absence of history about the explored data set, our work remedies the cold-start situation by providing alongside the collaborative recommendations,  other recommendations.}
+%On one side, REACT leverages the history of users' explorations over different datasets to mitigate the problem of cold-start, e.g., absence of history about the explored data set, it requires a handy and costly offline pre-processing step where several schema similarity parameters (e.g., the entropy similarity between attributes) need to be computed ahead. This information is used later in the online phase to compare user's current exploration session with those preformed previously in various datasets. 
+%On the other side, our visual data exploration framework {\color{Fuchsia}\framework{}} requires also an offline step to update the multi-user graph periodically. This step is automatically done by our merge framework and it does not requires human intervention. Furthermore, we remedy the cold-start situation addressed in REACT by providing content-based query recommendation alongside the collaborative-filtering recommendation approach.
+%
+%
+%
+% 
+%% Considering systems relying on content-based recommendations (e.g.,~\cite{Sellam:16,Tang:2017,Vartak,Wongsuphasawat:2017}), these base their recommendations on prior queries of the same user to find sub-regions highly interesting to the user's context.
+%%The relationship between a user and interesting sub-regions is further analyzed and quantified to determine the utility of information that could be recommended.
+%%For instance, SeeDB~\cite{Vartak} adopts deviation to {\color{Fuchsia}recommend sub-regions of data present in the initial user's query result.} Similarly, authors of~\cite{Tang:2017} analyze data cubes specified by users and search subspaces that encompass outliers and trends.
+%%Voyager~\cite{Wongsuphasawat2016} relies on the set of attributes initially selected by the user to recommend firstly the most suitable visualization and the set of exploration queries strongly related to the user's initial selection.
+%%Similarly, our framework {\color{Fuchsia}\framework{}} supports content-based recommendation approach as discussed in Section~\ref{sec:content-query-rec}. Hence, it recommends queries based on a user's past interactions over previously seen explorations. Each recommended query is associated with a score that quantifies its potential interestingness.
+%
+%
+%%Overall, compared to all previous approaches, we are also the first to combine both collaborative-filtering and content-based recommendation for visual and interactive data exploration. 
+%
+%~~\\
+%\noindent \textbf{{\color{Fuchsia}Graph search.}} 
+%%%ADBIS text 
+%%Our collaborative-filtering recommendation approach analyzes previous users' explorations to match the current exploration. A straightforward solution would be to use top-k similar graphs techniques e.g.,~\cite{Zhu:2012} to find previous exploration sessions having excerpts highly similar to the current exploration.
+%%Yet, this strategy requires the traversal of all individual previous exploration session graphs that may encompass redundancy. This is costly and does not fit our interactive visual data exploration context. 
+%%{\color{Fuchsia}Furthermore, this strategy may mitigate the efficiency of collaborative-filtering recommendation since a highly similar exploration session does not contain necessarily an exploration step, highly similar to the current exploration step.}
+%%Accordingly, we adopt a top-k similar items search strategy to provide recommendations. 
+%%This strategy is applied to our compact multi-user graph that is periodically maintained. We show in Section~\ref{subsec:child-parent} that the high connectivity incurred by the incremental merge of the multi-user graph improves the top-k similar items search.
+%Our collaborative-filtering recommendation approach analyzes previous users' explorations to match the current exploration. A straightforward solution would be to use top-k similar graphs techniques to find previous exploration sessions having excerpts highly similar to the current exploration.
+%In this context, we find several works proposed to find efficiently the top-k similar graphs given an input graph.
+%This includes for instance~\cite{Zhu:2012},~\cite{Ranu:2014}, and~\cite{GuptaGYCH14}. Yet, these techniques require the traversal of all individual previous exploration session graphs that may encompass redundancy. This is costly and does not fit our interactive visual data exploration context. 
+%Furthermore, this strategy may mitigate the efficiency of collaborative-filtering recommendation since a highly similar exploration session graph does not contain necessarily a node, highly similar to the current user's exploration.
+%Accordingly, we adopt a top-k similar items search strategy to provide recommendations. 
+%This strategy is applied to our compact multi-user graph that is periodically maintained. Furthermore, we showed in Section~\ref{subsec:child-parent} that the high connectivity incurred by the incremental merge of the multi-user %graph speeds up the top-k similar items search's runtime.
+%graph is beneficial to optimize the top-k similar items search process.
+%
+%~~\\
+%%\noindent \textbf{Graph merging.}  Our merge approach used to update iteratively the multi-user graph, fits in the scope of inexact matching where %two exploration queries are matched if they are highly similar.
+%%{\color{Fuchsia}there are structural differences between the two processed graphs.}
+%%Traditionally, inexact matching is presented as an assignment problem where a cost function is introduced to compute the optimal assignment.
+%%{\color{Fuchsia} In this case, the problem consists of how to find out a mapping that minimizes such cost. }
+%%This leads to two formulations of the graph matching problem. 
+%%The first formulation called Linear Sum Assignment Problem, considers only information about the vertices. Several Hungarian-type algorithms~\cite{Kuhn55thehungarian,JonkerV87} exist to solve these kind of problems. 
+%% However, applying these solutions to our directed exploration session graphs may lead to cycles as shown in Section~\ref{sec:fuse-cycles}.
+%% 
+%%The second formulation, called quadratic assignment problem (QAP)~\cite{RePEc:cwl} leverages vertices and edges information.
+%%Indeed, it aims at minimizing the number of adjacency disagreements between the two matched graphs. % and the proposed matching.
+%%Yet, it was proven in~\cite{rainier:09} that QAP is NP-Hard, and some approximate solutions can be found in polynomial time. 
+%%{\color{Fuchsia}Compared with the approximate solutions of QAP, e.g,~\cite{Leordeanu:2009:IPF,Liu:2014:GNC}}, our work is more oriented to graphs integration rather than matching. 
+%%Thus, we aim at maximizing the integration of a small graph representative of a user exploration on a bigger graph corresponding to the multi-users graph.
+%%This ``one-way matching'' relieves the complexity of the tackled problem. 
+%%Hence, we match initially the user's exploration graph nodes to the global graph in order to identify seed pair vertices whose children are later matched recursively.
+%%%%Related work of  APPROXIMATE QAP solutions
+%%Recently, an interesting algorithm, theInteger Projected Fixed Point Method (IPFP) [12] is proposed for MAP Inference and graph match-ing. This algorithm is an efficient approach, which optimizes in the discrete domain, and guaranteeconvergence properties. However, it is a kind of greedy approach and can trapped easily into bad lo-cal maximum, because it cannot guarantee the continuous solution with backtrace can move towardsbetter discrete solutions. In general, this approach often stop early with bad local maximum.
+%%%%If I undestood correctly IPFP, it searches a local solution and tries to improve iteratively
+%%While this relaxed problem is also NP-hard, several polynomial-time algorithms have been designed to converge close to a local or global solution in a short computing time. The ones based on linearization of the cost function S are known to be particularly efficient. They transform the relaxed problem into a sequence of convex problems, such that a given initial solution is improved iteratively by decreasing the cost function up to a fixed point.
+%%%%HOW IPFP WORKS
+%%The idea of IPFP, is to iteratively improve (here reduce) the corresponding quadratic cost in two steps at each iteration:
+%%1. Compute a discrete linear approximation bk+1 of the quadratic cost S around the current solution xk by solving a LSAP.
+%%2. Compute the next candidate solution xk+1 by solving the relaxed problem, reduced to compute the extremum of S between xk and bk+1 included.
+%%Compared with the QAP formulation, 
+%
+%
+% \noindent \textbf{Graph merging.}  Our merge approach used to update iteratively the multi-user graph, fits in the scope of inexact matching where {\color{Fuchsia}there are structural differences between processed graphs.}
+%Traditionally, inexact matching is presented as an assignment problem where a cost function is introduced to compute the optimal assignment.
+%{\color{Fuchsia} In this case, the problem consists of finding an assignment that minimizes such cost. }
+%This leads to two formulations of the graph matching problem. 
+%The first formulation called Linear Sum Assignment Problem, considers only information about the vertices. Several Hungarian-type algorithms~\cite{Kuhn55thehungarian,JonkerV87} exist to solve these kind of problems. 
+% However, applying these solutions to our directed exploration session graphs may lead to cycles as shown in Section~\ref{sec:fuse-cycles}.
+% 
+%The second formulation, called quadratic assignment problem (QAP)~\cite{RePEc:cwl} leverages vertices and edges information.
+%Indeed, it aims at minimizing the number of adjacency disagreements between the two matched graphs. 
+%Yet, it was proven in~\cite{rainier:09} that QAP is NP-Hard. Accordingly, several relaxation algorithms e.g.,~\cite{Leordeanu:2009:IPF,Liu:2014:GNC} have been proposed to find an approximate solution.
+%{\color{Fuchsia}Traditionally,  these approximate solutions e.g.,~\cite{Leordeanu:2009:IPF,Liu:2014:GNC} transform the graph matching problem into a sequence of convex problems, such that a given initial solution is improved iteratively by decreasing the cost function up to a fixed point.
+%In our work, we adopt a similar approach where find initially most interesting matchings to perform. Those seed matchings are performed and used to trigger the discovery of further matchings to perform.
+%Nonetheless, our work differs from existing solutions e.g.,~\cite{Leordeanu:2009:IPF,Liu:2014:GNC} in the initialization of the seed matching solution that will be subsequently improved.}
+%Indeed, our work is more oriented to graphs integration rather than matching. 
+%Thus, we aim at maximizing the integration of a small graph representative of a user exploration on a bigger graph corresponding to the multi-users graph.
+%%This ``one-way matching'' relieves the complexity of the tackled problem. 
+%{\color{Fuchsia}This ``one-way matching'' relieves the complexity of the problem of finding a seed matching solution to expand later.}
+%Hence, we match initially the user's exploration graph nodes to the global graph in order to identify seed pair vertices whose children are later matched recursively.
+% 
+%~~\\
+%\noindent \textbf{Graphs Summary.}  
+%%%ADBIS text
+%% Our merge approach used to update iteratively the multi-user graph, relates also to the graph summarization area where several approaches surveyed in~\cite{Liu:2018:GSM} were proposed to generate a graph summary beneficial for several purposes, e.g., efficient storage and query processing. While these work focus mainly on compressing  all similar nodes inside the same graph or between homogeneous graphs, we focus only on performing a 1:1 merge of two similar nodes belonging to different graphs. Indeed, our goal is to increase connectivity between individual user exploration sessions rather than compressing the multi-users graph. Yet, graph summary techniques could be an interesting research avenue to further minimize our multi-user graph.
+%Our merge approach that maintains periodically the multi-user graph also relates to the graph summarization.
+% The main goal of graph summarization is to generate a concise graph summary beneficial for several purposes, e.g., efficient storage and query processing. 
+%In this context, we mention~\cite{Liu:2018:GSM} as an excellent recent survey on the topic of graph summary. This survey 
+%categorizes state-of-the-art graph summary approaches by the type of graphs taken as input as well as by the core methodology employed.
+%
+% While these work focus mainly on compressing  all similar nodes inside the same graph or between homogeneous graphs, we focus on performing a 1:1 merge of two similar nodes belonging to different graphs. Indeed, our goal is to increase connectivity between individual user exploration sessions rather than compressing the multi-user graph. Yet, graph summary techniques could be an interesting research avenue to further minimize our multi-user graph.

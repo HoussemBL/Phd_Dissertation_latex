@@ -1,0 +1,45 @@
+\section{Introduction}
+%As motivated in the previous chapters, we propose in this thesis a novel framework for
+This chapter formalizes our framework for holistic recommendation-based visual data exploration. Furthermore, we present the set of features and functionality that our framework makes available to the users to facilitate their exploration tasks. 
+
+
+
+We introduce our framework in Section~\ref{sec:frame-overview}. 
+In Section~\ref{sec:frame-comp}, we describe the main modules and components present in this framework.
+Subsequently, we describe in Section~\ref{sec:frame-navi} the set of possible navigations that can be made using our framework when exploring data visually.
+Furthermore, we discuss in Section~\ref{sec:frame-process} the process of visual data exploration that users can perform using an instance of our framework. 
+%Finally, we conclude this chapter before introducing for the next chapter.
+Note that this chapter relies partially on descriptions and exploration scenarios presented in our paper~\cite{BHBK18:Demo}.
+
+
+%\section{Provenance-based visual data exploration framework}
+\section{Framework overview}
+\label{sec:frame-overview}
+\input{chapterOverview/frameworkOverview}
+%\vspace{-3em}
+\section{Framework components}
+\label{sec:frame-comp}
+\input{chapterOverview/frameworkComponents}
+
+\section{Framework navigations}
+\label{sec:frame-navi}
+\input{chapterOverview/frameworkNavigations}
+
+\section{Framework implementation}
+\label{sec:frame-process}
+\input{chapterOverview/frameworkInstance}
+
+
+
+\section{Conclusion}
+This chapter introduced our holistic recommendation-based visual data exploration framework \framework{}. Besides that, we presented \prototype{}, an instance of our framework meant to explore data warehouses visually. 
+In the next chapters, we continue describing our framework. Hence, we describe thoroughly two main modules present in our framework that are the \emph{provenance engine module} and the \emph{Recommendation engine module}. 
+%\mel{Worth saying that while provenance module is general, recommendations are tailored to particular framework instance (and in our case EVLIN for DW). Briefly justify this, if possible.}
+While the description of the \emph{provenance engine module} is general, the description of the \emph{Recommendation engine module} is tailored to a particular framework instance (in our case \prototype{} for visual exploration of data warehouse). The rationale behind that is to provide evidences about the feasibility of our proposed recommendations methods.
+
+
+
+
+
+
+

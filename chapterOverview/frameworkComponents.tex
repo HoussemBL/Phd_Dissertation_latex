@@ -1,0 +1,68 @@
+This section describes the modules and components present in the architecture of our visual data exploration framework as depicted in Figure~\ref{fig:archi-FW}.
+
+~~\\
+\noindent \textbf{Data.}
+The \emph{Data} presents the input of our framework \framework{}.
+It is structured data that may reside in a relational database, flat files, etc$\ldots$. This input requires proper access methods to retrieve subsets of the data.
+ %Several examples can be used as a data input to our framework. This includes for instance, relational databases, data cubes, graphs, $\ldots$
+
+~~\\
+\noindent \textbf{Visual user interface.}
+The \emph{Visual user interface component} allows users to interact with data of interest (e.g.,  through queries, interactions, faceted navigation, $\ldots$).
+It consists of two main interfaces where the first one renders data regions under investigation. The second interface encompasses recommendations suggested to the user to explore next.
+
+To provide these two interfaces, the \emph{Visual user interface module} consists of two sub-components. The first one is the \emph{Data display} sub-component. 
+It takes as input a query $Q$ specified by the user. In this case, the \emph{Data display} sends the query
+to the \emph{Data retrieval module} in order to process it and to get results.
+Later, the \emph{Data display} sub-component receives the users' query result (a dataset $D_{explo}$ and a visualization specification $V_{explo}$) from the \emph{Data retrieval module}.
+Ultimately, it renders $D_{explo}$ according to the visual encodings properties specified in the visualization $V_{explo}$.
+The second sub-component is the \emph{Recommendation display} sub-component. It takes as input a set of triples (a recommended query $Q_{rec}$, a recommended visualization $V_{rec}$ and a score of interestingness $sc$).
+Ultimately, it renders an interactive visualization $VIS$ that shows the set of recommendations that the user can study next.
+Note that the \emph{Visual user interface} component is interactive. Hence, the user can issue queries whose results will be rendered by the \emph{Data display} sub-component. Furthermore, a user can inspect interactively results rendered by the \emph{Recommendation display} sub-component to gain more knowledge (e.g., via hovering or clicking on sub-results of interest). Overall, possible user interactions and navigations are described in the following Section~\ref{sec:frame-navi}.
+
+
+
+
+~~\\
+\noindent \textbf{Data retrieval.}
+%The \emph{Data retrieval module} is responsible for processing users' requests to fetch a specific region of data. 
+%It takes as input a dataset $D$ and a query $Q$. 
+%Then, it returns $Q(D)$, the subset of data $D$ that meets the user's request specified in $Q$.
+{\color{Fuchsia}
+The \emph{Data retrieval module} is responsible for processing users' requests to fetch a specific region of data. 
+It takes as input a dataset $D$ and a query $Q$ (specified via the \emph{Data display} sub-component
+).
+Then, it returns a pair of information: (i) $D_{explo}$, a region of data $ \subset D$ that meets the user's request $Q$, and (ii)  $V_{explo}$ (sent from the \emph{Recommendation display} sub-component) that contains the visual encodings properties required to render $D_{explo}$.
+}
+
+~~\\
+\noindent \textbf{Provenance engine module.}
+The \emph{Provenance engine module} is responsible for collecting/processing provenance information that tracks an actual run of a visual data exploration process.
+It takes as input information about explored data region $D_{explo}$ from the \emph{Data retrieval module}. 
+%Collected provenance encompasses meta data about the visual data exploration process such as user's interactions, user's exploration queries, and inspected visualizations. 
+{\color{Fuchsia}The \emph{Provenance engine module} takes also as input visual properties information $V_{explo}$ used to render data region $D_{explo}$.
+Pairs of explored data region $D_{explo}$ and visual properties information $V_{explo}$ present the provenance traces collected by the \emph{Provenance engine module}.} Captured provenance traces are then processed and analyzed also by this module to extract information interesting for users in the course of the visual data exploration process. 
+The processed provenance information is sent ultimately to the \emph{Recommendation engine module} that is described below.
+
+
+
+~~\\
+\noindent \textbf{Recommendation engine module.} 
+As its name indicates, the \emph{Recommendation engine module} generates recommendations to assist users in exploring datasets efficiently. Essentially, it leverages provenance information captured and analyzed by the \emph{Provenance engine module} to produce recommendations.
+More specifically, the \emph{Recommendation engine module} computes two types of recommendations:  (i)~recommended queries deemed interesting to the current user, and (ii)~recommended visualizations that are suitable 
+%to render sub-sets of manually specified by the user or 
+to render the result of a recommended query proposed to the user.
+
+
+Furthermore, the \emph{Recommendation engine module} assigns an interestingness score $sc$ to each recommended query $Q_{rec}$ to help users in choosing suitable recommendations to study next. 
+This incurs ultimately the generation of a set of triples $(Q_{rec},V_{rec},sc)$ that will be rendered through the \emph{Visual user interface module}.
+
+
+
+
+
+
+
+
+
+

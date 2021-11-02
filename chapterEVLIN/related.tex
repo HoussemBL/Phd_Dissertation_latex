@@ -1,0 +1,26 @@
+\label{sec:related}
+
+%\hou{focus in query expressiveness}
+
+
+As mentioned in the introduction, visual data exploration systems either rely on query recommendation or visualization recommendation. Opposed to \prototype\ that considers both types of recommendations, most data and visualization recommendation techniques work independently from one another, meaning that the result of query recommendation, i.e., $Q'(D)$ has no impact on the visualization recommendation process, and vice versa. 
+
+Tab.~\ref{tab:rw} provides a quick overview of works most closely related to ours. For each approach, it describes (1)~the supported types of input queries (e.g., select-project-join (SPJ) queries, project-aggregate (PA) queries, or cube queries corresponding to SPJA queries), (2)~the type of recommended output queries, and (3)  the type of recommended or used visualization. We observe that while query recommendation systems such as YmalDB~\cite{Drosou2013}, SeeDB~\cite{Vartak}, or REACT~\cite{Milo:2016} allow for expressive data exploration by supporting (mostly) the full range of typical OLAP queries, they do not offer any visualization recommendation and simply use predefined visualization (table or bar chart). Opposed to that, visualization recommendation systems such as Voyager~\cite{Wongsuphasawat2016} do not yet offer or have only very limited support for query recommendation. Our system aims at bridging the gap between these two approaches. In addition, to the best of our knowledge, \prototype\ is the first system that considers data provenance and evolution provenance during its recommendation processes. 
+
+    \begin{table}[t]
+ \centering \scriptsize
+ \begin{tabular}{|@{}p{3.8cm}@{}|@{}c@{}|@{}c@{}|@{}c@{}|} \hline
+ \textbf{System} & \textbf{input } & \textbf{recom. } &  \textbf{recom.} \\ 
+  & \textbf{ query} & \textbf{query} &  \textbf{vis.} \\ 
+ \hline
+  YmalDB \cite{Drosou2013} & SPJ & SPJ &   table  \\ \hline
+ SeeDB \cite{Vartak} & cube & sub-cube & bar chart  \\ \hline
+ REACT \cite{Milo:2016} & cube & OLAP queries & table   \\ \hline
+ Voyager \cite{Wongsuphasawat2016} &PA & Changed SELECT-clause &  diverse  \\ \hline
+% \textbf{\prototype} & \textbf{cube} & \textbf{OLAP queries} & \textbf{bar chart} \\ \hline
+
+\end{tabular}
+ \caption{Summary of related work}
+ \vspace{-0.4cm}
+ \label{tab:rw}
+ \end{table}

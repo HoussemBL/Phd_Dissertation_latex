@@ -1,0 +1,120 @@
+\begin{figure}[ht]
+\[
+\begin{array}{lllllll}
+P ::= & [Act] \mid [Ag] \mid [E] \mid [Att] \mid [Gen]  & \text{Top-level values} \\
+v ::= & B \mid \{R\} \mid [A]  \\
+B ::=	& \nule \mid true \ \mid \ false \mid \ \num \  \mid \ \str      & \text{Basic values}\\ 
+R ::= & \epsilon \mid \fieldd{l}{v} , R   & \text{Record body} \\
+A ::= &  \epsilon \mid B , A \mid \{R\} , A  & \text{Array body} \\
+\end{array}
+\]
+\caption{Syntax of JSON data.}
+\label{fig:datamodel}
+\end{figure}
+
+Overall provenance traces obey the  grammar displayed in Figure~\ref{fig:datamodel}.
+Basic values $B$ comprise  $null$ values, booleans, numbers $\num$ and strings $\str$.
+Array values $[A]$ and record values $\{R\}$ are generated in terms of their respectively bodies $A$ and $R$.
+As outlined in Section~\ref{sec:motiv}, records are sets of fields, each field being an association of a value $v$ to a label $l$ whereas arrays are sequences of either basic or record values.
+Empty records and empty arrays are  denoted with $\{\epsilon \}$ and $[ \epsilon ]$ respectively, and they are sometimes respectively abbreviated by $\emprec$ and $\emplis$. Note that we assume $R,\epsilon = \epsilon,R=R$ and similarly for $A$. Also note that we assume that arrays cannot be immediately nested inside arrays, while they can be nested inside records occurring in arrays. This choice has a twofold motivation: our exploration of JSON data available on the Web revealed that immediate nesting of arrays is rare, and our hypnotises simplifies the specification of the fusion process.
+
+
+Well-formed \json\/ values require that in each record the labels are unique.
+This notion of well-formation is easily captured as follows: let $\labels{R}$ denote the set of labels of a body record value $R$, then a record is well-formed if it is empty or if it is of the form $\{\fieldd{l}{v}, R'\}$,  $l \notin \labels{R'}$ and $\{R'\}$ is in turn well-formed. In the sequel, we consider only well-formed \json\/ values.
+
+For the sake of convenience, we denote with $\{R_1\} \rconc \{R_2\}$ the record $\{R_1, R_2\}$ resulting from the union of two records whose labels are distinct, i.e., $\labels{R_1}\cap\labels{R_2}=\eset$.
+We also denote  with $[A_1] \tconc [A_2]$ the array $[A_1, A_2]$ resulting from the order-preserving concatenation of the two arrays.
+While record concatenation is commutative, array concatenation is not. 
+
+
+\begin{figure*}[ht]
+\[
+\begin{array}{r*{3}{l}}
+T 	&::= & BT   \mid  \{ RT\}   \mid  [AT]   \mid  [SAT*]  \mid   T\Union\; T  & \text{Top-level types} \\
+BT 	&::= &  \tnull  \mid \tbool \mid \tnum \mid \tstr   & \text{Basic types} \\
+RT   &::=&   \epsilon \mid \fieldd{l}{T}, RT \mid  \fieldt{l}{T}\tunion\epsilon, RT  & \text{Record body types} \\
+AT    &::= &  \epsilon   \mid  BT , AT  \mid  \{RT\} , AT  & \text{Array body types} \\
+SAT    &::= &  \epsilon   \mid BT \Union SAT    \mid RT \Union SAT & \text{Simplified array types} \\
+
+\end{array}
+\]
+
+\caption{Syntax of the JSON type language.}
+\label{fig:tsyn}
+\end{figure*}
+
+\medskip
+The syntax of the \json\/  schema language we adopt  is depicted in Figure \ref{fig:tsyn}.
+The core of this language is captured by the non-terminals $BT$, $RT$, and $AT$ which are a straightforward generalisation of their $B, R$ and $A$ counterparts from the data model syntax. Note the use of $\epsilon$ to indicate empty record and array body types. As expected, we assume $X,\epsilon=\epsilon, X=X$ with $X$ either an $AT$ or an $RT$ expression. Also, record value concatenation $\rconc$ and array value  concatenation  $\tconc$ are respectively lifted to record and array types in the obvious way. 
+
+
+
+In order to capture the schemas manipulated during the fusion phase and, at the same time, allow for having concise schemas, we rely on type repetition  *, type union $\tunion$ and the simplified array constructor $SAT$.
+As previously  illustrated in Section \ref{sec:motiv},  a SAT expression consists of a, possibly empty,  union of $BT$  and $RT$, which is then guarded by  * in array types, as in  [(SAT)*].  To represent field  optionality in records we use the union $\fieldt{l}{T}\tunion\epsilon$, while usual optionality is represented by means of the union operator $+$. To illustrate, the type $\{l: \tnum +\tnull, m: [(\tbool + \tstr)*]\}$ represents records whose both fields are mandatory, and where the $l$ field can be associated to either a number or a null value, while the $m$ field is associated to an array of $0$ or more boolean or string values. The type $\{(l: \tnum +\tnull)+\epsilon, m: [(\tbool + \tstr)*]\}$ instead is a super type of the previous one, as it also includes records not having the $l$ field.
+
+
+
+We define now schema semantics by means of the function  $\ssem{\_}$, which  is the minimal function mapping types to sets of values, as defined in the following monotone equations, which perfectly reflect the meaning of types previously explained. For the sake of simplicity we omit the case of basic types 
+
+
+
+\[
+\begin{array}{lcll}
+
+\text{\bf Records}\\
+\ssem{\{RT\}} &\eqdef & 	\{ \{ R \} \mid R \in \ssem{RT} \} \\
+\ssem{\{\epsilon\}} &\eqdef & 	 \{\emprec\} \\
+
+\ssem{\fieldd{l}{T},RT} &\eqdef & \{  \fieldd{l}{v}, R \mid v \in \ssem{T}, \ R \in \ssem{RT} \}\\
+\ssem{\fieldt{l}{T}\tunion\epsilon, RT} 	&\eqdef & 		\ssem{\fieldd{l}{T},RT} \cup  \ssem{RT} \\
+
+\text{\bf Arrays}\\
+\ssem{[AT]} &\eqdef & 	 \{ [A] \mid A\in \ssem{AT} \} \\
+\ssem{[\epsilon]} &\eqdef & 	 \{\emplis\} \\
+\ssem{BT , AT}  & \eqdef & 	\{ B , A \mid B\in \ssem{BT} , \  A \in \ssem{AT} \} \\ 
+\ssem{\{RT\} , AT}  & \eqdef & 	\{ \{R\} , A \mid  R \in \ssem{RT}, \  A \in \ssem{AT} \} \\ 
+\text{\bf Simplified Arrays}\\
+\ssem{[SAT*]}  &\eqdef& \{[A] \mid A \in \ssem{SAT}*\}\\
+
+\text{\bf Type union}\\
+\ssem{T\Union U} 	&\eqdef & 		\ssem{T}\cup\ssem{U}\\
+\end{array}
+\]
+
+
+\medskip
+
+In order to manipulate type constructs in our definition of  the fusion process,  we introduce the function $\kind{}$ that maps each type to an integer ranging over $\{0,\ldots, 5\}$ representing/encoding its kind. 
+
+\begin{figure}[ht]
+\centering
+\begin{tabular}{cc}
+$\begin{array}{*{3}{l}}
+\kind{\tnull} & = & 0 \\
+\kind{\tbool} &= & 1 \\
+\kind{\tnum} &= & 2 \\
+\end{array}$
+&
+$\begin{array}{*{3}{l}}
+\kind{\tstr} & = & 3 \\
+\kind{\{RT\}} & = & 4 \\
+\kind{[AT]} = \kind{[SAT*]} &= & 5\\
+\end{array}$
+\end{tabular}
+\end{figure}
+
+In the sequel, types are indicated  by symbols $T, U, V, W, \ldots$, or  by symbols $\bigt, \bigu, \bigv, \bigw \ldots,$ in the particular case of union types. Field-types of the form $l:T$ are indicted by symbols  $\ft, \fu, \fv, \fw, \ldots$.
+
+\medskip
+
+Later on, in order to express correctness of the fusion process we rely on the usual  notion of sub-typing (type inclusion). 
+
+
+\begin{definition}[Sub-typing]\label{ref:label}
+Let $S$ and $T$ two types. Then $S$ is a sub-type of $T$, denoted with $S \sub T$, if and only if $\ssem{S} \subseteq \ssem{T}$.
+\end{definition}
+
+The sub-typing relation is a partial order among types: hence, given two types $S$ and $T$, it may happen that $S \not\sub T$ and $T \not\sub S$. We don't provide and use any subtype checking algorithm  in this work, but we rather exploit this notion in order to state important properties about our schema inference approach. 
+
+
+

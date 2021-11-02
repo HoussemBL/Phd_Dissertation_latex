@@ -1,0 +1,203 @@
+\label{sec:final-userstudy}
+
+%%%ORIGINAL TEXT
+%In this section, we study the effectiveness of our system \prototype{} in assisting users in visual data exploration.
+%To this end, we perform a first user study that compares between (i)~ \prototypeOne{}, supporting all contributions discussed in Chapter~\ref{chap:EVLIN} except of the collaborative-filtering query recommendation and; (ii)~ \prototypeTwo{}, supporting all contributions discussed in Chapter~\ref{chap:EVLIN} including the collaborative-filtering query recommendation. 
+% Second, in contrast to most existing visual data exploration systems (e.g.,~\cite{Milo:2018,Tang:2017,Vartak}) that compare their approaches to manual explorations, we compare  \prototypeTwo{} to Voyager~\cite{Wongsuphasawat:2017}, a state-of-the-art visual data exploration tool that provides recommendations to assist users in their tasks. 
+%To perform this comparison, we first collected 180 real exploration sessions made by researchers in our department when exploring the US flight data warehouse. 
+%We then applied \mlm{}-CR to fuse these sessions with $\thetaFuse = 0.9$. This entails a multi-user graph having 2900 exploration steps. This latter was used by  \prototypeTwo{} during the user study to generate top-3 collaborative recommendations with $\thetaRec$ set to 0.1.
+%
+%
+%\paragraph{Participants and Dataset.}
+%We recruited 14 graduate students who are familiar with data analysis practices. They were equally assigned to two groups, each uses either \prototypeOne{} or  \prototypeTwo{} to explore the US flight data warehouse.
+%
+%
+%
+%\paragraph{Study Protocol.}
+%Our study began with a sample of a Formula one data warehouse exploration using \prototypeOne{} or  \prototypeTwo{}. For participants assigned to  \prototypeTwo{},
+%we provide further an example of a car dataset exploration using Voyager.  
+%Later, we ask them to explore the flights data warehouse for 25 minutes using \prototypeOne{} or  \prototypeTwo{} and to rate investigated recommendations using a 5-point scale from 1 (not interesting) to 5 (highly interesting). Participants who used  \prototypeTwo{}, were invited to perform another exploration session for 25 minutes on some data cubes of the US flights using Voyager and to bookmark  interesting explorations. 
+%
+%Finally, users evaluating  \prototypeTwo{} and Voyager filled out an exit survey %{\color{Fuchsia}that contains questions comparing between} the two tools. 
+%containing questions meant to understand users' preferences for the two tools.
+%Note that for all experiments, we did not ask participants to investigate a specific topic, giving them full freedom for their visual data exploration session.
+%
+%For each study,  we have collected for \prototype{}'s versions, the evolution provenance including performed exploration steps as well as their ratings. For Voyager, we capture visualizations seen by users as well as users' interactions in the chart specification panel. We capture also users' book-markings corresponding to important insights extracted from the data.
+%
+%% \begin{table}[t]
+%% \centering
+%% \scriptsize
+%% \resizebox{1\linewidth}{!}{
+%%  \begin{tabu}{|p{1.3cm}|p{2.7cm}|p{2.8cm}|p{3.5cm}|p{2.8cm}|p{3.5cm}|p{3.1cm}|} \hline
+%%  system   & avg(rating\_by\_session)& avg(finding\_by\_session)& avg(finding\_ratio\_by\_session)& avg(rating>3\_by\_session)& avg(rating>3\_ratio\_by\_session) & avg(navigation\_by\_stage) \\ \hline
+%%EVLIN& 3.24 &3.14 &0.178 &8.57 &0.4&4.03 \\ \hline
+%% \prototypeTwo{}& 3.95 &6 & 0.381&9.85 &0.63&2.21 \\ \hline
+%% \end{tabu}}
+%% \caption{User study results}
+%% \label{tab:user-study}
+%% \end{table}
+% 
+% 
+%
+%
+% \paragraph{ \prototypeOne{} vs  \prototypeTwo{}.} 
+% Overall, the 14 participants performed during the study 14 exploration sessions using the two versions of \prototype. They investigated around 270 exploration steps. 
+%Key observations are summarized in Table~\ref{tab:user-study}. In what follows, we explain and evaluate these results in terms of statistical significance using ANOVA.
+%
+%  \begin{table}[t]
+% \centering
+% \scriptsize
+% \resizebox{0.8\linewidth}{!}{
+%  \begin{tabu}{|p{4cm}|p{1.7cm}| p{1.7cm}|}\hline
+%Metric / System &  \prototypeOne{} &  \prototypeTwo{} \\ \hline
+%avg(rating by session)& 3.24& 3.95 \\ \hline
+%avg(finding by session)&3.14 & 6\\ \hline
+%avg(finding ratio by session)&0.178  &0.381 \\ \hline
+%avg(navigation by stage)& 4.03&2.21 \\ \hline
+% \end{tabu}}
+% \caption{Comparison between \prototypeOne{} and \prototypeTwo{}}
+% \label{tab:user-study}
+% \end{table}
+%
+%Firstly, we computed the average of participants' ratings per session. Results show that  \prototypeTwo{} performs a 15\% improvement of average ratings per session.
+%The statistical significance is confirmed by the two-factor analysis of variance, where we get $ F(1,13) = 6.162$, $ p < 0.03$.
+%
+%Next, we focus on the set of findings ($rating=5$) discovered by participants. 
+%Our results, reported in Table~\ref{tab:user-study}, reveal that using  \prototypeTwo{}, the average of findings surfaced by users per session is 2 $\times$ larger than average findings per session discovered using \prototypeOne{}. While not statistically significant, this observation shows that participants were exposed to more interesting findings using  \prototypeTwo{}.
+%
+%Later, we computed the averages of finding ratio by session ($\frac{\#finding}{exploration\_session\_size}$) for the two prototypes. 
+%We find that  \prototypeTwo{} increases the likelihood of reaching findings. Indeed, the $avg($finding ratio by session$)$ is equal to 0.381 for  \prototypeTwo{} and to 0.178 for \prototypeOne{}. Our results are confirmed by the two-factor analysis of variance where we get $ F(1,13)=7.52$  and $p<0.03$.
+%
+%
+%Note that using the two prototypes, the user receives a set of recommendations after each interaction. To this end, we examined the effort made by users to investigate the set of recommendations proposed at each step. 
+%For that, we measure the number of exploration steps that stem from the same step. Thus, a user of  \prototypeTwo{} needs roughly to explore two recommendations to be able to find an interesting insight that deserves to be further explored. In contrast using \prototypeOne{}, the average of recommendations inspected was roughly equal to 4. The two-factor analysis of variance confirms the statistical significance of this observation. Indeed, we get $F(1,13)=5.58$  and $p < 0.04$.
+%
+%Additionally, we analyzed evolution provenance graphs produced in the user study. We repeatedly found specific patterns in these graphs made using \prototypeOne{} and  \prototypeTwo{}. 
+%Figure~\ref{fig:graphPattern} shows examples of two patterns.
+%The exploration pattern in the left side is extracted from explorations made using \prototypeOne{} while the right trace pattern is inferred from  \prototypeTwo{}.
+%These figures show that with \prototypeOne{}, users need to check more recommendations until stumbling on an interesting insight that deserves to be further studied.
+%
+%Overall, it is appearing from the results of the user study that \prototypeTwo{} improves significantly the user experience during data warehouse visual exploration.
+%
+%
+%
+%\begin{figure}[t]
+%\centering
+%\includegraphics[scale=0.5]{figures/userstudy2/pattern.pdf}
+%\caption{\label{fig:graphPattern}Evolution provenance patterns (M): impact matrix display, (I): investigation of recommendations, (F): interesting finding to explore further}
+%\end{figure}
+%
+%
+% 
+%
+% 
+% 
+%
+% \paragraph{ \prototypeTwo{} vs Voyager.}
+% Recall that participants who used  \prototypeTwo{} were also invited to explore data with Voyager~\cite{Wongsuphasawat:2017}.  This is meant to compare the efficiency of the two tools in the visual exploration of data.
+%Similar to the previous experiment, we provide Table~\ref{tab:user-study2} that recaps important observations obtained in this study. 
+%Note that these observations are evaluated in terms of statistical significance using ANOVA. 
+%
+%
+%   \begin{table}[b]
+% \centering
+% \scriptsize
+% \resizebox{0.9\linewidth}{!}{
+%  \begin{tabu}{|p{5cm}|p{1.7cm}| p{1.7cm}|}\hline
+%Metric / System & Voyager&  \prototypeTwo{} \\ \hline
+%avg(\#visualizations)& 42.2 & 28.1\\ \hline
+% avg(\#interactions)&69.8& 18.71\\ \hline
+%avg(\#bookmarking)&9.5  &6 \\ \hline
+%avg(ratio-bookmarking-by-vis)&0.22& 0.32\\ \hline
+%avg(ratio-bookmarking-by-interaction)& 0.14&0.45 \\ \hline
+% \end{tabu}}
+% \caption{Comparison between Voyager and  \prototypeTwo{}}
+% \label{tab:user-study2}
+% \end{table}
+% 
+%
+%
+%
+%First, we observe that users are exposed to more visualizations using Voyager (42.2) than using  \prototypeTwo{} (28.1). This is due to the brute force policy adopted by Voyager that recommends all possible extensions of the user's initial query. In contrast, \prototypeTwo{} adopts a focused recommendation approach where only queries deemed interesting are recommended. The two-factor analysis of variance confirms the statistical significance of this observation. Indeed, we get $F(1,13)=8.73$  and $p < 0.02$.
+%This high number of visualizations output by Voyager comes at the cost of interactions made by users.
+%Indeed, the average of users' interactions in Voyager per session is equal to 69.8 as users change continuously the encoding panel to get new explorations. Contrarily, \prototypeTwo{} requires less exploration effort ($avg(interactions)=18.71$). Our results are confirmed by the two-factor analysis of variance where we get $ F(1,13)=10.36$  and $p<0.01$.
+%
+%
+%As users investigate more visualizations using Voyager, they are exposed to more book-markings than EVLIN (book-marking is equivalent to $rating=5$). However, Table~\ref{tab:user-study2} shows that  \prototypeTwo{} increases the likelihood of surfacing important findings per visualizations that reaches 0.32, compared to Voyager whose $avg($ratio-bookmarking-by-vis$)=0.22$. Similarly, we measured the ratio of book-marking per interactions for the two systems. Results in Table~\ref{tab:user-study2} show that the probability of performing an interaction leading to interesting insights using  \prototypeTwo{} (0.45) is higher than this for Voyager (0.14).
+%While these three previous results are not statistically significant, they indicate that the participants spent less effort using \prototypeTwo{} to surface important information.
+%
+%We have also analyzed surveys filled out by participants.
+%We find firstly equitable results of the two systems in terms of visualization quality (50\% for each).
+%In terms of usability, 44.4\% of participants prefer  \prototypeTwo{} while 55.6\% opt for Voyager. Thus, many participants liked the drag and drop interaction supported by Voyager to specify attributes to explore. Other participants liked the exploration process ensured by \prototypeTwo{} where users can navigate smoothly between exploration steps via simple interactions.
+%In terms of recommendation interestingness, 57.14\% of participants believed that \prototypeTwo{} generates more interesting recommendations while 42.86\% opt for Voyager. Indeed, most of the users opting for  \prototypeTwo{} agreed on the fact that the underlying system provides more focused recommendations that comply with users' interactions.
+% Finally, we asked participants about the global experience of visual data exploration including learning and discovering important insights. Our survey analysis shows that 62.5\% of participants prefer  \prototypeTwo{} while 37.5\% favor Voyager. 
+%This result is possibly related to the sheer number of recommendations generated by Voyager that may overwhelm users. Indeed, we find in the survey users' replies confirming that e.g.,  ``...Voyager had a cluttered interface''  and
+%``...too many visualizations lead to a clutter''.  On the other hand, many participants appreciate the capability of  \prototypeTwo{} to dig into details. This is not the case for Voyager where users need to adjust manually the visual and the data panels to pursue such interesting exploration. Thus, we find comments related to this statement, e.g., ``EVLIN is very useful to  go in depth on your data'' and ``EVLIN is better to get details and to construct a full exploration story''.  Additionally, some participants opting for  \prototypeTwo{}, deemed interestingness scores for recommendations quite helpful to surface important insights. Thus, one participant noted that ``The interestingness matrix was helpful as it points out highly interesting recommendations".
+%Overall, this study shows a general satisfaction among participants regarding exploring visually data using \prototypeTwo{} that supports all our provenance-based recommendations (content-based, collaborative-filtering, and visualization) as well as quantification methods discussed in Chapter~\ref{chap:EVLIN}. 
+
+This section discusses a comparative evaluation of (i)~EVLIN, supporting %only the content-based recommendation and; (ii)~EVLIN++, blending the collaborative and content-based recommendations as proposed in this paper
+all contributions discussed in Chapter~\ref{chap:EVLIN} except of the collaborative-filtering query recommendation and; (ii)~ \prototypeTwo{}, supporting all contributions discussed in Chapter~\ref{chap:EVLIN} including the collaborative-filtering query recommendation, and (iii) Voyager~\cite{Wongsuphasawat:2017}, a state-of-the-art visual data exploration tool that offers query recommendations with associated visualization recommendations, which is the most similar experience to our system that we identified in our literature review. Voyager consists of a dashboard that initially introduces the explored dataset (e.g., the structure of the dataset including its measures and dimensions and also some generic visualizations summarizing the data). Users can select interactively the set of attributes of interest to explore. Based on the selected attributes, Voyager recommends a set of exploration queries strongly related to the user's initial selection. Accordingly, it generates a large number of recommended visualizations (that render recommended queries' results) and organizes them by relevance. Users then analyze this large set of simultaneously rendered visualizations, can bookmark interesting ones, and can then continue to refine or adapt their selection of attributes to get further recommendations.
+
+We compare the three approaches based on a user study. We recruited 14 graduate students who are familiar with data analysis practices to explore the flights data warehouse. They were equally assigned to two groups. The first group used \prototype\ only. The second group used both EVLIN++ and Voyager (except one participant who only used EVLIN++). To study the effect of collaborative-filtering, prior to the user study, we collected 180 real exploration sessions made by researchers in our department when exploring the flights data warehouse. We then applied \mlm{}-CR to merge these sessions with $\thetaFuse = 0.9$. This entails a multi-user graph having 2900 exploration steps to be used by the collaborative recommender. 
+
+
+\noindent \textbf{Study protocol.} To familarize participants with the different systems, we first let them use the systems they shall focus on (EVLIN for one group, EVLIN++ and Voyager for the other) on a different data warehouse containing Formula one data (cf.~Section~\ref{sec:setup}). After acquiring a general understanding of their respective systems, the participants of the first group explored the flights data warehouse for 25 minutes using \prototype{} and rated investigated recommendations using a 5-point scale from 1 (not interesting) to 5 (highly interesting). User of the second group performed the same task using EVLIN++. In addition, 6 participants of this group also used Voyager for 25 minutes to explore the same data warehouse. Voyager does not support rating visualizations, we thus use its bookmarking feature to let participants label recommended queries with their visualizations as interesting. 
+%
+Finally, users evaluating EVLIN++ and Voyager filled out an exit survey meant to understand users' preferences for the two tools. 
+Note that for all experiments, we did not ask participants to investigate a specific topic, giving them full freedom for their visual data exploration session.
+
+For each exploration session, we capture which exploration steps were performed (as the evolution provenance in EVLIN and EVLIN++ and via logging of Voyager) and which step is associated to which rating or a bookmark. We also track how many interactions users perform on rendered visualizations.
+
+
+    \begin{table}[t]
+ \centering
+ \resizebox{1\linewidth}{!}{
+  \begin{tabu}{|r|c|c|c|}\hline
+\textbf{Metric} & \textbf{EVLIN} & \textbf{EVLIN++} & \textbf{Voyager} \\ \hline
+\#exploration steps & 132  & 107 & n.a. \\ \hline
+\#rendered visualizations &  198 & 197 & 253 \\ \hline
+ \#interesting findings for different ratings (3/4/5) & 85/60/22 & 103/81/48 & 57 \\ \hline
+ average visualizations per session & \textbf{28.3} & \textbf{28.1} & \textbf{42.2} \\ \hline
+average rating per session & \textbf{3.24}&\textbf{3.95}& n.a.\\ \hline
+average ratio of findings to \#exploration steps  per session (3/4/5)& \textbf{0.59 / 0.41 / 0.178} & \textbf{0.76 /  0.53 / 0.355} & n.a.  \\ \hline
+average ratio of findings over visualizations per session (3/4/5)& \textbf{0.41/ 0.28 / 0.12} & \textbf{0.77 / 0.4 / 0.24} & \textbf{0.22}\\ \hline
+
+ \end{tabu}}
+ \caption{Comparison between EVLIN, EVLIN++, and Voyager}
+ \label{tab:user-studyUnified}
+ \end{table}
+ 
+ \noindent \textbf{Study results.} We summarize results obtained in the user study in Table~\ref{tab:user-studyUnified}. The first two rows report the total number of exploration steps across all exploration sessions and the number of rendered visualizations (higher than the number of exploration steps as more than one visualization can be recommended at each step). In subsequent lines, when we write (3/4/5), we report numbers relating to interesting findings for EVLIN and EVLIN++ that consider the three possible cut-offs for interesting recommendations (i.e., rating $\geq 3$, rating $\geq 4$ or rating $\geq 5$). As no ratings are available in Voyager, we consider all bookmarked results of Voyager as interesting. In particular, for different rating thresholds to split interesting findings from uninteresting visualizations, we report the overall number of interesting findings, the average ratio of $\frac{\#findings}{ \#exploration steps}$  per session, and the average ration of $\frac{\#findings}{ \#visualizations}$ per session.  As the interactions of Voyager do not follow individual exploration steps, no corresponding number is reported for Voyager. We further show the average rating per session obtained by both EVLIN and EVLIN++. No equivalent can be reported for Voyager, as it only allows to bookmark a visualization as interesting.
+
+
+
+We further discuss the results highlighted in blue in Table~\ref{tab:user-studyUnified}. Our observations are all verified to be statistically significant using ANOVA. 
+
+ \paragraph{EVLIN vs EVLIN++} 
+ Firstly, we notice that the average number of visualizations per session shown to users is comparable for both \prototype{} and EVLIN++. This is expected as these are two versions of the same system with the same interfaces, differences concern only the recommendation methods in the backend.
+Among the recommended and visualized queries, we see that the quality, quantified by the average rating per session, is significantly higher (approximately 20\%) when using EVLIN++ than when using EVLIN. This corroborates our previous conclusion that integrating collaborative-filtering recommendations improves the quality of the overall recommendations.
+
+Next, we study the average ratio of $\frac{\#findings}{ \#exploration steps}$   per session. This corresponds to the probability that an exploration step encountered in a session is interesting. Independently of whether we consider as interesting exploration steps rated with at least 3, 4, or 5 , we find that EVLIN++ significantly increases the likelihood of obtaining an interesting recommendation in a user session. For instance, considering only the most highly rated queries as interesting, an average of 35\% of queries encountered in a session are interesting findings when using EVLIN++, as opposed to 18\% for EVLIN. 
+
+Overall, comparing EVLIN and EVLIN++, we conclude that EVLIN++, which blends collaborative-filtering and content-based recommendations significantly improves the quality of recommendations for interactive visual exploration compared to EVLIN.
+
+
+ \paragraph{EVLIN++ vs Voyager}
+ Let us now focus on how EVLIN++ compares to Voyager. Our first observation is that users are exposed to more visualizations per session using Voyager (42.2) than using EVLIN++ (28.1). This is due to the ``brute-force'' approach adopted by Voyager that essentially recommends all possible extensions of the user's initial query. In contrast, EVLIN++ adopts a focused recommendation approach where only queries deemed interesting are recommended. 
+ 
+ Next, we analyze the number of interesting findings obtained using EVLIN++ and Voyager. 
+ %We see that despite being exposed to more visualizations per session, the number of interesting findings is not significantly higher. 
+% {\color{Fuchsia}We see that despite users of Voyager are exposed to more visualizations per session, the number of interesting findings are comparable. }
+ We see that despite users of Voyager are exposed to more visualizations per session, the number of interesting findings output by Voyager is not significantly higher.
+ When looking at the average $\frac{\#findings}{\#visualizations}$ per session, we see that even when considering only visualizations associated to queries rated with 5, EVLIN++ increases the likelihood of surfacing important findings per visualizations that reaches 0.24, compared to Voyager (0.22). %\mel{This result is not statistically significant, it should be if we lower the bar to lower ratings. Add missing numbers in Table, check statistical significance and discuss!}
+Accordingly, these results indicate that the participants spent less effort (number of inspected visualizations) using EVLIN++ to surface important information.
+
+We have also analyzed surveys filled out by participants.
+We find firstly equitable results of the two systems in terms of visualization quality (50\% for each).
+In terms of usability, 44.4\% of participants prefer EVLIN++ while 55.6\% opt for Voyager. Thus, many participants liked the drag and drop interaction supported by Voyager to specify attributes to explore. Other participants liked the exploration process ensured by EVLIN++ where users can navigate smoothly between exploration steps via simple interactions.
+In terms of recommendation interestingness, 57.14\% of participants believed that EVLIN++ generates more interesting recommendations while 42.86\% opt for Voyager. Indeed, most of the users opting for EVLIN++ agreed on the fact that the underlying system provides more focused recommendations that comply with users interactions.
+ Finally, we asked participants about the global experience of visual data exploration including learning and discovering important insights. Our survey analysis shows that 62.5\% of participants prefer EVLIN++ while 37.5\% favor Voyager. 
+This result is possibly related to the sheer number of recommendations generated by Voyager that may overwhelm users. Indeed, we find in the survey users' replies confirming that, e.g.,  ``...Voyager had a cluttered interface''  and
+``...too many visualizations lead to a clutter''.  On the other hand, many participants appreciate the capability of EVLIN++ to dig into details. This is not the case for Voyager where users need to adjust manually the visual and the data panels to pursue such interesting exploration. Thus, we find comments related to this statement e.g., ``EVLIN is very useful to  go in depth on your data'' and ``EVLIN is better to get details and to construct a full exploration story''.  Additionally, some participants opting for EVLIN++ deemed interestingness scores for recommendations, quite helpful to surface important insights. Thus, one participant noted that ``The interestingness matrix was helpful as it points out highly interesting recommendations".
+Overall, this study shows a general satisfaction among participants regarding EVLIN++.
+

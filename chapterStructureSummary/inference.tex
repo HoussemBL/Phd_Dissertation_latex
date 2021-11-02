@@ -1,0 +1,254 @@
+\begin{figure}[b]
+\[  \scalemath{0.8}{
+\begin{array}{lllllll}
+p ::=  Act \mid En \mid Ag  & \text{provenance high level types} \\
+Act,En,Ag ::=  \epsilon \mid R  & \text{provenance types} \\
+R ::=	\{ l_1:s_1, \ldots, l_i:s_i \}    & \text{Record type} \\
+s::=    R \mid A \mid Bs  & \text{structure types} \\
+A ::=  [s_1, \ldots,s_j]&\text{Array type} \\
+B ::=	 \nule \mid Bool \mid \ Num \  \mid \ Str  & \text{Basic type}\\
+\end{array} }
+\]
+ \vspace{-1.5em}
+\caption{Syntax of provenance types}
+\label{fig:datamodel}
+\end{figure}
+
+
+
+
+
+Figure~\ref{prov-json-skeleton} shows the top-key level structure of a PROV-JSON provenance trace, which contains nodes referring to W3C-PROV relationships (e.g., use, gen). Those nodes have always standard structures respecting the constraints defined in the W3C-PROV data model. In contrast, nodes mapping to entities, activities, and agents may have various structures (e.g., entities ``entity0'' and ``entity1'' in Figure~\ref{fig:universityX}) depending  on the underlying provenance collector.
+Hence, a special focus is given in what follows to the subset of top-key level's elements, called provenance components, that contains entities, activities, and agents.
+The provenance components follow the syntax shown in Figure~\ref{fig:datamodel}, extending the syntax proposed in~\cite{baazizi2017} to fit the content of W3C-JSON provenance traces. 
+
+
+
+A provenance component $p$ is either an activity ($Act$), entity ($En$) or agent ($Ag$) type. 
+These provenance high level types encompass records that are sets of pairs. Each pair has a label $l_i$ associated with a structure type $s$.
+This latter could be a record, an array, or a basic type.
+The array type is a sequence of structure types $s$ while basic values $B$ comprise $null$ values, booleans $Bool$, numbers $Num$, and strings $Str$.
+
+
+
+
+
+%\subsection{Prov-type inference}
+\subsection{Provenance component type inference}
+The first phase of our approach performs a type inference for each provenance component $p$ present in the provenance trace. We adjust the inference rules proposed in~\cite{baazizi2017} to infer types called in what follows \emph{prov-types} defined in Figure~\ref{fig:datamodel}.
+
+Prov-type inference is done according to the inference rules in Figure~\ref{fig:typinf}.
+We distinguish two types of inference rules: (i)~those without premise: they infer the prov-type of value by simply reflecting the type of the value itself and (ii)~rules with premise: they require the recursive prov-type inference of each element present in the premise to generate the global prov-type indicated in the conclusion part. 
+
+
+
+ \begin{figure}[t]
+ \centering
+\scalemath{0.75}{
+ \begin{tabular}{llll}
+ \staterule{(\textsc{TypeEmpty})}
+   {}
+   {
+	% \judbasee{\{ \} }{  \{\} }
+	 \judbasee{\{ \} }{ \tnull }
+	 }
+ &
+ \staterule{\small(\textsc{TypeBool})}
+  {}
+ {\judbasee{true/false}{\tbool}}
+  \\ \\
+ \staterule{(\textsc{TypeNumber})}
+   {s \in Number}
+   {\judbasee{s}{\tnum}}
+ &
+ \staterule{(\textsc{TypeString})}
+   {s \in String}
+   {\judbasee{s}{\tstr}}
+\\ \\
+ \multicolumn{1}{c}{\staterule{(\textsc{TypeArray})}
+{\judbasee{s_1,\ldots s_n}{T_1,\ldots,T_n} }
+{\judbasee{[s_1,\dots,s_n]}{[T_1,\dots,T_n]}} }
+   &
+ \multicolumn{2}{c}{\staterule{(\textsc{TypeRec})}
+ {\judbasee{s_i}{T_i} \ \ \judbasee{s_j}{T_j} \ \ \forall \textsc{ }{i},{j} \textsc{ }  i\neq j \Rightarrow l_i \neq l_j
+ }
+ {
+ \judbasee{\{\fieldd{l_1}{s_i}, \ldots, \fieldd{l_i}{s_i} \} }{ \{\fieldd{l_1}{T_i}, \ldots, \fieldd{l_i}{T_i} \} }
+ }}
+  \\ \\
+
+      \multicolumn{1}{c}{\staterule{(\textsc{TypeAgent})}
+ {\judbasee{s}{T} }
+ {\judbasee{Ag(s)}{Agent(T)}} }
+&
+   \multicolumn{1}{c}{\staterule{(\textsc{TypeAct})}
+ {\judbasee{s}{T} }
+ {\judbasee{Act(s)}{Activity(T)}} }
+   &
+   \multicolumn{1}{c}{\staterule{(\textsc{TypeEntity})}
+ {\judbasee{s}{T} }
+ {\judbasee{En(s)}{Entity(T)}} }
+ \end{tabular}
+}
+ \caption{\label{fig:typinf}Prov-type inference rules.}
+ \end{figure}
+
+
+
+Based on inference rules presented in Figure~\ref{fig:typinf}, we can define {\emph{prov-type}}, the first step towards generating a structural provenance summary of a collection of provenance traces.
+\begin{definition}[Prov-type]
+\label{def:prov-type}
+A prov-type for a vertex $v$ present in $G_P(V, R)$ corresponds to the structure inferred for~$v$.
+\end{definition}
+
+\begin{example}[Example of inferred prov-types]
+Following our definition, the prov-type inferred for the entity ``entity0'' shown in Figure~\ref{fig:universityX} is:
+\begin{center}
+\small
+\begin{adjustbox}{width=0.4\columnwidth,center}
+\begin{tabular}{l}
+\{ ``Entity'': \\
+\hspace{0.5cm}	\{ \\
+\hspace{0.5cm}\hspace{0.5cm}	``exp:queryID'': Num, \\
+\hspace{0.5cm}\hspace{0.5cm}	``exp:visID'': Num \\
+\hspace{0.5cm}	\} \\
+\}
+\end{tabular}
+\end{adjustbox}
+\end{center}
+This prov-type is inferred using the recursive \emph{TypeRec} inference rule depicted in Figure~\ref{fig:typinf}. This rule is recursive. Accordingly, we iterate over key-values pairs present in entity ``entity0'' shown in Figure~\ref{fig:universityX}. For each key-value pair, we maintain the key and we apply a basic inference rule on the value (see \emph{TypeNumber} rule depicted in Figure~\ref{fig:typinf}).  Finally, the set of key and their associated basic types are grouped and returned as a result of the recursive \emph{TypeRec} inference rule.
+
+\end{example}
+
+\subsection{Individual structural provenance graph}
+Once we compute the prov-type of each vertex in a provenance graph, we are able to infer the individual structural provenance graph that we define as follows.
+\begin{definition}[Individual structural provenance graph]
+  \label{def:temp-prov}
+$GS(P_s, R_s)$ is an individual structural provenance graph associated to a provenance graph $G_P(V, R)$.
+It is a W3C-PROV compliant directed graph where $P_s$ is the set of prov-types for all $v \in V$ and $R_s$ is the set of inferred relationships structures: 
+Each edge $e_s = (\langle ps_1, ps_2\rangle,t,c)$ is a provenance relationship structure in $R_s$ between two structures $\{ps_1, ps_2\} \subseteq P_s$. The edge $e_s$ is labeled by $t$ that refers to the type of provenance relationship and  by a cardinality $c$ computed as  $c=|R_{sim}|$ such that  $R_{sim}\subseteq R$ and  $\forall  e_r=(\langle v_1, v_2\rangle,t') \in R_{sim}$, $e_s.t=e_r.t'$ holds and  $\forall i  \in \{1,2\},  \exists j  \in \{1,2\}$ such that the prov-type of $v_{i}$ is equal to $ps_j$. 
+\end{definition}
+
+
+Note that the following properties hold for the individual structural provenance graph $GS(P_s, R_s)$:
+
+\begin{lemma}[Properties of structural provenance graph]
+\label{def:prop}
+For a structural provenance graph $GS(P_s, R_s)$, we have
+\begin{itemize}
+\item  $\forall ps ,ps'  \in P_s$,   $ps \neq ps'$
+\item  $\forall p_s  \in P_s  $, $  \exists$  $v \in V$  such that its prov-type is equal to $p_s$
+\item  $\forall e_s=(\langle ps_1, ps_2\rangle,t,c) \in R_s, \exists e=(\langle v_1, v_2\rangle,t') \in R$  such that $e_s.t=e.t'$ and $ \forall i  \in \{1,2\}, \exists j  \in \{1,2\} $ such that the prov-type of $v_{i}$ is equal to $ps_j$.
+\end{itemize}
+\end{lemma}
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.4]{figures/Tapp19/EvoPROV_provSummary}
+\caption{Structural summary of MIT's ranking provenance}
+\label{scheme:universityX}
+\end{figure}
+Figure~\ref{scheme:universityX} shows an example of individual structural provenance graph associated to the excerpt of W3C-PROV evolution provenance graph shown in Figure~\ref{fig:universityX}.  It contains 6 nodes whose prov-types are shown in white boxes below each vertex. For instance, the node ``actSt0'' has a prov-type that was inferred from the node ``Activity0'' present in Figure~\ref{fig:universityX}. 
+Figure~\ref{scheme:universityX} depicts also cardinalities and types associated with each edge.
+For instance, the edge between ``actSt1'' and ``agSt0'' has the type ``association'' and a cardinality equals to one.
+The cardinality is explained by the provenance graph shown in Figure~\ref{fig:universityX} where we have one edge of type ``association'' between nodes ``activity1'' and ``agent1''.
+
+
+
+
+To infer an individual structural provenance graph, we leverage the following two fundamental definitions.
+\begin{definition}[Vertex structural equality]
+    \label{lm:vert}
+Given a provenance graph $G_P(V, R)$, we say that two vertices are structurally equal if they have the same prov-type.
+\end{definition}
+\begin{definition}[Edge structural equality]
+  \label{lm:edge} 
+We consider that edges $(\langle el1_{1},el1_{2}\rangle,t_{1})$ and $(\langle el2_{1},el2_{2}\rangle,t_{2})$ are structurally equal if they have the same provenance relationship type ($t_1=t_2$),  
+%and $ \forall i  \in \{1,2\}, \exists j  \in \{1,2\} $ such that $el1_i$ and $el2_j$  are structurally equal.
+vertices $el1_1$ and $el2_1$  are structurally equal,  and vertices $el1_2$ and $el2_2$  are structurally equal.
+%($el1_1$ , $el2_1$)  and  ($el1_2$ , $el2_2$)  are structurally equal.
+\end{definition}
+
+
+\begin{algorithm}[t]
+%\scriptsize
+\caption{Individual Prov Structure Inf ($G_p$)}
+\label{algo:IndividualSchemaInf}
+ \KwIn{$G_p$ : provenance graph}
+  \KwOut{$GS$: individual structural provenance graph}
+    $s_{cand} \leftarrow $  an empty map of $\langle S, id \rangle$ elements,  where $S$ is the prov-type, and  $id$ is an identifier of a provenance component\;
+  $ST_{inf} \leftarrow $ an empty hash-map of $\langle S,L(id) \rangle$ elements,  where $S$ is the prov-type, and  $L(id)$ is the list of provenance components ids following $S$\;
+  $REL_{Inf} \leftarrow $ an initially empty list of $\langle \{d_1..d_k\},t,c \rangle$ elements,  where $t$ refers to the type of provenance relation, $\{d_1..d_k\}$ are related provenance components and $c$ refers to the cardinality  \;
+
+{\tcc{Inference of provenance components structures}}
+		%\ForEach{$e \in G_p.Entity() \cup  G_p.Activity() \cup G_p.Agent() $
+		\ForEach{$e \in G_p.getVertices()$} {   \label{algoInfType:line4}
+ 	  			  $S_{cand} \leftarrow  Add( \langle InferType(e),e.getId()  \rangle )$\; \label{algoInfType:line5}
+		}
+	{\tcc{Aggregation of prov-types}}	
+	$ST_{inf} \leftarrow  AggregateTypes(S_{cand})$\;	 \label{algoInfType:line6}
+	{\tcc{Inference of provenance relations structures}}
+
+	\ForEach{$r \in G_p.getRelations() $}{   \label{algoInfType:line7}
+ 
+        $r_{rel} \leftarrow r.getRelationsElements()$\;
+        $s_{rel} \leftarrow \emptyset $ \;
+          \ForEach{$comp \in r_{rel} $}{
+           $ s_{rel} \leftarrow  Add (ST_{Inf}.get(comp.getID())  )  $\;
+          }
+             $REL_{Inf} \leftarrow  Add( s_{rel},r.getType,1)$\;  \label{algoInfType:line12}
+           }
+{\tcc{Provenance relations structures aggregation}}
+$REL_{Inf} \leftarrow  AggregateRels(REL_{inf})$\;  \label{algoInfType:line13}
+$ GS  \leftarrow $ new Graph $ (ST_{inf},REL_{inf}) $\; 
+return $GS$\;
+
+\end{algorithm}
+
+
+Algorithm~\ref{algo:IndividualSchemaInf} leverages the two previous definitions to infer an individual structural provenance graph for a provenance graph $G_p$.
+Firstly, we go over the provenance components (lines~\ref{algoInfType:line4}--\ref{algoInfType:line5}) and we generate their associated prov-types using the function $InferType$ that implements the rules specified in Figure~\ref{fig:typinf}.
+Pairs of inferred structures and ids of provenance components are then stored in the map $s_{cand}$.
+In line~\ref{algoInfType:line6}, we aggregate similar structures present in $s_{cand}$ based on Definition~\ref{lm:vert} and we store results in $ST_{inf}$ that contains inferred prov-type $s$ and the full ids list of provenance components that follow $s$. 
+
+Afterwards, we go over provenance relationships~(lines ~\ref{algoInfType:line7}--~\ref{algoInfType:line12}). 
+Recall that a provenance relationship specified in Definition~\ref{def:prov-graph} is an edge between two provenance components.
+Hence, we identify for each relationship $r$, ids of provenance components involved in $r$. We resort to the $ST_{inf}$ to replace the set of ids by their corresponding prov-types. 
+Later, we store identified prov-types, the type of $r$, and a cardinality (set to one) in $REL_{inf}$ (line~\ref{algoInfType:line12}). 
+Finally, we aggregate in line~\ref{algoInfType:line13} the cardinality of relationships that are structurally equal using function $AggregateRels$ that implements Definition~\ref{lm:edge}.
+
+Once we specify the set of prov-types $ST_{inf}$ and the set of inferred relationships $REL_{inf}$, 
+our Algorithm~\ref{algo:IndividualSchemaInf} returns $GS$, the individual structural provenance graph of $G_p$.
+%\mel{make index on ids rather on structure} \hou{we are dealing with several provenance graphs, the same id can be present in many provenance traces}
+
+
+
+
+
+\subsection{Structure-based summary graph generation}
+At this stage, our goal is to further aggregate the set of individual structural provenance graphs returned by the previous step in order to generate a unique structure-based summary.  We choose to apply an exact merge to fuse input structural summary graphs. 
+For that, we leverage again Definition~\ref{lm:vert} and Definition~\ref{lm:edge} to merge  vertices and edges of individual structural graphs that are structurally equal. 
+
+
+Our choice of exact merge is justified by its capability to mitigate the loss of information by providing exact structures available in a set of provenance traces. 
+This is not the case for the inexact merge that fuses nodes having different yet compatible structures.
+While our approach could be extended to support the inexact merge, we prefer to leave it for future research to assess or convey the impact of inexact merge techniques on visual analytics tasks. 
+Based on the current implementation of merge,  we can redefine the structure-based summary graph as follows.
+
+
+
+\begin{lemma}[Structure-based summary graph properties] 
+\label{prop:sum-graph}
+The structure-based summary graph $SSG(PS_s, RS_s)=  \bigcup_{i=1}^n  GS_i(P_{si}, R_{si})$ where $GS_i$ are individual structural provenance graphs.
+It has a surjective map $M$: $ \bigcup_{i=1}^n P_{si} \longrightarrow PS_s$ such that:\begin{itemize}[noitemsep]
+\item  $\forall p\in P_{si}, \exists p^*\in PS_s$ with $p$ and $p^*$ are structurally equal
+\item  $\forall r \in R_{si},  \exists$ $r^* \in RS_s$ with $r$ and $r^*$ are structurally equal
+\end{itemize}
+\end{lemma}
+%\mel{Maybe add that it is straightforward to define an iterative approach to merge graphs, which we thus do not further discuss here. The map reduce part would I think better fit in the implementation section (I still do not find the map reduce relevant / helpful though).}
+While it is possible to incrementally perform a set of pairwise merges of individual structural provenance graphs to construct the structure-based summary graph, we choose to design the structure-based summary inference using a map-reduce model to ensure the capability of processing large collections of provenance traces. 
+We justify our choice of this model by the soundness property already proved for the structure inference approach~\cite{baazizi2017}. Our approach enjoys also commutativity and associativity properties as we use an exact matching strategy to aggregate structures.  These are important properties since the map-reduce model may arbitrarily split the input set of provenance traces.
+We postpone the discussion of the performance study of our approach to the Section~\ref{sec:casestudy}.
+
+
+

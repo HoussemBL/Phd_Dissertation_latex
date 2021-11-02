@@ -1,0 +1,309 @@
+\section{Content-based query recommendation}
+\label{sec:content-query-rec}
+\sloppy
+In this section, we discuss our content-based query recommendation approach for visual exploration of data warehouses.
+%implemented in \prototype{}, the instance of our framework \framework{}.
+Essentially, our proposed \emph{content-based query recommendation} approach guides users in their investigation of a data warehouse $D$ by suggesting queries as next exploration steps, given an initial query $Q$.
+
+
+
+
+Our proposed content-based query recommendation solution follows the pipeline shown in Figure~\ref{fig:query-rec-process} to identify the set of recommended queries that may interest the user. 
+It takes as input an exploration query $Q$, a data warehouse $D$, and an interaction referring to a user's selection of a sub-result $r \in Q(D)$ (see Example~\ref{ex:interaction}, Page~\pageref{ex:interaction}) to return ultimately a set of recommended queries.
+
+In what follows, we give a glimpse of the main steps present in the pipeline depicted in Figure~\ref{fig:query-rec-process} before digging into details of each step.
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.35]{figures/EVLIN-core/query-rec-process.pdf}
+\caption{Steps of the content-based query recommendation process}
+\label{fig:query-rec-process}
+\end{figure}
+
+
+
+In the first step, our content-based query recommendation process computes the data provenance of the sub-result $r$. 
+This results in a data set that we call in what follows \emph{Lineage}. This latter contains all tuples involved to get the sub-result $r$ (see Section~\ref{sec:prov-type}).
+After that, our content-based query recommendation process analyzes the \emph{Lineage} to extract attribute-values pairs $(a, L_v)$  (with $a$ an attribute and $L_v$ a set of values of the active domain of attribute $a$) that are strongly related to $Q$ and the user's interaction $r$. 
+Lastly, during the query reformulation phase, our content-based query recommendation approach leverages each returned $(a, L_v)$ pair to derive recommended queries based on $Q$. 
+All steps described so far are online. Hence, they are handled dynamically following user's interactions. We also incorporate an offline phase to our approach where we precompute or preconfigure information that is later accessed during the online computations. These information include the frequency for each attribute present in the explored dataset. Furthermore, we identify the set of functional dependencies present in the underlying dataset.
+
+
+
+\subsection{Data provenance computation }
+In the first step, we compute the data provenance of result $r$, denoted as $Lin(r)$.
+Based on a data region determined by a user interaction $r \in Q(D)$,
+we compute the data provenance using the Perm provenance management system~\cite{Glavic:09}. This provenance $Lin(r)$ corresponds to all tuples in $D$ that have contributed to producing $r$ (i.e., why-provenance~\cite{cheney:book09}).  
+
+This lineage is input to the second phase of our content-based query recommendation approach.
+
+ \subsection{Data recommendation }
+ \label{subsec:data-rec}
+Data recommendation is based on a novel provenance-based recommendation algorithm. 
+It exploits data provenance to recommend attributes and values of these attributes that may raise user interest. Algorithm~\ref{fig:alg} shows its pseudocode.
+
+
+ \input{chapterEVLIN/algosDataRec.tex}
+
+The algorithm takes as input query $Q$, a data warehouse $D$, the lineage $Lin(r)$ of a sub-result  $r$, and two threshold values $\theta_{L}$ and $\theta_{supp}$.
+It outputs ultimately a set of pairs $(a, L_v)$ where $a$ is an attribute in the schema of the provenance $Lin(r)$ and $L_v = \{v_1, \ldots, v_n\}$ is a list of values available in the active domain of $a$ denoted $adom(a)$.
+
+
+
+
+Lines~\ref{dra:lineSchemaLoop}--~\ref{dra:lineRMap} perform the provenance-based identification of relevant data by iterating over all attribute-value pairs $(a, v)$ available in the lineage $Lin(r)$.
+Relevant attribute-value $(a, v)$ are pairs that appear frequently enough in the provenance while this frequency significantly differs from the appearance frequency of $(a,v)$ in the whole data warehouse $D$.
+
+More formally, we compute the appearance frequency for each value $v$ of each attribute $a$ in $Lin(r)$ as
+\begin{equation}
+f_{a,v}(Lin(r)) =  \frac{ | \{t_i | t_i \in Lin(r) \wedge t_i.a = v \} | }{| Lin(r) |}
+\label{eq:f-lin}
+\end{equation}
+ 
+ 
+Subsequently, we consider only attributes that are frequent enough to have any significance w.r.t.~user's initial selection, i.e., their appearance frequency $f_{a,v}$ should be greater or equal to a predefined threshold $\theta_L$(see line~\ref{dra:linefLIN}). 
+At this stage, we obtain already a list of interesting attribute-value pairs that we can use to compute recommended queries. Yet, this list of interesting candidates may contain attribute-value pairs that are mainly present in the explored dataset.
+These dominant attribute-value pairs will be always highly present in the lineage, regardless of the user's interaction. In turn, they will always be recommended regardless of the user's query. This breaches the rationale of recommendation that consists of recommending information strongly related to the user's focus. 
+To cope with this problem, Equation~\ref{eq:f-lin} is further used in line~\ref{dra:compute} to compute the appearance frequency of the remaining candidates in the complete dataset (by replacing $Lin(r)$ by $D$). Using the two previous frequencies, we compute the support of each candidate in the provenance w.r.t. the whole explored data warehouse $D$ as
+
+\begin{equation}
+supp_{a,v}(r) = \left| log_e \left(\frac{ f_{a,v}(Lin(r) )} {f_{a,v}(D)} \right) \right|
+\label{eq:support}
+\end{equation}
+Intuitively, if the two considered frequencies significantly differ, the corresponding attribute-value pair is considered as potentially interesting. Thus, interesting attribute-value pairs are associated with a high support value and we only keep candidates with $supp_{a,v}  \geq  \theta_{supp}$ (line~\ref{dra:support}).
+
+
+
+Overall, an attribute-value pair $(a,v)$ is deemed interesting if (i)~it is widely present in lineage $Lin(r)$ and more massively present in the explored data warehouse $D$, or
+(ii)~it is widely present in lineage $Lin(r)$ but rarely present in the data warehouse $D$.
+
+
+Accordingly, we define recommended attribute-value pairs as follows.
+\begin{definition}[Recommended attribute-value pairs]
+\label{def:att-val}
+Given a query $Q$ on a data warehouse $D$, and a sub-result $r \in Q(D)$ of interest, an attribute-value pair $(a,v)$ is recommended if $f_{a,v}(Lin(r)) \geq \theta_L$ and $supp_{a,v}(r) \geq
+\theta_{supp}$, where $\theta_{L}$ and $\theta_{supp}$ are predefined threshold values. 
+\label{def:av-pairs}
+\end{definition}
+
+Based on Definition~\ref{def:att-val}, our proposed process of interesting attribute-value pair identification focuses mainly on the measure of candidates' frequencies discrepancy. Yet, it is easy to adapt Algorithm~\ref{fig:alg} to further distribution patterns or other models of interestingness.
+
+
+ The selected attribute-value pairs are added in line~\ref{dra:insertMap} to $RMap$ by calling $mapInsert(RMap, (a,v))$. Essentially, if $a$ does not exist as a key in $RMap$, this function creates a new key-value pair that maps $a$ to a set of values $L_V = \{v\}$. Otherwise, it adds $v$ to the set of values readily existing for key $a$. 
+
+
+
+
+
+The attribute-value pairs grouped together by attribute in $RMap$ result in what we call data recommendations.
+
+\begin{definition}[Data recommendation]
+Data recommendations are pairs $(a, L_v)$ where $a$ is an attribute, $L_v = \{v_1, \ldots, v_n\}$ is a list of values and it holds for all $v_i$ that $(a, v_i)$ is a recommended attribute-value pair.
+\end{definition}
+
+ \begin{example}[Data recommendation outcome example]
+ \label{ex:data-rec}
+ \sloppy
+%Referring back to our running exploration example (see Example~\ref{ex:query}, Page~\pageref{ex:query}) where a user explores the set of delayed flights using \prototype{}.
+In our example (see Example~\ref{ex:query}, Page~\pageref{ex:query}) that explores the set of delayed flights, assume the user has selected the highest bar that designates the delayed flights departing from the state California (see Example~\ref{ex:interaction}, Page~\pageref{ex:interaction}). This triggers the computation of the why provenance of California. 
+This lineage is in turn processed by the data recommendation step that outputs the following set of data recommendation pairs: 
+$\{(airlineID, \{WN,UA,OO,AS\})$,
+$(airport,\{$San\text{ }Diego\text{ }International-Lindbergh\text{, }Metropolitan\text{ }Oakland\text{ }International\text{, }Los\text{ }Angeles\text{ }International\text{, }San \newline \text{ }Francisco\text{ }International$\},  $(city,\{$San\text{ }Francisco\text{, }San\text{ }Diego\text{, }Oakland\text{, } \newline Los\text{ }Angeles$\}$ )
+\}$.
+ \end{example}
+
+
+
+Using our data recommendation step described above, it is possible that two distinct entries in recommended pairs $RMap$, i.e., $(a, v)$ and $(a', v')$ yield redundant query reformulations later.
+
+
+This occurs when functional dependencies exist between attributes present in $RMap$. 
+Indeed, as we will show in the next section, our query reformulation relies mainly on recommended pairs to reformulate user's initial query $Q$.
+Accordingly, if a user inspects currently $Q(D)$, several data regions will be subsequently recommended  such as $Q_1: \sigma_{a=v}(Q(D))$ and $Q_2: \sigma_{a'=v'}(Q(D))$ given  recommended pairs $\{(a, v),(a', v')\} \subseteq RMap$.
+Assume in this case that there is a functional dependency between $a$ and $a'$ such that $a \rightarrow a'$.
+Then, we know that whenever $a$ has value $v$, $a'$ has a value $v'$. So there does not exist any tuple in the relation $R(a, a')$ such that $a = v$ and $a' \neq v'$. The recommended query using $a$, $Q_1: \sigma_{a=v}(Q(D))$  returns then all tuples with values $(v, v')$ in $R$. Conversely, it is possible for two distinct tuples in $R$ with $a' = v'$ to have different values than $v$ on attribute $a$. So tuples in the result of the recommended query using $a'$, $Q_2: \sigma_{a'=v'}(Q(D))$  includes both all $(v, v')$ from before as well as additional tuples (if present). So $\sigma_{a=v}(Q(D)) \subseteq \sigma_{a'=v'}(Q(D))$. 
+Consequently, we are recommending redundant data regions.
+
+
+
+
+To avoid redundant recommendations, we employ data profiling algorithms to determine functional dependencies~\cite{abedjan:vldbj15} of the form $a \rightarrow a'$ and prune $a'$. 
+ More specifically, in lines 10 -- 12 of Algorithm~\ref{fig:alg}, we determine whether a functional dependency  $a_i \rightarrow a_j$ between two attributes from the computed data recommendations holds. If so, we only retain the data recommendation involving $a_i$.
+ 
+  \sloppy
+
+\begin{example}[Functional dependency-based filtering]
+\label{ex:data-rec-FD}
+ Continuing Example~\ref{ex:data-rec}, the data recommendation process reveals three interesting attribute-values pairs. 
+The computation of functional dependencies reveals a dependency between attributes ``city" and ``airport'' such that $airport \rightarrow city$. To this end, we filter out the attribute-values pair $(city,\{$San Francisco, San Diego, Oakland, Los Angeles$\})$. This leads to the following set of data recommendations $ \{(airlineID, \{WN,UA,OO,AS\})$, $(airport,\{$San Diego International-Lindbergh, Metropolitan Oakland International, Los Angeles International,San Francisco International$\} )$ that will subsequently be used to generate recommended queries.
+ \end{example}
+
+
+
+
+Overall, the complexity of Algorithm~\ref{fig:alg} that performs the data recommendation step is dominated by the search of interesting attribute-values. Accordingly, Algorithm~\ref{fig:alg} is performed in O($|schema(Lin(r))| \times \eth$)  with $|schema(Lin(r))|$ is the size of the lineage schema (number of columns present in the lineage) and $\eth=\max_{i=1}^{|schema(Lin(r))|} |adom(i)|$ is the maximum active domain size of attributes present in the lineage.
+
+Later, we study in Section~\ref{eval-sec:content}, the impact of the lineage size and domain size of columns on the performance of our data exploration process.
+Overall, experiments (presented later in Section~\ref{eval-sec:content}) show that domain size and lineage size impact the runtime and the final number of interesting attribute-values output by the data recommendation step. Yet, our evaluation results show that the content-based query recommendation is still fast enough for an interactive visual data exploration process. 
+
+
+
+
+
+ \subsection{Query reformulation}
+ \label{sec:query-reformule}
+ %%%%OLD CONTENT
+%The data recommendations produced by the previous step are input to the query reformulation step where we compute, for each $(a, L_v)$, a set of queries corresponding to variations of the initial user's query $Q$. 
+%Each variation reflects a particular operation typical when querying data. 
+%The variations that we propose are targeted towards covering the whole data space of the explored data warehouse $D$, allowing to reach and explore ``unknown territory'', i.e., data initially not related to $Q(D)$. 
+%At the same time, they follow well known data warehouse query patterns to facilitate users' tasks when exploring data.
+%
+%
+% \begin{table}[t]
+% \centering 
+% %\scriptsize
+%\resizebox{1\linewidth}{!}{ \begin{tabular}{|p{2.5cm}|p{12cm}|} \hline
+%\textbf{Query type} & \textbf{Recommendation template}  \\ \hline
+%
+%
+%Zoom-In & \textsf{SELECT} $a$, {\color{blue} $a_{i}$} ,$f(m)$ \textsf{ FROM }$rel(D)$ \textsf{ WHERE }$cond$ \textsf{ GROUP BY }$a$, {\color{blue}$a_{i}$} \\ \hline
+%
+%Zoom-In Slice & \textsf{SELECT} {\color{blue} $a_{i}$}, $f(m)$ \textsf{ FROM }$rel(D)$ \textsf{ WHERE }$cond$ \textsf{ AND }  {\color{blue} $a=v_{a}$} \textsf{ GROUP BY }{\color{blue}$a_{i}$} \\ \hline
+%Extension & \textsf{SELECT} $a$, {\color{blue} $a_{new}$}, $f(m)$\textsf{ FROM }{\color{blue}$rel'(D)$ }\textsf{ WHERE }$cond$ \textsf{ AND }  {\color{blue} $a_{i}$\textsf{ IN }$L_{v_{i}}$} \newline \textsf{ GROUP BY }$a$, {\color{blue} $a_{new}$}  \\ \hline
+%
+%Extension Slice & \textsf{SELECT}  {\color{blue} $a_{new}$}, $f(m)$ \textsf{ FROM }{\color{blue}$rel'(D)$ } \textsf{ WHERE }$cond$ \textsf{ AND }  {\color{blue}$a_{i}$\textsf{ IN }$L_{v_{i}}$} \textsf{ AND }  {\color{blue} $a=v_{a}$} \textsf{ GROUP BY }  {\color{blue} $a_{new}$} \\ \hline
+%
+%Drill-down & \textsf{SELECT}  {\color{blue}$a_{new}$}, {\color{blue} $a_{i}$}, f(m) \textsf{ FROM }$rel(D$) \textsf{ WHERE }$cond$ \textsf{ GROUP BY }{\color{blue}$a_{new}$}, {\color{blue}$a_{i}$}\\ \hline
+%
+%Drill-down Slice & \textsf{SELECT}  {\color{blue}$a_{new}$}, {\color{blue} $a_{i}$}, f(m) \textsf{ FROM }$rel(D)$ \textsf{ WHERE }$cond$ \textsf{ AND }  {\color{blue} a=$v_{a}$}  \newline \textsf{ GROUP BY }{\color{blue}$a_{new}$}, {\color{blue} $a_{i}$}\\ \hline
+%\end{tabular}}
+% \caption{Templates of query reformulations used for query recommendation in \prototype{}}
+% \label{tab:Recqueries}
+% \end{table}
+% 
+%
+%Accordingly, the query reformulation process outputs several types of recommended queries suitable to navigate in data warehouses. This includes several types such as zoomIn, slice, drill-down (move to a lower granularity), and extensions that navigate to dimensions not considered by previous queries. 
+%  
+%  More specifically, Table~\ref{tab:Recqueries} summarizes the templates used in \prototype{} for query reformulations.
+%Given an initial query $Q$ (that respects the format given in Definition~\ref{def:exp-query}), its associated visualization $V$, and a user's interaction via $V$ of a sub-result $r_i = (a, v_a) \subseteq Q(D)$, our query reformulation process uses  an interesting attribute-values pair $\left(a_{i},L_{v_{i}}\right)$ output by the data recommendation process, to derive and recommend queries following the templates of Table~\ref{tab:Recqueries}. In some cases, these templates introduce a new attribute $a_{new}$, e.g., from another dimension table in $rel'(D)$ (for extension) or an attribute of different granularity (for drill-down).
+  
+   
+%%%%%%%%NEW CONTENT
+  The data recommendations produced by the previous step are input to the query reformulation step where we compute, for each $(a, L_v)$, a set of queries corresponding to variations of the initial user's query $Q$. 
+Each variation reflects a particular operation typical when querying data. 
+The variations that we propose are targeted towards covering the whole data space of the explored data warehouse $D$, allowing to reach and explore ``unknown territory'', i.e., data initially not related to $Q(D)$. 
+At the same time, they follow well known data warehouse query patterns to facilitate users' tasks when exploring data.
+
+
+  
+More specifically, we consider the query types described below. 
+%For each query type, we summarize the derivation process in Figure~\ref{fig:QueryDER}.
+%{\color{Fuchsia}
+Given an initial query $Q$ (that respects the format given in Definition~\ref{def:exp-query}), its associated visualization $V$, and a user's interaction via $V$ of a sub-result $r_i = (a, v_a) \subseteq Q(D)$, our query reformulation process uses  an interesting attribute-values pair $\left(a_{i},L_{v_{i}}\right)$ output by the data recommendation process, to derive and recommend queries whose templates are depicted in Figure~\ref{fig:QueryDER}.
+%}
+ For ease of presentation but without loss of generality, we assume here that $Q$ involves only two tables, i.e., joins the fact table $F$ with one dimension table $R_1$, and aggregates results by groups defined by one attribute $a$. As we see on the left of Figure~\ref{fig:QueryDER}, this results in a one-dimensional ``array'' of aggregated values.  This also means that any tuple in $Q(D)$ has exactly two attributes, in particular including user's interaction $r_i$ (attribute $a$ with a value $v_a$). %{\color{Fuchsia}Thus, we consider $r_i$} as a set of $(a, v_a)$ tuples.
+In Figure~\ref{fig:QueryDER}, we distinguish these by color from tuples where the value of attribute $a$ is different from $v_a$. 
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=1.3]{figures/EVLIN-overview/summary}
+\caption{Templates of query derivations used for content-based query recommendation}
+\label{fig:QueryDER}
+\end{figure}
+
+
+
+\noindent \textbf{Zoom-in / zoom-in slice.} This type of query retains the query schema of the original query $Q$, i.e., the FROM clause remains unchanged. However, zoom-in adds the attribute $a_i$, that by definition is among the attributes in the schema of $Q$,  as a second dimension to the aggregated values (by adding $a_i$ to the SELECT and the GROUP BY clauses). This query type may be interesting for further exploration when an analyst wants to compare the contribution of specific $a_i$ values to the the selected sub-region $r_i$ to the values' contribution in the remaining dataset $Q(D) \setminus r_i$. 
+
+When zoom-in is combined with a slice, the focus is set to the selected region $r_i$, by adding the condition $a = v_a$ to the WHERE clause of $Q$. 
+
+
+
+\smallskip
+
+\noindent \textbf{Extension / extension slice.} This query type extends the data presented to the analyst to another dimension of the data warehouse. That is, another dimension table $R_2 \in A$  currently not in the schema of $Q$ is added to the FROM clause, and the corresponding join condition is added to the WHERE clause. Let $a_{new}$ be the attribute of $R_2$ with coarsest granularity.  This attribute defines the second dimension we consider for our aggregated values, i.e., $a_{new}$ is added to the SELECT and GROUP BY CLAUSE. To reflect the focus on a recommended $(a_i,L_i)$-pair, we further add the condition $a_i\text{ }IN\text{ }L_i$ to the WHERE clause. An extension query is created for each dimension not included in the schema of $Q$.  The rationale behind this query type is to support the analytical task of investigating how interesting attribute values of the current view on the data relate to yet unexplored data of another dimension. 
+
+
+As before, when combining extension with slice, we add the user's interaction $a = v_a$ to the WHERE clause of the extension query, allowing analysts to focus in detail on the extension wrt to the data region $r_i$ they previously selected.
+
+
+
+\smallskip
+
+\noindent \textbf{drill-down (roll-up) / drill-down (roll-up) slice. } This query type navigates along the dimension of attribute $a$ to either move to a more detailed granularity in the dimension hierarchy of $a$ in the case of drill down, or to a coarser granularity in case of a roll up. Let $a_{new}$ be the attribute in the dimension hierarchy of $a$ with more detailed (coarser) granularity. To perform the drill-down (roll-up), $a$ is replaced by $a_{new}$ in $Q$. As the recommendation algorithm has identified potentially interesting values in the schema of $R$, we further group the data by $a_i$. This type of recommendation allows analysts to relate how attribute values of potential interest at the currently explored granularity impact higher (lower) levels of granularity.
+
+When combining drill-down with slice, we further add the user's interaction $a = v_a$ to the WHERE clause. This allows to focus on the different values arising at higher granularities of the user-selected data region. 
+
+
+
+%%%EXAMPLE
+\begin{figure}[t]
+\centering
+ \includegraphics[scale=0.5]{figures/EVLIN-overview/query/zoom1.pdf}
+  \caption{Sample recommended query result }
+  \label{vis:Zoom}
+\end{figure}
+
+\begin{example}[Sample recommended query]
+\label{ex:query-ZoomIn}
+%{\color{Fuchsia}
+For our running example (discussed in Examples~\ref{ex:query},~\ref{ex:interaction}, and~\ref{ex:data-rec-FD}), the \emph{content-based query recommender} generates a recommended query of type ``Zoom-In'' associated to the pair $\{(airlineID, \{WN,UA,OO\})$.
+This recommended query studies the distribution of delayed flights performed by different airline companies when departing from several states.
+This recommended query is defined as follows.\\
+ \textsf{SELECT }count(*)\textsf{ , }A.state\textsf{ , }{\color{blue}F.airlineID}\textsf{ FROM }Flights\texttt{ as F },Airports\texttt{ as A } \textsf{ WHERE  }A.iata=F.origin\texttt{ AND }$F.depdelay>0$\textsf{ GROUP BY }A.state\textsf{ , }{\color{blue}F.airlineID}\\
+ The visualization of this recommendation result, generated by the \emph{visual recommender}, is depicted in Figure~\ref{vis:Zoom}. This visualization shows that airlines $\{WN,UA,OO\}$ have more delayed flights when departing from California than when departing from any other state.
+ \end{example}
+ 
+
+
+Based on the content-based query recommendation approach, we return several recommendations related to the user's current focus. Later, we explain how these recommended queries are ranked to offer users some help in exploring the data warehouses more efficiently.
+
+
+ \subsection{Related work}
+ \label{sec:content-based-related}
+We have already highlighted the set of existing visual data exploration systems providing query or visualization recommendations in Section~\ref{sec:EDA}.
+In this section, we pay particular attention to state-of-the-art visual data exploration solutions that provide content-based query recommendations.
+This concerns several existing work including for instance~\cite{Vartak,Sellam:16,Tang:2017,Wongsuphasawat2016,Wongsuphasawat:2017,MafrurSK18,Ehsan:18}.
+Overall, these existing visual data exploration approaches analyze initial user's query results, i.e., $Q(D)$, to find data items or sub-regions of data highly interesting to the context of the user. For instance,~\cite{Vartak,Sellam:16,MafrurSK18,Ehsan:18} adopt deviation to recommend data regions present in the user's initial query's result $Q(D)$. 
+Similarly, authors in~\cite{Tang:2017} analyze data cubes specified by users and search subspaces that encompass outliers and trends. Voyager~\cite{Wongsuphasawat2016,Wongsuphasawat:2017} relies on the set of attributes initially selected by the user to recommend the set of exploration queries strongly related to the user's initial selection. 
+
+
+ 
+ 
+ \begin{table}[t]
+ \centering \scriptsize
+ \begin{tabular}{|p{3.5cm}|p{0.9cm}|p{2.9cm}|} \hline
+\textbf{System} & \textbf{Input query} & \textbf{Recommended query}  \\ \hline
+ % YmalDB~\cite{Drosou2013} & SPJ & SPJ   \\ \hline
+    Ziggy~\cite{Sellam:16} & SJ & SPJ  \\ \hline
+ SeeDB~\cite{Vartak} & cube & sub-cube  \\ \hline
+Muve~\cite{Ehsan:18} & cube & sub-cube  \\ \hline
+Dive~\cite{MafrurSK18} & cube & sub-cube  \\ \hline
+   \cite{Tang:2017} & cube & sub-cube  \\ \hline
+Voyager~\cite{Wongsuphasawat2016,Wongsuphasawat:2017} &SPA & Changed SELECT-clause   \\ \hline
+ EVLIN~\cite{BHBK18:Demo} & cube & OLAP queries    \\ \hline
+\end{tabular}
+ \caption{Expressiveness of visual data exploration solutions supporting content-based query recommendation}
+  \label{tab:rw2}
+ \end{table}
+
+
+
+Table~\ref{tab:rw2} provides an overview about existing visual data exploration work that supports content-based query recommendation.
+This tables encompasses also our solution \prototype{}.
+For each approach, it describes (i)~the supported types of input queries (e.g., select-project-join (SPJ) queries, project-aggregate (PA) queries, or cube queries corresponding to SPJA queries) and (ii)~the type of recommended output queries. 
+We observe that existing solutions such as
+~\cite{Vartak,Sellam:16,Tang:2017,Wongsuphasawat2016,Wongsuphasawat:2017,MafrurSK18,Ehsan:18} offer various types of recommended queries. Yet, these work have only very limited support for query recommendation expressiveness. 
+Typically, there is a one to one mapping between the recommended query and a particular type of query e.g., SPJ (adopted in 
+~\cite{Sellam:16}) or sub-cubes e.i, slices of cubes (adopted in~\cite{Vartak,Tang:2017,MafrurSK18,Ehsan:18}). 
+In comparison, our solution \prototype{}, allows a more expressive data exploration by supporting the set of widely accepted OLAP queries including Zoom In, Drill, and Slice. Thus, the recommendations methodologies supported in our system cover the whole data space of the explored dataset, allowing to reach and explore ``unknown territory'', i.e., data initially not related to the user query. 
+%\mel{This related work review shows that we support ?more?. It would be nice if you could relate this superior capability to some contributions? Something like: this is only possible because we ... (do something fundamentally/substantially different than others)}
+  
+
+ 
+ 
+ 
+ 
+ 
+ 
+

@@ -1,0 +1,254 @@
+\section{Visualization recommendation}
+\label{sec:vis-rec}
+We have introduced in Sections~\ref{sec:content-query-rec}, and~\ref{collaborative-query-rec} our query recommendation approaches meant to assist users in exploring interesting data regions.
+Yet, users, especially those lacking visualization skills, still face difficulties in the course of the visual data exploration process especially when visualizing queries' results.
+Indeed, these users need support to design adequate visualizations that render appropriately the data.
+Furthermore, the data visualization could be a non-trivial task even for users having sufficient visualization knowledge since choosing the best visual/data mapping can be challenging given the large number of visualization techniques candidates that could be applied to render data. 
+
+
+In what follows, we tackle the problem of recommending  2-d visualizations in the context of visual exploration of data warehouses.
+Accordingly, we give first in Section~\ref{sec:vis-overview} an overview about our proposed visualization recommendation approach. After that, we introduce in Section~\ref{sec:vis-metrics} metrics that we take into account when recommending visualizations. Later, we describe in Section~\ref{vis:implemntation} in details our visualization recommendation approach, implemented in~\prototype{}. 
+
+
+
+\subsection{A high-level overview of the visualization recommendation process}
+\label{sec:vis-overview}
+
+
+
+We propose in this section, our novel visualization recommendation approach meant to render appropriately the exploration steps inspected by users.
+
+%Overall, our visualization recommendation process follows a bottom-up strategy  where a generic visualization is constructed initially. This visualization is refined through the steps of the visualization recommendation process.
+Figure~\ref{fig:vis-overview} depicts the general process of our visualization recommendation approach, 
+%which comprises three main steps: (i)~design of visualization, (ii)~visualization refinement, and (iii)~visualization recommendation.
+which comprises two main steps: (i)~design of visualization, and (ii)~visualization refinement.
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.3]{figures/EVLIN-core/vis-rec-overview}
+\caption{Overview about our visualization recommendation approach}
+\label{fig:vis-overview}
+\end{figure}
+
+
+In the first step of the process depicted in Figure~\ref{fig:vis-overview}, our visualization recommendation approach resorts to widely used existing techniques to choose appropriately the visualization technique suitable to render exploration results.
+The selected visualization technique is instantiated  at this stage of the visualization recommendation process.
+Next, our visualization recommendation approach adopts in the second step of the visualization process (cf.~Figure~\ref{fig:vis-overview}) a set of metrics (explained later) to specify the visual encodings of the current instance of visualization to recommend.
+%Finally, our approach outputs the recommended visualization (this corresponds to the third step depicted in Figure~\ref{fig:vis-overview}).
+Finally, our approach outputs the recommended visualization.
+
+In the next section, we discuss the set of metrics adopted in second step of our proposed visualization recommendation process. Later, we describe thoroughly in Section~\ref{vis:implemntation} how our proposed visualization recommendation approach performs the two steps of the process depicted in Figure~\ref{fig:vis-overview} to assist users when inspecting exploration results.
+
+
+\subsection{Metrics of visualization recommendation}
+\label{sec:vis-metrics}
+Towards recommending 2-d visualizations in the course of visual exploration session, we leverage the following metrics:\\
+\noindent \textbf{Expressiveness and effectiveness.} 
+The effectiveness and expressiveness metric were discussed in ~\cite{Cleveland.McGill1984,Mackinlay86}  where authors propose several rules to prune and rank visualization candidates.
+As discussed in~\cite{augmentingwongsuphasawat2018}, the expressiveness metric verifies whether a visualization expresses all the facts available in the visualized dataset.
+The effectiveness metric determines whether a visualization effectively conveys the information in a way more readily perceived than other visualizations. 
+These metrics are commonly adopted in visualization recommendation systems including Polaris~\cite{polaris2002}, Tableau Show me~\cite{Mackinlay:2007}, and Voyager~\cite{Wongsuphasawat2016}. 
+
+
+
+While we also adopt the effectiveness and expressiveness metrics in our work, we argue that these are not sufficient over the course of an exploration session that navigates between exploration steps.
+Generally, these visualizations generated within the same exploration session are related to one another as they describe related topics. Thus, these visualizations may lead to confusion if they are generated independently, e.g., using different visual encodings to render the same information. This disturbs users and can mislead conclusions surfaced from visualizations. 
+To cope with this inconsistency problem, we propose our proper metric for visualization recommendation.
+~~\\
+\noindent \textbf{Consistency.} 
+%We propose a third metric that is consistency in order to increase the similarity between rendered visualizations. 
+Apart from the expressiveness and effectiveness metrics, we adopt the consistency as an additional metric when recommending visualization in the course of the visual data exploration process.
+The consistency metric consists of presenting the same information (or concept) in the same way. 
+In the same spirit, different information should be presented differently using the consistency metric. 
+%The consistency can be quantified by the number of different representations per concept, or some more complicated metric taking the count of each representation of a concept into account.
+
+
+
+ 
+ ~~\\
+In the following section, we describe how our visualization recommendation approach implements these three metrics. A special attention will be given to the consistency, our proper metric that we adopt when recommending visualization in \prototype{}.
+
+\subsection{Implementation of visualization recommendation}
+\label{vis:implemntation}
+Our visualization recommendation approach leverages the following metrics: (i)~expressiveness/effectiveness and~(ii) consistency to render 2-d visualizations.
+
+While the expressiveness/effectiveness metrics are implemented as a rule-based approach (as shown in Table~\ref{tab:permittedMarks}), we leverage the evolution provenance graph $\sessionGraph$ discussed in Chapter~\ref{chap:evoDM}, to implement the consistency metric.
+
+ \begin{table}[t]
+\centering
+\scriptsize
+ \begin{tabu}{|p{5cm}|p{2.7cm}|} \hline
+\textbf{Data types} & \textbf{Mark types} \\ \hline
+ (Ordinal or nominal) $\times$  (Ordinal or nominal) &point>text  \\ \hline 
+ Quantitative $\times$  nominal &bar>point>text \\ \hline
+  Quantitative $\times$ (temporal or nominal) &line>bar>point>text \\ \hline
+  Quantitative $\times$   Quantitative & point>text \\ 
+ \hline
+\end{tabu}
+\caption{Ranked mark types based on the data types of 2-d visualizations~\cite{Wongsuphasawat2016} }
+\label{tab:permittedMarks}
+\end{table}
+
+
+Our visualization recommendation approach follows the pipeline depicted in Figure~\ref{fig:vis-rec-process}. 
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.35]{figures/EVLIN-core/visRECprocess.pdf}
+\caption{Steps of the visualization recommendation process}
+\label{fig:vis-rec-process}
+\end{figure}
+
+It comprises three steps that are: (i)~\emph{Exploration path computation}, (ii)~\emph{Sorting queries in the path}, and (iii)~\emph{Visualization computation}. It takes as input a current exploration query investigated by the user $Q_{curr}$ and evolution provenance graph $\sessionGraph$ that records all user's manipulations done within the exploration session. The visualization recommendation approach returns a recommended visualization $V_{curr}$ that renders results of $Q_{curr}$.
+
+The first step of the visualization recommendation process that is \emph{Exploration path computation} consists in computing the exploration path (see Definition~\ref{explo:path}) that leads to $Q_{curr}$.
+This path contains all exploration queries involved to reach the query $Q_{curr}$. 
+This path undergoes a second step~\emph{Sorting queries in the path} where exploration queries are sorted in descending order of their similarity with the current exploration query $Q_{curr}$.
+Finally, we compute the recommended visualization in the third step~\emph{Visualization computation} where  we fetch iteratively the visualization exploration resource (see Definition~\ref{def:vis-resource}) associated with previous exploration queries present in the sorted exploration path. Those visualization resources are used to construct the recommended visualization $V_{curr}$ associated with $Q_{curr}$.
+
+After this brief overview of main steps depicted in Figure~\ref{fig:vis-rec-process}, we discuss Algorithm~\ref{fig:algVisRec} that shows the pseudocode of the visualization recommendation approach.  
+
+
+%\mel{More precise would be visualization recommendation step / component. Also say why you do not provide further details on the other steps.}
+%\hou{not true I go over two steps atleast}
+
+
+Essentially, it takes as input the current exploration query $Q_{curr}$ to inspect and the evolution provenance graph $\sessionGraph$ recording the set of exploration steps performed so far by the user. 
+This algorithm returns a recommended visualization $V_{curr}$ associated to the query $Q_{curr}$.
+
+\input{chapterEVLIN/algoVisRec.tex}
+
+At line~\ref{lst:line:chartT}, we identify the types of attributes queried in $Q_{curr}$ (e.g., ordinal, nominal or temporal data). 
+Given the identified data types, we resort in line~\ref{lst:line:visT} to Table~\ref{tab:permittedMarks} encompassing expressiveness/effectiveness rules to determine the suitable visualization technique to render the result of $Q_{curr}$.
+Based on this information (visualization technique), we initialize at line~\ref{lst:line:4} the visualization $V_{curr}$. To do that, we instantiate permitted graphical marks associated to the adopted visualization technique as described in Table~\ref{tab:permittedMarks}. Consequently, we get the preliminary skeleton for the recommended visualization of $V_{curr}$. This latter should be populated appropriately with visual encodings resources to recommend a suitable visualization $V_{curr}$.
+
+
+
+To this end, we employ the \emph{consistency} metric that relies mainly on previous visualizations seen during the current exploration session to fill missing visual encodings resources of $V_{curr}$.
+
+Consequently, we leverage at lines~\ref{lst:line:Qpath}--\ref{lst:line:QpathSort} the evolution provenance graph $\sessionGraph$ to extract the exploration path $P_{curr}$ from the initial query $Q$ to the node representing the query $Q_{curr}$, including all meta-data associated to graph nodes.
+%\mel{I had a similar question in Chapter 4, I believe. Why the shortest path?}
+Note that we leverage Dijkstra's Shortest Path First algorithm~\cite{Dijkstra:1959:NTP} to compute the exploration path $P_{curr}$. Yet, it is easy to to adopt other solutions solving the problem of exploration path computation.
+
+
+Using the computed exploration path $P_{curr}$, our visualization recommendation approach aims at maximizing the visual similarity of the recommended visualization $V_{curr}$ with those seen and interacted with previously for similar queries (intuitively, such that users easily recognize the same information as seen previously and thus understand the meaning of visualizations faster). 
+
+
+This first requires determining similar queries among those in $P_{curr}$. This is done in line~\ref{lst:line:QpathSort} in Algorithm~\ref{fig:algVisRec} by the function SortExplorationSteps described in Algorithm~\ref{fig:algVisSort}. 
+
+
+
+  \begin{algorithm}[h]
+   \caption{ SortExplorationSteps ($Q_{curr}, P_{curr}$)}
+    \label{fig:algVisSort}
+   \KwIn{
+   $Q_{curr}$: the current exploration query, $P_{curr}$: the exploration path containing explorations sorted in descending order of their recentness}
+  \KwOut{$queue$: A queue of exploration steps sorted in a descending order of their similarity scores }  
+  $queue \leftarrow \emptyset$  \;
+  {\tcc{The queue storing queries associated with their similarity scores}}
+    %$S_{recentness} \leftarrow |P_{curr}|$\;
+    $S_{recentness} \leftarrow 0$\;
+    
+ \ForAll{$X_{i}=(Q_{i},V_{i}) \in P_{curr}$ }{   \label{SES:line:startLoop}
+  	$w_{Q_i}(Q_{curr}) \leftarrow  |P_{curr}| - S_{recentness}$\; \label{SES:line:weight}
+ 	$S_{similarity} \leftarrow sim(Q_{i},Q_{curr})$\;
+	 $score \leftarrow  S_{similarity} \times w_{Q_i}(Q_{curr})$\; \label{SES:line:simOverlap}
+	 
+	 
+ 	%\If{$scoret \geq \Phi_{sim}$}{
+		 $queue.add(Q_{i},score)$ \;
+	%}
+	%$S_{recentness} \leftarrow  S_{recentness}-1$ \;
+	$S_{recentness} \leftarrow  S_{recentness}+1$ \;    \label{SES:line:endLoop}
+ }   
+            
+ $queue.sort(score,descending)$\; {\tcc{Sort the queue in descending order of their similarity scores}}
+
+ 
+ \textbf{Return} $queue$\;
+    \end{algorithm}
+
+This latter takes as input the current exploration query $Q_{curr}$ and the exploration path $P_{curr}$ leading to the current user's exploration. 
+
+Essentially, the SortExplorationSteps function quantifies in lines ~\ref{SES:line:startLoop} --~\ref{SES:line:endLoop} the similarity $S_{similarity}$ between $Q_{curr}$ and an exploration query $Q_i \in P_{curr}$ using a similarity function $sim$. 
+More precisely, we determine in line~\ref{SES:line:simOverlap} for each retrieved previous exploration query, the semantic overlap of the data returned by these queries, compared to the data returned by $Q_{curr}$. Intuitively, the higher this semantic overlap, the more similar the queries and hence we want to reuse same or similar visual encodings if possible. We denote the function used to compute the semantic overlap between two queries $Q_1$ an $Q_2$ as $sim(Q_1, Q_2)$.
+
+%Equation~\ref{eq:sim}, that is based on the Jaccard coefficient $Jaccard(S, S') = \frac{\mid S \cap S' \mid}{\mid S \cup S' \mid}$, presents one possible implementation of a similarity measure that we adopt. 
+%The similarity measure in Equation~\ref{eq:sim} uses three functions to extract token sets of each SQL-clause of an exploration query $Q$ (see Definition~\ref{def:exp-query}): $getSelect(Q) = \{a_1, \ldots, a_n, f(m)\}$,\\ $getTables(Q) = \{t | t \text{ referred to in } rel(D)\}$, and\\ $getConditions(Q) = \{p_i | p_i \text{ a predicate in } cond\}$. Then:
+%
+%\begin{equation}
+% \small\addtolength{\tabcolsep}{-6pt}
+%\begin{array}{lcl}
+%sim(Q_1,Q_2)  & = &   \alpha \times Jaccard(getSelect(Q_1), getSelect(Q_2)) \\
+% &+  &  \beta \times Jaccard(getTables(Q_1), getTables(Q_2)) \\
+% &+ &  \gamma \times Jaccard(getConditions(Q_1), getConditions(Q_2))
+%\end{array}
+%\label{eq:sim}
+%\end{equation}
+%\noindent where $\alpha, \beta, \gamma$ are weights, $\alpha + \beta + \gamma = 1$. By default, we use equal weights for all clauses.
+Equation~\ref{eq:sim} presents one possible implementation of a the function $sim$, based on the Jaccard coefficient $Jaccard(S, S') = \frac{\mid S \cap S' \mid}{\mid S \cup S' \mid}$.
+
+To also account for the fact that visualizations encountered more recently during an exploration session are more present in user's memory than those seen longer ago,  
+we introduce in line~\ref{SES:line:weight} of Algorithm~\ref{fig:algVisSort} a weight $w_{Q_{2}}(Q_1)$ for a query $Q_1$ that stores the number of exploration steps present in the exploration path $P_{curr}$, between a query $Q_1$ and a query $Q_{2}$. 
+For any query $Q_i \in P_{curr}$ on the exploration path yielding $Q_{i}$, we compute a score $sim(Q_{curr}, Q_i) \times w_{Q_{curr}}(Q_i)$. 
+We store in line~\ref{lst:line:reuse} of Algorithm~\ref{fig:algVisSort} the set of exploration queries of $P_{curr}$ with a similarity to $Q_i$ in a queue that is sorted in descending order of similarity. 
+
+
+This latter is used in the while loop (lines~\ref{lst:line:beginWhile}--\ref{lst:line:endWhile}) of Algorithm~\ref{fig:algVisRec} to construct the visualization $V_{curr}$.
+More precisely, we iterate the filled queue in descending order of similarity. At each iteration we extract a previous exploration step $X_i=(Q_{i},V_{i})$ and we fetch its associated visualization exploration resource $V_i$ (stored in relational way as described in Section~\ref{subsec:explorStep}).  The set of visual encodings of $V_i$ that comply with the graphical marks of $V_{curr}$ are re-used in the current visualization $V_{curr}$. Note that we provide details of our ReuseVis function in the Appendix~\ref{app:A}.
+The process is repeated iteratively as long as $Queue$ contains similar previous exploration queries and $V_{curr}$ still lacks some visual resources.
+
+
+In case no prior visualizations can be used or in the initial exploration step (where evolution provenance is empty), we resort in line~\ref{lst:line:autocomplete} of Algorithm~\ref{fig:algVisRec} to a set of predefined visual encodings that we use to complete the recommended visualization $V_{curr}$.
+
+
+
+
+Overall, the complexity of Algorithm~\ref{fig:algVisRec} that performs the visualization recommendation approach, is in 
+$O((N+E) \times log (N)   +  Path_Q \times log(Path_Q) + c \times Path_Q$ ) where
+$E$ and $N$ refer respectively to the edges and nodes of the evolution provenance graph, $Path_Q$ is the size of the exploration path and $c$ is the number of visual encodings to fill for the recommended visualization.
+
+Recall that our visualization recommendation comprises three steps that are shown in Figure~\ref{fig:vis-rec-process}. The complexity of the first step that is exploration path computation is in $O((N+E) \times log (N) )$.
+The second step that consists of sorting the exploration path is performed in $O(Path_Q \times log(Path_Q))$ while the third step recommending visualization is in $O(c \times Path_Q)$.
+We postpone the discussion of the evaluation results of each step present in the visualization recommendation process to Section~\ref{eval-sec:visRec}.
+
+Finally, we give an example that shows the functionality of the visualization recommendation.
+\begin{example}
+In our running example (see Example~\ref{ex:query}, Page~\pageref{ex:query}), we have discussed a sample of a visual exploration session using \prototype{} where the user investigated initially the set of delayed flights that are grouped by their state of departure.
+Figure~\ref{fig:Q} (Page~\pageref{fig:Q}) displays the recommended bar-chart visualization for the initial user's query $Q$. For this initial rendering, the evolution provenance graph $\sessionGraph = \emptyset$, thus, the recommendation is solely based on the effectiveness/expressiveness metrics. 
+
+
+As discussed in Example~\ref{ex:interaction} (Page~\pageref{ex:interaction}), the user has later selected the highest bar that designates the delayed flights departing from the state California. The selected region is highlighted in a different color. At this point, $\sessionGraph$ is updated to include the initial exploration step $\exploreStep$ including its query $Q$ as well as visual encoding parameters of the displayed chart $V$.
+
+The user's interaction triggers the recommendation of a set of exploration queries (discussed in Example~\ref{ex:sampleMatrix}, Page~\pageref{ex:sampleMatrix}).
+Subsequently, the user has requested to investigate the recommended query discussed in Example~\ref{ex:query-ZoomIn} (Page~\pageref{ex:query-ZoomIn}) that returns the set of delayed flights departing from several states in USA and clustered by airlines companies (e.g. OO, UA, etc $\ldots$).
+
+Recommending the visualization of Figure~\ref{vis:Zoom} (Page~\pageref{vis:Zoom}) relies on the updated $\sessionGraph$ to generate a similar visualization of same features, e.g., same axis scale for the y-axis, same order of states on the x-axis, or choice of a stacked bar chart to maintain same heights as seen previously (e.g., in the bar-chart of Figure~\ref{fig:Q}, Page~\pageref{fig:Q}).
+\end{example}
+
+
+
+ 
+Unlike existing work discussed in Section~\ref{sec:EDA}, that provide either visual or query recommendation, we show how our system \prototype{} integrates seamlessly both query and visualization recommendation for a streamlined, interactive visual exploration user-experience. This is performed by the virtue of our novel recommendation strategies that leverage provenance to recommend queries and interactive visualizations related to each other.  Later, we study in Section~\ref{sec:final-userstudy} users' experiences when exploring visually data using \prototype{}.
+
+
+
+\subsection{Existing visualization recommendation work}   
+Several prior work (e.g.,~\cite{Wongsuphasawat2016,Mutlu:2016,Mackinlay:2007,polaris2002,Wongsuphasawat:2017}) have focused on recommending visualizations given a query result to investigate.
+Many of these work leverage effectiveness and expressiveness metrics.
+The expressiveness metric enables to design a visualization that expresses all the facts present in the visualized dataset.
+The effectiveness metric consists in choosing the visualization, provided that information conveyed by this particular visualization is more readily perceived than the information in the other visualization.
+
+
+Examples of work that leverage expressiveness and effectiveness metrics include Show Me~\cite{Mackinlay:2007}, VizRec~\cite{Mutlu:2016} and Voyager~\cite{Wongsuphasawat2016}.
+However, these work are limited to question answer processes where users specify the input data and get as a result the suitable visualization to inspect results.
+This does not fit the context of visual data exploration where users are exposed throughout an exploration session to many overlapping visualizations that describe related topics. 
+To this end, we adopt these metrics (expressiveness and effectiveness) as well as a third metric that is the \emph{consistency}.
+
+
+In a similar approach, VizRec~\cite{Mutlu:2016} mixed metrics proposed in Mackinlay's APT system~\cite{Mackinlay86} with a collaborative-filtering recommendation strategy to recommend visualizations. 
+This approach differs from our approach in two main points: (i)~they use tags to describe the content of visualizations while we leverage the evolution provenance to get visualizations content; (ii)~authors in~\cite{Mutlu:2016} leverage previous users' ratings over visualizations to find previous users with similar preferences to the active user while we focus only on prior visualizations of the active user. 
+While the above method may complement our visualization recommendation approach, it is left for future research.
+
+
+

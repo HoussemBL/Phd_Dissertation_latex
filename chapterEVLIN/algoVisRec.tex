@@ -1,0 +1,61 @@
+
+
+
+%\begin{algorithm}
+%    \caption{Visual recommendation algorithm}
+%    \label{fig:algVisRec}
+%    \begin{algorithmic}[1] % The number tells where the line numbering should start
+%        \Function{VisualRecommender}{$Q_{curr}, \sessionGraph$} %\Comment{The current exploration query}
+%             \State $2data-types \gets \text{ExtractTypes(} S_{curr} \text{)}$
+%               \State $VisType \gets \text{DecideVisTechniques(} 2data-types \text{)}$
+%                 \State $V_{curr} \gets \text{AllocateMarks(} VisType \text{)}$
+%                 \State $isComplete \gets \text{false}$  
+%                    \State $P_{curr} \gets \text{ComputeExplorationPath(} Q_{curr},\sessionGraph \text{)}$
+%            \State $Queue \gets \text{SortExplorationSteps(} P_{curr}, Q_{curr} \text{)}$\Comment{we use a queue of $\langle q,s\rangle$ elements where $q$ is a query and $s$ is a similarity value}
+%	   \While{ ($\neg isComplete $ AND $\neg Queue.isEmpty$)}
+%    			\State $X_{i}=(Q_{i},V_{i}) \gets Queue.poll() $
+%			\State ReuseVis$(V_{curr},V_{i}) $
+%			\State $isComplete \gets completeCheck(V_{curr} ) $
+%  \EndWhile
+%        
+%  
+% 	\If{($\neg isComplete$)}
+%		  \State $AutoComplete(Vis_{curr})$
+%            \EndIf
+%
+%        
+%            \State $S_{curr} \gets (Q_{curr},V_{curr})$%\Comment{The gcd is b}
+%         \State \textbf{return} $S_{curr}$%\Comment{The gcd is b}
+%        \EndFunction
+%    \end{algorithmic}
+%\end{algorithm}
+
+
+
+
+  \begin{algorithm}[t]
+   \caption{Visualization recommendation algorithm}
+    \label{fig:algVisRec}
+  \KwIn{$Q_{curr}$, $\sessionGraph$}
+  \KwOut{$V_{curr}$: Recommended visualization associated to $Q_{curr}$}  
+ $AttsType \leftarrow \text{ExtractTypes(} S_{curr} \text{)}$\;  \label{lst:line:chartT}
+  $VisType  \leftarrow \text{DecideVisTechniques(} AttsType \text{)}$\;   \label{lst:line:visT}
+    $V_{curr}  \leftarrow \text{AllocateMarks(} VisType \text{)}$\; \label{lst:line:4}
+   $isComplete  \leftarrow \text{false}$  \;
+     $P_{curr}  \leftarrow \text{ComputeExplorationPath(} Q_{curr},\sessionGraph \text{)}$\;  \label{lst:line:Qpath}
+    $Queue  \leftarrow \text{SortExplorationSteps(} P_{curr}, Q_{curr} \text{)}$ \;  \label{lst:line:QpathSort}
+    {\tcc{we use a queue of $\langle q,s\rangle$ elements where $q$ is a query and $s$ is a similarity value}}
+    
+ \While{$\neg isComplete $ AND $\neg Queue.isEmpty$}{   \label{lst:line:beginWhile}
+   $X_{i}=(Q_{i},V_{i}) \leftarrow Queue.poll() $\;
+	 $ReuseVis(V_{curr},V_{i}) $\;   \label{lst:line:reuse}
+ $isComplete \leftarrow completeCheck(V_{curr} ) $\;  \label {lst:line:endWhile}
+  } 
+            
+
+ 	\If{$\neg isComplete$}{
+		 $AutoComplete(Vis_{curr})$\;  \label{lst:line:autocomplete}
+	}
+ 
+ \textbf{Return} $V_{curr}$\;
+    \end{algorithm}

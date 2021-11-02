@@ -1,0 +1,270 @@
+\subsection{Collaborative-filtering query recommendation}
+\label{sec:finding}
+Using, the multi-user graph obtained as described in the previous section, we describe now our proposed collaborative-filtering query recommendation approach.
+
+To do that, we first present a baseline collaborative-filtering query recommendation approach that, given a current exploration step $\currentExpoStep{}$, searches top-k similar exploration steps in $\usersGraph{}$ and considers children of those as interesting next exploration steps to be recommended. We further discuss optimizations that aim at improving the runtime of computing recommendations.
+
+\subsubsection {Baseline recommender}
+\label{sec:basic-rec}
+
+   \begin{algorithm}[t]
+\caption{Baseline  recommendation algorithm}
+\label{algo:baselineRec}
+ \KwIn{$G_{MU}$ : multi-user graph,\\
+   $\thetaRec$: distance threshold, \\
+    $\currentExpoStep$: current exploration step, \\
+   $S_{content}$: set of recommendation seed scores from our previous approach}
+ $Queue_{cand} \leftarrow findKSimilar(\usersGraph, \thetaRec, Q, Queue_{cand})$\;
+  $S_{collab} \leftarrow \emptyset$\;
+	\ForEach{ $\langle n,d \rangle \in Queue_{cand}$}{  \label{BC:line3}
+		\ForEach{$e \in n.getOutEdges()$}{
+			$S_{collab} \leftarrow rec \cup \{e\}$ \;   \label{BC:line5}
+		}	
+	}
+$S_{hybrid}\leftarrow S_{content}$ {\tcc*{Initialization of $ S_{hybrid}$  }   } \label{BC:line6}
+\ForEach{$elt \in S_{hybrid} \cap S_{collab}$}{	
+					$S_{hybrid}[elt] \leftarrow combineScores(S_{hybrid}[elt], S_{collab}[elt])$; \label{BC:line8}
+			}
+\end{algorithm}
+
+
+
+
+Algorithm~\ref{algo:baselineRec} summarizes our baseline recommendation algorithm. It takes as input a multi-user graph $\usersGraph$, a distance threshold $\thetaRec$, and the current exploration step $\currentExpoStep$.
+We use a priority queue $Queue_{cand}$ to store the top-k similar exploration steps in descending order of their distance to $X_{curr}$. 
+This latter is populated in line~\ref{BC:line5} by $findKSimilar$ function (discussed further below). 
+Then, in lines~\ref{BC:line3}--~\ref{BC:line5} of Algorithm~\ref{algo:baselineRec}, we determine the children of each top-k similar node in $\usersGraph{}$ and add them to the set of recommended queries $S_{collab}$. 
+Thereby, we get ultimately the full set of collaborative-filtering recommendations.
+ 
+
+
+\begin{example}[Collaborative-filtering query recommendation example]
+\label{ex:collabRec}
+Figure~\ref{fig:exCollabRec} illustrates an example of collaborative-filtering query recommendation.  
+Given a user's current exploration step and a multi-user graph, our Algorithm~\ref{algo:baselineRec} searches first the set of exploration steps available in the multi-user graph that are highly similar to the current exploration step investigated by the user.
+Assume that our Algorithm~\ref{algo:baselineRec} searches top-1 similar exploration steps. 
+In this case, it found $X_{f1}$ (depicted in green color) that is the most similar exploration step (available in the multi-user graph) to the current exploration step investigated by the user.
+Consequently, we search direct descendants of $X_{f1}$. This results in the set of exploration steps $REC_1$, $REC_2$, and $REC_3$ (highlighted in red color). Our Algorithm~\ref{algo:baselineRec} takes also into account scores present in the edges pointing to $REC_1$, $REC_2$, and $REC_3$. 
+Ultimately, pairs of exploration steps ($REC_1$, $REC_2$, and $REC_3$) and their scores are returned as the final result of the collaborative-filtering recommendation process.
+\end{example}
+\begin{figure}[t]
+\centering
+  \scalebox{.7}{\includegraphics{figures/ADBIS/collabRecExample}}
+\caption{Example of a collaborative-filtering recommendation computation}
+\label{fig:exCollabRec}
+\end{figure}    
+
+%{\color{Fuchsia}
+Actually, the recommendation engine (see Figure~\ref{fig:archi-FW}, Page~\pageref{fig:archi-FW}) is executed as a whole block when a user solicits recommendations.
+Hence, the recommendation engine implemented in \prototype{} computes first the set of content-based recommendations $S_{content}$ , assigns interestingness scores to each recommendation present in $S_{content}$ using our recommendation quantification approach (discussed in Section~\ref{quantification-rec}) and finally invokes our collaborative-filtering recommendation approach described in Algorithm~\ref{algo:baselineRec}. 
+%}
+Accordingly, we use the set of collaborative-filtering recommendations computed in lines~\ref{BC:line6}--\ref{BC:line8} of Algorithm~\ref{algo:baselineRec}, to update scores of content-based recommendations $S_{content}$ already computed as described in Section~\ref{quantification-rec}. 
+
+
+
+
+
+Recall that each collaborative-filtering recommendation is a direct descendant of an exploration step in the multi-user graph that has a high similarity to the current exploration step performed by the current user.
+Accordingly, we leverage information of edges that describe navigations from the highly similar exploration steps stored in $Queue_{cand}$ to the collaborative-filtering recommendations.
+%More specifically, each edge is labeled by $\langle \labelOp{}, a, s \rangle$ as explained in Definition~\ref{def:MUg} where scores $s$ reflect (i) the commonality (frequency) of the underlying navigation and; (ii) its exploration benefit (the number of subsequent explorations steps investigated by performing this navigation).
+More specifically, each edge is labeled by $\langle const, s \rangle$ as explained in Definition~\ref{def:MUg} where scores $s$ reflect (i) the commonality (frequency) of the underlying navigation and; (ii) its exploration benefit (the number of subsequent explorations steps investigated by performing this navigation).
+That is, we combine in lines~\ref{BC:line6}--\ref{BC:line8} of Algorithm~\ref{algo:baselineRec}, scores derived from labels of edges pointing to $S_{collab}$, with the (previously computed) scores $S_{content}$ from content-based recommendations. 
+In our implementation, we simply implement $combineScores$ as the average of both normalized query-recommendation scores. Investigating further combination functions is left for future work. 
+
+
+
+%\hou{to think more. Should I remove it?}
+%
+%\begin{figure}[b]
+%\centering
+%  \scalebox{.4}{\includegraphics{figures/EVLIN-overview/query/matrix-sample.pdf}}
+%\caption{Example of an impact matrix after the introduction of collaborative-filtering recommendation}
+%\label{fig:matrixSample2}
+%\end{figure}
+%
+%
+%\begin{example}[Impact matrix] 
+%\label{ex:sampleMatrix-collab}
+%In relation with our running example exploration, we have provided in Figure~\ref{fig:matrixSample} (Page~\pageref{fig:matrixSample}) the impact matrix that does not take into account the collaborative-filtering recommendations.
+%
+%Suppose now that we have collected several explorations made previously by many users over the same data warehouse. The inspection of these traces reveals that many users perform the exploration of delayed flights starting from California. 
+%Inspecting thoroughly these traces shows that many users opted for exploring the set of delayed flights performed clustered by the ids of airline companies. This corresponds to the Zoom-in Slice recommended query associated to the attribute-values pair $\{(airport, \{San Diego,Los Angeles, San Francisco\})$. The importance of this recommendation should be communicated clearly to the current user.
+%
+%
+%In Figure~\ref{fig:matrixSample2}, we show how the recommendation scores visualized in the impact matrix evolve when combining both the scores for content-based and collaborative-filtering recommendations
+%The inspection of cells colors shows that the recommended query of type Zoom-in Slice associated to the attribute-values pair $\{(airport, \{San Diego,Los Angeles, San Francisco\})$ has the highest interestingness score. This is explained by the wealth content of this information (see color cell of this recommendation in Figure~\ref{fig:matrixSample}) as well as the popularity of this exploration. %}
+%\end{example}
+
+
+
+In our baseline algorithm, $findKSimilar$ (see Algorithm~\ref{algo:topkFinding}),
+ simply traverses the whole multi-user graph, computing a distance between $Q$ and each query of $\usersGraph$ and maintaining $Queue_{cand}$ such that it ultimately contains the $k$ most similar (equivalent to $k$ least distant) queries to $Q$. 
+ \begin{algorithm}[t]
+   \caption{$findKSimilar(\usersGraph, \thetaRec, Q, Queue_{candidates})$}
+    \label{algo:topkFinding}
+	  \KwIn{$G_{MU}$ : multi-user graph,
+  \quad  $\thetaRec$: distance threshold,\\
+  	\hspace{2.5em}\quad $Q$: query of current exploration step, 
+  	\quad $Queue_{candidates}$: top-k similar queries }
+ 
+     $d_{max} \leftarrow \infty $ \;
+ 	 	\ForEach{$n \in G_{MU}$ holding $X_{MU} = \{Q_{MU}, D, V_{MU}\}$}{
+		$d \leftarrow distance(Q ,Q_{MU})$\;
+
+		\If{$d < \thetaRec $}{
+			\If{$|Queue_{candidates}| \leq k$ }{
+				$Queue_{candidates}.add(\langle n,d \rangle)$\;
+				
+			}
+		
+		\Else 	 {
+			$d_{max} \leftarrow Queue_{candidates}.last().getDistance()$\;
+			\If{$d \leq d_{max}$}{
+				$Queue_{candidates}.removeLast()$\;
+				$Queue_{candidates}.add(\langle n,d \rangle)$\;			
+			}			
+		}
+		}			
+	   }
+    \end{algorithm}
+The complexity of $findKSimilar$ function is in $O(\usersV)$. Thus, a big multi-user graph incurs a costly recommendation search operation. This is a critical issue for interactive visual exploration. Indeed, we show in the evaluation (see Section~\ref{subsec:runtimeCollab}) that our baseline collaborative-filtering recommendation approach is an expensive process in terms of runtime. Therefore, we propose in what follows two pruning techniques that reduce the number of distance computations.
+
+
+
+
+
+
+
+    
+
+ 
+ 
+ 
+\subsubsection {Triangle inequality based pruning}
+\label{subsec:triangle}
+
+The triangle inequality has been previously used in many works, e.g.,~\cite{Zhu:2012,Ranu:2014} to optimize the search of sub-graphs. As our adopted distance is computed as $distance(Q, Q') = 1 - sim(Q,Q')$ (see Equation~\ref{eq:sim}), we can also exploit the triangle inequality that holds for the Jaccard coefficient, i.e., $Jaccard(A,B)\leq Jaccard(A,C)+Jaccard(C,B)$.
+
+
+\begin{lemma}[Lower bound distance]
+\label{def1}
+Given queries $Q_{1}$ and $Q_{2}$ to compare with a query $Q$, it is true that
+$distance(Q_{1},Q) \geq distance(Q_2,Q)  \text{ if } distance(Q_{1},Q_{2})   \leadsto 0$.
+\end{lemma}
+
+
+\begin{proof}
+Based on the aforementioned triangle inequality for the Jaccard coefficient and $distance(Q,Q') = 1 - Jaccard(Q, Q')$,  we get for queries $Q_{1}$, $Q_{2}$, and  $Q$:
+\vspace{-0.3cm}
+\begin{eqnarray*}
+Jaccard(Q,Q_{1}) &  \leq  &  Jaccard(Q,Q_{2}) + Jaccard(Q_{2},Q_{1})\\
+\Rightarrow Jaccard(Q,Q_{1}) & \leq & Jaccard(Q, Q_2) \text{ if } Jaccard(Q_2,Q_{1})  \leadsto 1\\
+\Rightarrow distance(Q,Q_{1})&  \geq &  distance(Q_2, Q)   \text{ if } distance(Q_2,Q_{1})  \leadsto 0\\
+\end{eqnarray*}
+\end{proof}
+Based on this lemma, we reduce the number of distance computations in some cases. More specifically, assume that we have compared the current user exploration step $\currentExpoStep$ to an exploration step $X_{MU} = \{Q_{MU}, V_{MU}\} \in \usersGraph{}$ and we found that $distance(Q,Q_{MU}) \geq \thetaRec$. Supposing that there exists another exploration step $X_{MU}'=\{Q_{MU}', V_{MU}'\} \in G_{MU}$ such that $ distance(Q_{MU},Q_{MU}') \leadsto 0$, we can conclude that $distance(Q, Q_{MU}') \geq \thetaRec$.
+
+
+%To leverage this pruning technique, asynchronously to the actual recommendation computation (i.e., in an offline fashion), we cluster highly similar nodes of $\usersGraph{}$ such that the distance of any two nodes' queries in a cluster tends to 0. During online processing, whenever we find that the distance between the current exploration step query $Q$ and a query $Q_{MU}$ exceeds the acceptable distance threshold $\thetaRec$, we lookup and remove all queries in the same cluster as $Q_{MU}$ from the set of queries to which $Q$ needs to be compared to. 
+%
+%Given that the multi-user graph results from merging similar nodes during evolution provenance aggregation, we expect that pruning solely based on the triangle inequality reduces moderately the number of nodes to iterate over during the recommendation phase. 
+
+
+To leverage this pruning technique, asynchronously to the actual recommendation computation (i.e., in an offline fashion), we cluster highly similar nodes of $\usersGraph{}$ such that the distance of queries of any two nodes in a cluster tends to 0, as determined by a parameter $\epsilon$ close to 0. During online processing, whenever we find that the distance between the current exploration step query $Q$ and a query $Q_{MU}$ exceeds the acceptable distance threshold $\thetaRec$, we lookup and remove all queries in the same cluster as $Q_{MU}$ from the set of queries to which $Q$ needs to be compared to. 
+
+Given that the multi-user graph results from merging similar nodes during evolution provenance aggregation, we expect that pruning solely based on the triangle inequality reduces moderately the number of nodes to iterate over during the recommendation phase. 
+
+
+\subsubsection {Parenthood relationship based pruning}
+\label{subsec:child-parent}
+
+According to our definition of an exploration session graph $\sessionGraph$~(see Definition~\ref{def:session}, Page~\pageref{def:session}), an edge represents the transition from an exploration step with query $Q$ to another exploration step with query $Q'$. By construction, $Q'$ is derived from $Q$ as described in %Table~\ref{tab:Recqueries} (Page~\pageref{tab:Recqueries}). 
+Figure~\ref{fig:QueryDER} (Page~\pageref{fig:QueryDER}). 
+Given these derivation rules, it is easy to verify that  $Q.getSelect() \cap Q'.getSelect() \neq \emptyset$, $Q.getConditions() \subseteq Q'.getConditions()$, and $ Q.getTables() \subseteq Q'.getTables()$.
+We only elaborate our next pruning strategy for the select clause in what follows. The other clauses can be treated analogously. Consequently, we suppose that $distance(Q,Q')=1- Jaccard(getSelect(Q),getSelect(Q'))$.
+
+\begin{lemma}[Parent as a lower bound]
+\label{def1}
+Let {$X_{parent}=\{Q_{parent},D,V_{parent}\}$} and {$X_{child}=\{Q_{child},D,V_{child}\}$} be two exploration steps in $\usersGraph$ connected by an edge $e = (X_{parent}, X_{child}, L)$. 
+The distance between $Q_{parent}$ and  the query $Q$ of the current exploration step can be used to estimate the lower bound of the distance between $Q_{child}$ and $Q$ as
+\begin{equation}
+distance(Q_{child},Q) ) \geq
+	distance(Q_{parent},Q) - \beta  \label{eq:parentPrune}
+\end{equation}
+
+
+ \text{ with}  
+	$ \beta= \frac{ \left( getSelect(Q_{child}) \setminus getSelect(Q_{parent}) \right) \cap getSelect(Q)  } {getSelect(Q_{parent}) \cup getSelect(Q)}$
+\end{lemma}
+
+\sloppy
+
+\begin{proof}
+This proof applies for edge $e$  on exploration steps $X_{parent}$ to $X_{child}$ having ``Zoom IN'' or ``Extension''  as label for the operation type. 
+The proofs for the remaining operations are available in Appendix~\ref{app:B}. 
+
+Let $getSelect(Q) = \{a, f(m)\}$, $getSelect(Q_{parent}) = \{ a_p, f_p(m_p)\}$ and $Q_{child} = \{a_p, a_c, f_p(m_p)\}$. Note that the select clauses of $Q_{parent}$ and $Q_{child}$ are guaranteed to overlap (i.e., in $a_p$ and $f_p(m_p)$) based on our derivation rules (see Figure~\ref{fig:QueryDER}). 
+\sloppy
+\vspace{-1em}
+\[Jaccard(Q_{child},Q)=  \frac{  \{a, f(m)\} \cap  \{ a_p, a_c, f_p(m_p) \} } {\{ a, f(m), a_p, a_c, f_p(m_p) \}}\]
+\vspace{1em}
+By removing $a_c$ from the denominator,\\
+$ Jaccard(Q_{child},Q) \leq  \frac{  \{a, f(m)\} \cap  \{ a_p, a_c, f_p(m_p) \} } {\{ a, f(m), a_p, f_p(m_p) \}}$\\
+This is equivalent to:
+\vspace{1em}
+$Jaccard(Q_{child},Q)   \leq    \frac{ \{a, f(m) \} \cap \left(\{ a_p, f_p(m_p) \} \cup \{ a_c \}   \right) }{\{ a, f(m), a_p, f_p(m_p) \} }  $\\
+\vspace{1em}
+We can simplify it further as follows\\
+\hspace{2em}\resizebox{0.7\hsize}{!}{$Jaccard(Q_{child},Q) \leq \frac{ \left( \{a, f(m) \}  \cap \{ a_p, f_p(m_p) \} \right)   \cup \left( \{a, f(m) \}  \cap \{ a_c \}   \right) }{\{ a, f(m), a_p, f_p(m_p) \} } $}
+
+\vspace{0.5em}
+\resizebox{0.7\hsize}{!}{
+\hspace{-1em}$\Rightarrow Jaccard(Q_{child},Q)   \leq   Jaccard(Q_{parent}, Q) + \frac{  \{a, f(m) \}  \cap \{ a_c \}   }{\{ a, f(m), a_p, f_p(m_p) \} }$}
+
+\vspace{0.5em}
+\resizebox{1\hsize}{!}{
+\hspace{-1em}$\Rightarrow Jaccard(Q_{child},Q)   \leq    Jaccard(Q_{parent}, Q) +  \frac{ \left( getSelect(Q_{child}) \setminus getSelect(Q_{parent}) \right) \cap getSelect(Q)  } {getSelect(Q_{parent}) \cup getSelect(Q)}$}
+
+\vspace{0.5em}
+\resizebox{1\hsize}{!}{
+\hspace{-1em}$\Rightarrow distance(Q_{child},Q) )  \geq  distance(Q_{parent},Q) -  \frac{ \left( getSelect(Q_{child}) \setminus getSelect(Q_{parent}) \right) \cap getSelect(Q)  } {getSelect(Q_{parent}) \cup getSelect(Q)}$}
+
+\end{proof}
+
+\sloppy
+Note that when $ getSelect(Q) = \{a, f(m)\}$, $ getSelect(Q_{parent}) = \{ a_p, f_p(m_p)\}$ and $  Q_{child} = \{a_p, a_c, f_p(m_p)\}$, $\beta= \frac{  \{a, f(m) \}  \cap \{ a_c \}   }{\{ a, f(m), a_p, f_p(m_p) \} }$. %This formula could \mel{can? Do we use it? If not, the obvious reviewer question is why not?} be further exploited to simplify the lemma. 
+Thus, the lower bound of distance between $Q_{child}$ and $Q$ is equal to $ distance(Q_{parent},Q)$ when $ \{ a, f(m) \} \cap \{ a_c \}= \emptyset$.
+ In this case, if $ distance(Q_{parent},Q)) \geq \thetaRec$, we can directly conclude that $ LowerBound(distance(Q_{child},Q)) \geq \thetaRec$. This means that we can directly prune $Q_{child}$ from the set of queries to search without any distance computation. 
+For the second case, (where $ \{ a, f(m) \} \cap \{ a_c \} \neq \emptyset$), $ {arg\,max} (\beta)$ is $\frac{1}{3}$ when $ a_c=a$ and  $ f(m)=f_p(m_p)$. Thus, if the difference between $ distance(Q_{parent},Q)$ and $ \thetaRec$ called $ \Delta$ is bigger than $\frac{1}{3}$, we can prune $Q_{child}$.
+
+Implementing the above pruning technique leverages a data structure that asynchronously (offline mode) computes parent-child information and the exact extensions done to derive a $Q_{child}$ from a $Q_{parent}$. At each iteration, we then check if the lower bound distance can be estimated based on a previous distance computation using Equation~\ref{eq:parentPrune}, rather than being directly computed. If so, the lower bound is used to verify if the distance can exceed $\thetaRec$ without computing the more expensive similarity score. 
+
+
+
+%\subsubsection{Existing collaborative-filtering recommendation approaches}
+%In the following, we review most relevant research area related to our collaborative-filtering query recommendation approach.
+%~~\\
+%\noindent \textbf{Graph search.} 
+%Our collaborative-filtering recommendation approach supported in \prototype{} analyzes previous users' explorations to match the current exploration. A straightforward solution would be to use top-k similar graphs techniques to find previous exploration sessions having excerpts highly similar to the current exploration.
+%In this context, we find several works proposed to find efficiently the top-k similar graphs given an input graph.
+%This includes for instance~\cite{Zhu:2012},~\cite{Ranu:2014}, and~\cite{GuptaGYCH14}. Yet, these techniques require the traversal of all individual previous exploration session graphs that may encompass redundancy. This is costly and does not fit our interactive visual data exploration context. 
+%Furthermore, this strategy may mitigate the efficiency of collaborative-filtering recommendation since a highly similar exploration session graph does not contain necessarily a node, highly similar to the current user's exploration.
+%Accordingly, we adopt a top-k similar items search strategy to provide recommendations. 
+%This strategy is applied to our compact multi-user graph that is periodically maintained. Furthermore, we showed in Section~\ref{subsec:child-parent} that the high connectivity incurred by the incremental merge of the multi-user %graph speeds up the top-k similar items search's runtime.
+%graph is beneficial to optimize the top-k similar items search process.
+%
+%
+%  ~~\\
+%\noindent \textbf{Collaborative-filtering query recommendation.} 
+%Several existing data exploration tools support users in investigating data by providing facilities to express exploration queries. 
+%In general, these work employ either content-based or collaborative-filtering recommendation techniques. 
+%As we have covered in Section~\ref{sec:content-based-related} the set of existing work employing content-based recommendations to improve data exploration, we dedicate the rest of this paragraph to discuss existing work employing collaborative-filtering recommendation policy. 
+%
+%In the collaborative-filtering recommendation approach, existing data exploration work rely on a set of previous explorations made by multiple users to identify prior exploration queries worth recommending to the current user. 
+%Example of existing work supporting the collaborative-filtering approach include for instance~\cite{Eirinaki14,Khoussainova:2010}. 
+%Yet, this range of systems provides limited visual interaction facilities when assisting SQL query formulation. Therefore, these works rely on a basic form of history traditionally presented as a serial trace, whereas we focus on interactive visual exploration whose history contains various users' navigations and forms a direct graph thereby. Accordingly, we benefit from our rich history model to infer ratings of exploration steps (via edges' scores), used in our collaborative-filtering recommendation approach.
+%Recently, Milo et al propose REACT~\cite{Milo:2016,Milo:2018}, a visual data exploration tool that provides collaborative recommendations based on previous queries made by users exploring various data sets. 
+%While REACT leverages the history of users' explorations over different datasets to mitigate the problem of cold-start, e.g., absence of history about the explored data set, our system \prototype{}  remedies the cold-start situation by providing alongside the collaborative recommendations,  other recommendations.
+%%%%Shortcoming number 2
+%%On one side, REACT leverages the history of users' explorations over different datasets to mitigate the problem of cold-start, e.g., absence of history about the explored data set. Yet, it requires a handy and costly offline pre-processing step where several schema similarity parameters (e.g., the entropy similarity between attributes) need to be computed ahead. This information is used later in the online phase to compare user's current exploration session with those preformed previously in various datasets. 
+%%On the other side, \prototype{}, the instance of our visual data exploration framework {\color{Fuchsia}\framework{}} requires also an offline step to update the multi-user graph periodically. This step is automatically done by our merge framework and it does not requires human intervention. Furthermore, \prototype{} remedies the cold-start situation addressed in REACT by providing content-based query recommendation alongside the collaborative-filtering recommendation approach.

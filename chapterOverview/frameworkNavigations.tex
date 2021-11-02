@@ -1,0 +1,47 @@
+
+
+
+We have described in Section~\ref{sec:frame-comp} the set of components and modules that compose our framework \framework{}.
+A specific attention is given in this section to explain the set of possible navigations and interactions that permit the user to use and invoke components and modules depicted in Figure~\ref{fig:archi-FW}. 
+Essentially, we distinguish the following three navigation types supported by our visual data exploration framework.
+
+\begin{itemize}
+ \item Interact $(ER_i,r_i)$: get a set of recommendations $L_{T_i}$. This corresponds to the interaction of a user with a sub-result $r_i$ during the investigation of an exploration result $ER_i$ displayed through the \emph{Data display} sub-component. This triggers the computation of recommendations via the \emph{Recommendation engine}.  This latter as discussed in Section~\ref{sec:frame-comp}, outputs a set of triples $L_{T_i}$ (recommended query, recommended visualization, and an interestingness score). These triples are rendered to the user via the \emph{Recommendation display} sub-component.
+ 
+  \item getNextRec$(L_{T_i},T_j)$: move to a new exploration $ER_{i}$. This corresponds to the situation where a user investigates the set of recommendation triples $L_{T_i}$ displayed via the \emph{Recommendation display} sub-component. At this stage, the user can select a triple $T_j$ (corresponding to a new exploration $ER_{i}$) to inspect next.   
+  
+ \item Recover $(ER_i)$: jump back to an already investigated exploration result $ER_i$. 
+  The recover action consists of going back one step to recover the last exploration result. It includes also jumping back many previous exploration results to resume an exploration result $ER_i$. The recover action is invoked either when inspecting the set of recommendation triples $L_{T_i}$ or when inspecting an exploration result $ER_{curr}$.
+\end{itemize}   
+
+
+\begin{figure}[t]
+ \begin{center}
+ \resizebox {0.6\textwidth} {!} 
+	{
+               \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=3cm,  semithick]
+
+
+\node[state, initial, accepting] (1) at (0,0) {$ER_i$};
+\node[state] (2) at (5,0) {$L_{T_i}$};
+
+
+         \path[every node/.style={swap,auto}]       
+         (1) edge[loop below] node[below,sloped] {$recover$} ()
+          (2)     edge                           node[above,sloped]  {getNextRec}(1)                    ;                 
+            
+                      
+                      \draw[->] (1) to [bend right] node [above,sloped] {interact} (2);
+                         \draw[->] (2) to [bend right] node [above,sloped] {recover} (1);
+                    
+           \end{tikzpicture}    }    
+%\caption{Automata associated to \prototype{} system's possible navigations}
+\caption{Automaton associated to the set of possible navigations supported in \framework{} framework}
+\label{fig:automata}
+\end{center}
+\end{figure} 
+  			
+  These navigations supported in our framework \framework{} form an automaton, that is depicted in Figure~\ref{fig:automata}. 
+  %More precisely, states in this automaton present either explorations queried manually by the user or the set of recommendations proposed by our framework in the course of the visual data exploration process.
+  More precisely, states in this automaton present explorations queries and recommendations inspected by users in the course of the visual data exploration process.
+Directed edges depicted in this automaton present the set of aforementioned navigations supported by our framework \framework{}. Overall, this automaton shows that users can perform open-ended visual data exploration processes using our framework.

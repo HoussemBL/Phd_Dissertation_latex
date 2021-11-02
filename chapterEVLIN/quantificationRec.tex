@@ -1,0 +1,195 @@
+\section{Quantification of recommendations interestingness}
+\label{quantification-rec}
+
+The query recommendation algorithm presented in the previous section returns a set of queries, which can in general become large enough to overwhelm users. To guide users choosing which recommendations to inspect next we rank recommendations based on their interestingness, as discussed in this section. 
+
+ 
+We introduce first in Section~\ref{sec:rec-metric} the utility metric used to quantify recommendations. 
+To make its computation fast enough for an interactive exploration process, we present our proposed optimizations in Section~\ref{sec:rec-computation}.
+ 
+
+ \subsection{Quantification of recommended query interestingness}
+\label{sec:rec-metric}
+ 
+
+
+ Our quantification approach for the interestingness of recommended queries leverages \emph{the deviation metric} to compute the utility of recommended queries. This metric computes the divergence between two data regions.
+In our context, these two data regions are (i)~the result of a recommended query $Q_{rec}(D)$, and (ii)~the full explored data warehouse, denoted $D$.
+      Accordingly, as the deviation between the two data regions is more significant, the recommended query is considered more interesting as it has a data distribution different from those of the reference data region.
+  
+
+
+
+This metric was first proposed in~\cite{Vartak}, where authors demonstrated that the deviation metric provides users with interesting recommendations.
+Subsequently, this metric was adopted in many work including for instance~\cite{Sellam:2016,Ehsan:18,Lee:2019}.
+That is, our work follows up on previous work using deviation metrics for query recommendations. 
+%Note that our system \prototype{} can be easily extended to support other metrics for quantification of recommendations' interestingness. 
+
+
+
+ Traditionally, the problem of quantifying deviation between distributions is transformed to a distance computation between histograms representative of data distributions.
+Similarly, we generate histograms associated with the recommended query $Q'(D)$ (under quantification) and the data warehouse $D$. Accordingly, we compute the distance between the two histograms (representative of data distributions of two regions) to measure the deviation between the two queries' results.
+
+
+
+
+Puzicha et al~\cite{Puzicha:99} surveyed existing methods that could be employed to compute the distance between histograms. This results in a classification of distance functions in four main categories.
+These classes as well as their prominent implementations are summarized in Table~\ref{tab:categoryDist}. 
+  \begin{table}[b]
+ \centering \scriptsize
+\resizebox{1\linewidth}{!}{
+ \begin{tabular}{|p{4cm}|p{5cm}|} \hline
+\textbf{Category} & \textbf{Examples of distance functions}  \\ \hline
+Heuristic-based distances   &  Manhattan $L_1$, Euclidian $L_2$, Minkwoski $L_{p}$, Chybyshev Distance \\ \hline
+Non parametric test statistics  &  The Kolmogorov Smirnov distance, 	Kramer von Mises, Chi square  \\ \hline
+Information theoretic divergence &  The Kullback Leibler divergence, The Jeffrey divergence   \\ \hline
+Ground distance measure  &  Quadratic form , Earth Mover's Distance     \\ \hline
+\end{tabular}
+}
+ \caption{Classification of some existing dissimilarity/distance functions}
+ \label{tab:categoryDist}
+\end{table}
+
+The first class is called \emph{heuristic-based distance}. It computes distance between two data distributions by performing a bin by bin comparison between their associated histograms. Examples of implementations following this class include the Manhattan, Euclidian, and Chybyshev Distances.
+
+The second class comprises the \emph{non parametric test statistics}. These measure the maximum discrepancy between cumulative distributions. Many distance functions (e.g., The Kramer von Mises and Chi square) fit in this class. 
+
+\emph{Information theoretic divergence} is the third class. It measures how compact one distribution can be coded using the other distribution. The Kullback Leibler divergence and the Jeffrey distance are examples of implementations fitting in this class.
+
+Finally, the \emph{Ground distance measure} presents the fourth distance class. It incorporates the cross-bin comparison to compute the minimal cost needed to transform one distribution to the other. Examples of functions belonging to this class include Quadratic form and Earth Mover's Distance.
+
+
+
+
+
+Later in Chapter~\ref{chap:eval}, we study how a representative of each class performs when quantifying the interestingness of recommended queries generated using our content-based query recommendation approach.
+  More specifically, we implement and evaluate the following functions:~(i) Euclidean distance (L2) that belongs to the \emph{heuristic-based distances} class; (ii)~Chi square (CS) that is an example of the \emph{non parametric test statistics} class; (iii)~Kullback Leibler (KL) that presents an implementation of the \emph{information theoretic divergence} class; and (iv)~Earth Mover's Distance (EM) that belongs to the \emph{ground distance measures} class. 
+  
+
+
+
+%~~\\
+ \subsection{Computation of the interestingness scores of recommended queries}
+\label{sec:rec-computation}
+So far, we have described the process of query recommendation. This latter is reinforced by a process of quantification that assigns a utility for each recommendation.
+Overall, the exploration step conduct within our system \prototype{} is depicted in Figure~\ref{fig:exStepConduct}.
+First, the user inspects using \prototype{} at each exploration step an exploration query $Q$ of the form
+{\obeylines\obeyspaces
+\texttt{SELECT }$a_i$, $f(m)$ \texttt{ FROM } $rel(D)$\texttt{ WHERE }$cond$ \texttt{ GROUP BY }$a_i$ 
+}
+\noindent where $m \in M$, $a_i \in schema(A)$, $f \in F$, $rel(D)$ refers to one or more relations in $D$, and $cond$ is a (conjunction of) predicates.\\
+This corresponds to the first step of the exploration step conduct depicted in Figure~\ref{fig:exStepConduct}. 
+
+
+\begin{figure}[b]
+\centering
+\includegraphics[scale=0.4]{figures/EVLIN-core/rec-quant-steps}
+\caption{Conduct of an exploration step}
+\label{fig:exStepConduct}
+\end{figure}
+
+
+
+To trigger the computation of recommendation, users select a sub-result $r \in Q(D)$ of interest.  This results in the identification of the set of interesting attribute-values pairs that are used to derive recommended queries from the current explored query $Q$. 
+This corresponds to the second step depicted in Figure~\ref{fig:exStepConduct}. 
+
+Consequently, quantifying the interestingness of a considerable number of recommended queries is the third step depicted in Figure~\ref{fig:exStepConduct}. 
+Recall that such quantification of the recommendation process needs to be re-computed after each user's interaction during the inspection of an exploration step. 
+Indeed, both the number of recommended queries as well as the complexity of the interestingness score computation for each query is a complex and time consuming computational task. 
+
+More formally, assume that $n$ is the number of relevant attribute-values for recommendations and $k$ is a specific number of query types adopted by the query reformulation process (see Section.~\ref{sec:query-reformule}). Then, we have $k*n$ recommended queries.\\
+Let $\beta=\max_{i=1}^{c}|dom(i)|$ be the maximum domain size of any column $c$ in the set of columns referred to in any of the $k*n$ recommended queries.
+Then, the cost of quantifying the interestingness of all recommended queries is in $O( k*n*\beta^{2})$.
+
+
+Given the above problem, we propose the following two optimizations (depicted in Figure~\ref{fig:exStepConduct}) meant to reduce the overall runtime in practical use cases.
+
+~~\\
+\noindent \textbf{Opt1: Minimum shared regions computation.} 
+Inspired by Agrawal et al~\cite{Agrawal:2000:ASM}, we determine a minimum set of materialized views to precompute data regions that are frequently accessed when computing recommendation scores. 
+%{\color{Fuchsia}
+Essentially, we construct  in the third step of the exploration step (cf.~Figure~\ref{fig:exStepConduct}) two materialized views $MV_1$ and $MV_2$.
+These two materialized views cover all data regions of recommendations. They thereby reduce the number of transactions required to perform when computing the interestingness of each recommendation.
+%This allows to significantly reduce expensive database read operations.
+
+
+The two materialized views $MV_1$ and $MV_2$ are defined as follows.
+{\obeylines\obeyspaces
+$MV_1$ \texttt{: SELECT } * \texttt{ FROM } $rel(D)$\texttt{ WHERE }cond 
+}
+{\obeylines\obeyspaces
+$MV_2$ \texttt{: SELECT } * \texttt{ FROM } $rel(D)$\texttt{ WHERE }cond \texttt{ AND }$r$ %$a$=$v_a$ 
+}
+\\
+\noindent where $rel(D)$ refers to one or more relations present in the user's query $Q$, $cond$ is a (conjunction of) predicates present also in $Q$, and $r$ is the sub-result of $Q(D)$ selected by the user.
+
+In relation to \prototype{}'s recommendation templates specified in %Table~\ref{tab:Recqueries},
+Figure~\ref{fig:QueryDER},
+ we construct $MV_1$ to compute later data regions corresponding to all recommendations of types ``Zoom-In'', ``Extension'' and ``Drill-down''   while $MV_2$ is constructed to derive data regions corresponding to recommended queries of types ``Zoom In Slice'', ``Extension Slice'' and ``Drill-down Slice''.
+
+
+~~\\
+\noindent \textbf{Opt2: Eager computation.} To compensate for the overhead incurred by the materialization of shared data regions, we propose to proactively compute the data region of interest that is used subsequently to quantify a wide range of recommended queries later during exploration. For instance, the definition of $MV_1$ described above shows that this view is independent of the user's interaction. 
+Accordingly, we compute proactively this data region at the first step of Figure~\ref{fig:exStepConduct}, before the user asks explicitly to get recommendations by clicking on such interesting sub-result.
+
+The impact of these two optimizations on recommendations' quantification runtime is evaluated in Chapter~\ref{chap:eval}. 
+Overall, evaluation results show that our optimizations are effective and they lead to a significant improvement of runtime up to 80\% of the recommendations quantification runtime. 
+This makes the computation of recommendations' interestingness scores fast enough for an interactive visual data exploration process. 
+
+
+%Once the interestingness scores of recommended queries are computed using our proposed methods, we need to communicate this information to help users in selecting interesting recommendations to study further.
+
+
+
+ \subsection{Visualization of quantified recommended queries}
+ \label{subsec:visQuantification}
+ % \mel{suggest to remove it}
+Once the interestingness scores of recommended queries are computed using our proposed methods, we need to communicate this information to help users in selecting interesting recommendations to study further.
+
+We choose to adopt a matrix visualization to render the set of scored recommended queries output by \prototype{}. We use the term ``impact matrix'' to refer to this visualization in what follows. 
+Recall that we have already presented in relation to our running example a sample of impact matrix (cf.~Example~\ref{ex:sampleMatrix}, Page~\pageref{ex:sampleMatrix}). 
+
+% \begin{figure}[t]
+%\centering
+%\includegraphics[scale=0.4]{figures/EVLIN-core/MatrixOnlyDeviation}
+%\caption{Sample of impact matrix}
+%\label{fig:matrix2}
+%\end{figure}
+ Each line of the matrix corresponds to an $(a, L_V)$-pair identified in the content-query recommendation approach as relevant information of recommendation (cf.~Example~\ref{ex:sampleMatrix}). Each column corresponds to a type of query variation (presented in Section~\ref{sec:query-reformule}). Finally, the cell colors encode the deviation value.  As a reminder, as the deviation value increases, the recommendation is considered more interesting as it has a data distribution significantly different from the distribution present in the whole dataset. Accordingly, the interestingness scores are mapped to a sequential scale of the red color that contains various intensities where the bright red color maps to a  deviation value close to 0 whereas the dark red color refers to an interesting recommendation having a deviation value close to 1. 
+
+
+
+From the example of impact matrix depicted in Figure~\ref{fig:matrixSample}, we see that several recommended queries stand out by having high interestingness scores, suggesting these as worth exploring next.
+
+
+
+
+%\subsection{Existing metrics used to measure the interestingness of recommendations}
+\subsection{Existing interestingness metrics}
+Several visual data exploration work have proposed recommendation approaches to support users in their exploration tasks. These recommendation methods leverage diverse metrics to quantify the interestingness of candidates for recommendation.
+We distinguish two metric classes that are surveyed in~\cite{Brijs:2003,Geng:2006}.
+
+
+The first class concerns \emph{objective} metrics.
+These are based only on data and they correspond to quantitative metrics that can be directly measured.
+Examples of objective metrics include the \emph{relevance} of the recommendation with respect to the exploration or to user's exploration goals. 
+
+This metric is applied for example in  Ziggy~\cite{Sellam:16} which relies on a meet-in-the-middle approach between dissimilarity (between recommended views and the database) and diversity (among the recommendations set). Zenvisage~\cite{Siddiqui:2016} also adopts diversity as well as the strength of trends to quantify the interestingness of recommendations. 
+
+The \emph{Novelty (or deviation)} is another objective metric that has gained substantial attention in the quantification of recommendations in visual data exploration research. This term was defined in~\cite{Kaminskas:2016}.  Indeed, it expresses the discrepancy between a recommendation candidate and a target (or a reference) data set.
+The deviation metric is one implementation of novelty. Hence, it was commonly adopted in works~\cite{Vartak,Ehsan:18,Lee:2019,MafrurSK18}. Furthermore, the capability of the deviation metric to reveal interesting recommendations was demonstrated in~\cite{Vartak}.
+As we have seen, we also adopt the deviation metric to quantify the interestingness of query recommendations in our work.
+To incorporate successfully this metric, we provide an efficient computation method that is capable to return results in acceptable time and to ensure thereby an interactive visual data exploration process.
+
+
+The second class of metrics used to quantify the interestingness of candidates for recommendation comprises of \emph{subjective} metrics.
+It considers both the data and the user. 
+Several subjective measures were proposed to quantify interestingness of recommendations.
+For instance, Dejdaini et al~\cite{DjedainiLMP17,DjedainiDLMPV19} employ two metrics to quantify the interestingness of queries susceptible to recommendation.
+The first metric is called \emph{focus}. It indicates the degree of coherence between the candidate of recommendation and other queries already explored. The second metric is called \emph{contribution}. It computes the potential knowledge (or benefit) expected to gain, when recommending the underlying query.
+Another subjective metric was proposed in~\cite{Tang:2017}. It adopts a significance measure that computes uncommonness of a recommended data cube.
+More specifically, this metric computes the uncommonness of the data cube distribution compared to an expected distribution.
+Similarly, Sarawagi et al~\cite{Sarawagi00} adopt a surprise factor as a metric to estimate the interestingness of not visited data regions.
+While the adoption of subjective measures may improve the quantification process that we have adopted in our setting, they are left for future research.
+
+%\mel{what is you contribution}

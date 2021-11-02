@@ -1,0 +1,77 @@
+The visual data exploration (a.k.a.~exploratory data analysis~\cite{Idreos2015,CuiBYE19,Wongsuphasawat2016}) was defined in~\cite{Idreos2015,CuiBYE19} as the process of browsing  data to efficiently extract knowledge and to obtain an overall understanding from data.
+Typically, it is meant for analysts who are initially unfamiliar with the studied data set. %or those having initially little prior knowledge.
+The aim in this case as stated in~\cite{Sellam:16}, is to use the visual data exploration to get acquainted with the explored data set.
+As the main steps of the visual data exploration were described in Chapter~\ref{chap:intro} (cf.~Figure~\ref{fig:hil})), we dedicate the rest of this section to explain types of visual data exploration processes and to discuss relevant related work.
+
+\subsection{Types of visual data exploration}
+Inspired by previous classifications of visual data exploration (e.g.,~\cite{augmentingwongsuphasawat2018}), we distinguish two classes of visual data exploration: (i)~\emph{Question Answering}, and (ii)~\emph{Open-ended}. 
+%\begin{enumerate}[label=\arabic*.]
+\begin{itemize}
+\item \emph{Question Answering.}
+It is a focused exploration where the user has initially a set of predetermined questions. 
+In this case, the goal of the visual data exploration is to provide answers to the set of questions.
+For this type of visual data exploration, users often produce analysis reports in the form of written documents and presentation slides. They also sometimes built interactive dashboards.
+Example of systems providing question answering exploration include CLUE~\cite{2016_eurovis_clue}, seeDB~\cite{Vartak}, Tableau Show Me~\cite{Mackinlay:2007}, and POLARIS~\cite{polaris2002}.
+
+\item \emph{Open-ended.} 
+It is a more generic form of visual data exploration. Indeed, users have full freedom when performing their exploration jobs. Usually, analysts start with a broad overview in order to get generic information about the shape and the structure of the data. This generic investigation may spark exploration of relevant insights, in turn leading to more focused exploration. In the course of open-ended exploration, analysts' focus can vary. Accordingly,  existing work propose several recommendation approaches to assist users continuously in exploring their changing interests. 
+This holds for instance for Voyager~\cite{Wongsuphasawat2016,Wongsuphasawat:2017}.
+Note that, our work falls also in the open-ended category. 
+%\end{enumerate}
+\end{itemize}
+%{\color{Fuchsia}Note that, our work discussed in what follows falls in the open-ended category. Therefore, we describe later our proposed approaches that support users along an open-ended exploration process.}
+
+
+
+
+
+\subsection{Related work} 
+\label{sec:EDA}
+Recently, several systems for visual data exploration have been proposed (e.g.,%~\cite{Drosou2013,
+~\cite{Vartak,Sellam:16,Tang:2017,Milo:2016,Milo:2018,Mackinlay:2007,Mutlu:2016,Wongsuphasawat2016,Wongsuphasawat:2017}). Overall, these existing work tackle the problem of the tedious process of the manual visual data exploration (discussed in Chapter~\ref{chap:intro}) where users may spend considerable time writing queries and constructing suitable visualizations to understand results.
+Accordingly, state-of-the-art visual data exploration systems propose several recommendation approaches to support users in a particular step of the visual data exploration process such as assisting users in querying or visualizing data.  
+
+Based on this observation, we distinguish two classes of existing visual data exploration work based on the type of recommendation supported: (i) those providing query recommendation and (ii) those offering visualization recommendation.
+
+
+
+
+\begin{table}[t]
+ \centering 
+ \scriptsize
+ \scalebox{0.9}{
+ \begin{tabular}{|p{2.8cm}|p{1cm}|p{2.4cm}|p{1.3cm}|p{1.5cm}|} \hline
+\textbf{System}  & \textbf{input query} & \textbf{recom. query} & \textbf{recom. vis.} & \textbf{exp. type} \\ \hline
+%YmalDB~\cite{Drosou2013} & SPJ & SPJ & -&Question \newline Answering \\ \hline
+SeeDB~\cite{Vartak} & cube & sub-cube &  -&Question \newline Answering   \\ \hline
+Muve~\cite{Ehsan:18} & cube & sub-cube &  -&Question \newline Answering   \\ \hline
+Dive~\cite{MafrurSK18} & cube & sub-cube &  -&Question \newline Answering   \\ \hline
+Ziggy~\cite{Sellam:16} & SJ & SPJ & - &Question \newline Answering  \\ \hline
+~\cite{Tang:2017} & cube & sub-cube & - &Question \newline Answering \\ \hline
+REACT~\cite{Milo:2016,Milo:2018} & cube & OLAP queries  & -&Question \newline Answering \\ \hline
+Show Me~\cite{Mackinlay:2007}& SPA & -  & diverse &Question \newline Answering \\ \hline
+VisRec~\cite{Mutlu:2016}& SPA & -  & diverse&Question \newline Answering  \\ \hline
+Voyager~\cite{Wongsuphasawat2016,Wongsuphasawat:2017}& SPA & Changed SELECT-clause  &  diverse&Open-ended  \\ \hline
+\prototype{} & cube & OLAP queries  &  diverse&Open-ended  \\ \hline
+\end{tabular}}
+\caption{Summary of data exploration systems leveraging query recommendation or visualization recommendation}
+ \label{tab:state-of-the-art}
+ \end{table}
+
+
+
+Table~\ref{tab:state-of-the-art} summarizes existing visual data exploration work (forget so far the last line that refers to an instance of our framework, discussed thoroughly later). 
+For each approach, it describes (i)~the expressiveness of input queries (e.g., select-project-join (SPJ) queries, select-project-aggregate (SPA) queries, or cube queries corresponding to SPJA queries), (ii)~the type of recommended output queries, (iii)~the type of recommended visualization, and (iv)~type of supported visual data exploration process. This summary clearly shows that there is a gap between query recommendation systems such as %YmalDB~\cite{Drosou2013}, 
+ SeeDB~\cite{Vartak}, Muve~\cite{Ehsan:18}, Dive~\cite{MafrurSK18}, Ziggy~\cite{Sellam:16},~\cite{Tang:2017} or REACT~\cite{Milo:2016} for expressive data exploration on the one hand, and visualization recommendation systems such as VisRec~\cite{Mutlu:2016}, Voyager~\cite{Wongsuphasawat2016,Wongsuphasawat:2017} and Tableau's Show Me~\cite{Mackinlay:2007} on the other hand. 
+Indeed, whereas the former may support the various types of queries, they do not offer any visualization recommendation.
+Typically, there is a one to one mapping between the result relation and a displayed table
+%~\cite{Drosou2013,Milo:2016}
+~\cite{Milo:2016} or bar chart~\cite{Vartak}. Opposed to that, visualization recommendation solutions typically offer no or very limited support for query recommendation. 
+
+\sloppy
+Note that, Table~\ref{tab:state-of-the-art} shows also that most existing solutions (except of Voyager~\cite{Wongsuphasawat2016,Wongsuphasawat:2017}) support a visual exploration process of  type \emph{Question Answering}. This means that these work do not support an iterative process where users navigate from an exploration to another. In what follows, we discuss our visual data exploration framework that supports \emph{Open-ended} exploration giving thereby users more freedom to get acquainted with the data. 
+
+
+
+
+

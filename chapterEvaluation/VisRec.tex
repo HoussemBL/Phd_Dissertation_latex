@@ -1,0 +1,243 @@
+\label{eval-sec:visRec}
+
+
+
+In what follows, we evaluate quantitatively the performance of the visualization recommendation computation in terms of runtime and consistency of recommended visualizations. 
+
+
+Similarly to Sections~\ref{eval-sec:content}, and~\ref{eval-rec:quantification}, we use the three data warehouses presented in~Section~\ref{evlin-ds}  to evaluate the performance of our proposed visualization recommendation approach. 
+
+
+
+\paragraph*{\textbf{Runtime.}}
+We study first the runtime of the three main steps (depicted in Figure~\ref{fig:vis-rec-process}, Page~\pageref{fig:vis-rec-process}) that are invoked when recommending visualizations.
+To do that, we resort to the exploration queries described in Table~\ref{tab:queries1} (Page~\pageref{tab:queries1}).
+These exploration queries are used in the course of our experiment by our collaborators to launch various exploration sessions. 
+%At each exploration session, we investigate several recommended queries. This triggers the computation of visualization recommendation at each step to render the associated recommended query's results. Accordingly, we measure the runtime of the three steps of visualization recommendation that are: (i)~Exploration path computation, (ii)~Sorting queries in the path, and (iii)~Visualization computation.
+
+
+As shown in Algorithm~\ref{fig:algVisRec} (Page~\pageref{fig:algVisRec}), our visualization recommendation approach relies mainly on the exploration path available in the evolution provenance that tracks user's previous explorations, to recommend consistent visualizations.  
+Consequently, we compute the runtimes of visualization recommendations for varying sizes of exploration paths (ranging from an empty set to an exploration path containing four exploration steps). We choose to stop at the exploration path of size equal to four as our user study discussed in the next section shows that the real-world exploration sessions  give rise to shallow and wide graphs with a larger number of short paths rather than a small number of long paths.
+This is explained by the fact that users typically use the \emph{recover} interaction (see Automaton~\ref{fig:automata}, Page~\pageref{fig:automata}) to get back to a previously seen exploration step and proceed from there.
+
+
+Using the various sizes of exploration paths, we measure the runtime of the three steps of the visualization recommendation process (cf.~Figure~\ref{fig:vis-rec-process}, Page~\pageref{fig:vis-rec-process}). %that are: (i)~Exploration path computation, (ii)~Sorting queries in the path, and (iii)~Visualization computation.
+
+
+\begin{figure}[b]
+\centering
+\includegraphics[scale=0.5]{figures/Tapp17/visRec/VisRecRuntime}
+\caption{Runtime of main steps of the visualization recommendation process}
+\label{fig:vis-rec-runtime}
+\end{figure}
+
+
+
+Figure~\ref{fig:vis-rec-runtime} reports the average runtime of these three steps for exploration sessions launched using queries described in Table~\ref{tab:queries1} (Page~\pageref{tab:queries1}).
+The first step is called~\emph{PathComp}. It corresponds to the computation of the exploration path leading to the current exploration query.
+The second step~\emph{SortPath} maps to the phase of sorting queries present in the path in descending order of their similarity with the current inspected query.
+Finally, we compute the runtime of~\emph{ComputeViz} that corresponds to constructing the recommended visualization using visual encodings of visualizations previously seen.
+
+The results depicted in Figure~\ref{fig:vis-rec-runtime} show first that overall, the computation of the visualization recommendation is fast.
+Indeed, its runtime ranges between 1 and 20 ms. It is thus negligible compared to the previously discussed query recommendation time.
+
+We observe that the runtime of the overall process of visualization recommendation is almost equal to zero when the exploration path is empty. This is due to the fact that the evolution provenance is empty and there are no paths to explore at the beginning. Accordingly, the runtimes of computation of the exploration path and its sorting are negligible in this case. Similarly, we have an empty history of previous user visualization resources. So,~\emph{ComputeViz} uses a predefined template to design the recommended visualization. This leads thereby to a negligible runtime of the~\emph{ComputeViz} step.
+
+
+%Concerning the remaining tracked exploration steps, we observe in Figure~\ref{fig:vis-rec-runtime} 
+%We observe also  in Figure~\ref{fig:vis-rec-runtime} that runtimes of~\emph{SortPath} are negligible at all tracked stages of the exploration session.  
+We observe also in Figure~\ref{fig:vis-rec-runtime} that runtimes of~\emph{SortPath} are overall negligible at all stages of the experiment.
+This is due to the small size of exploration paths generated alongside users' explorations (between 0 and 4). 
+%Indeed, the real-world exploration sessions used here give rise to shallow and wide graphs with a larger number of short paths rather than a small number of long paths.
+This small size of exploration paths is explained by the fact that, users typically use the \emph{recover} interaction (see Automaton~\ref{fig:automata}, Page~\pageref{fig:automata}) to get back to a previously seen exploration step and proceed from there.
+
+
+We see also that the step~\emph{PathComp} is done in acceptable times. This runtime increases significantly starting from exploration path of size equal to 1.
+This is explained by the increase of the evolution provenance graph's size. As the user inspects more queries' results through the exploration session, the size of the evolution provenance graph increases also. Accordingly, the time of searching the exploration path that starts from the initial user's query to reach ultimately the current exploration, is more important.
+%Yet, we notice at the end of tracked exploration sessions, that  the runtime of computation path decreases slightly.
+%This is again due to the fact that some users during experiments resume early phases of the exploration to study other topics. In this case, the computation of path is again faster.
+
+
+
+Regarding the step~\emph{ComputeViz}'s runtime, we observe in Figure~\ref{fig:vis-rec-runtime} that the runtime of this step is almost stable alongside the visual data exploration process (except for the first step of exploration). 
+Recall that the runtime of the \emph{ComputeViz} step is impacted by the size of the exploration path. Indeed, the \emph{ComputeViz} step accesses iteratively to the visualizations associated with queries present in the exploration path to complete visual encodings not yet specified in the current visualization to recommend. Once the specification of the current visualization to recommend is complete, the \emph{ComputeViz} skips remaining elements present in the exploration path and returns the recommended visualization.
+In this context, our subsequent experiments (see Experiment~\ref{par:cons-rate}) show that the $top-2$ visuallizations present in the sorted exploration path are usually sufficient to construct the recommended visualization.
+This explains the almost stable runtime of step~\emph{ComputeViz} where we use almost two or three previous visualizations regardless of the size of the exploration path to design the recommended visualization.
+% \mel{phrasing}
+
+
+
+
+
+
+  \paragraph*{\textbf{Consistency rate.}}
+  \label{par:cons-rate}
+As described in Section~\ref{sec:vis-rec}, our novel visualization recommendation approach leverages a new metric that is consistency to render a set of coherent visualizations alongside the exploration session. 
+Accordingly, we have studied the consistency between recommended visualizations rendered within the same exploration session.
+%To do that, we have tracked the set of previous visualizations that our proposed recommendation approach used to generate current recommended visualization with varying sizes of the exploration path.
+Recall that in the previous experiment, we have generated several exploration sessions using exploration queries described in Table~\ref{tab:queries1} (Page~\pageref{tab:queries1}). 
+In the course of these exploration sessions, we have tracked the set of previous visualizations that our proposed recommendation approach used to generate a current recommended visualization with varying sizes of the exploration path.
+
+
+
+\begin{figure}[b]
+\centering
+\includegraphics[scale=0.5]{figures/Tapp17/visRec/ConsisentcyRate}
+\caption{Number of previous visualizations re-used when recommending visualizations}
+\label{fig:vis-consistency}
+\end{figure}
+
+
+
+
+
+%Figures~\ref{fig:vis-consistency}, and~\ref{fig:vis-consistency-details} report results of consistency rate. More precisely, 
+
+Figure~\ref{fig:vis-consistency} shows the average number of previous exploration steps involved when designing recommended visualizations for varying sizes of the exploration path.
+Overall, results show that the consistency rate increases with the size of the exploration path.
+Indeed, as we advance in the visual data exploration session, the evolution provenance graph increases giving thereby the visualization recommendation more opportunities to re-use more previous visualizations and thereby more existing visual encodings.
+
+
+As our recommendation process may re-use more than one visualization component from a previous visualization to render the current investigated exploration step, we have also tracked in the previous experiment the rate of re-used axes and visual encodings channels.
+We explain our choice of these two components (cf.~Figure~\ref{fig:VisSchema}, Page~\pageref{fig:VisSchema}) as follows: (i) axes provide a reference for reading the visual/data mapping, and (ii)~the visual encoding channel  is the fine-grained component of a visualization. It describes the visual mappings of each concept (or information).
+Recall that consistency metric (as defined in Figure~\ref{sec:vis-metrics}, Page~\pageref{sec:vis-metrics}) consists of presenting the same information (or concept) in the same way.
+Thereby, tracking axes and visual encodings channels is useful to estimate the coherence of representing same concepts in the course of an exploration session and to quantify thereby the consistency metric.
+For each possible value of the exploration path size $p_{val} \in [0,1,2,3,4]$, we record a snapshot $snap_{viz}$ of the visualization resources relations recorded in the evolution provenance graph (see Figure~\ref{fig:VisSchema}, Page~\pageref{fig:VisSchema}).
+$snap_{viz}(p_{val})$ contains all visualization constructed by our visualization recommender until reaching an exploration size equal to $p_{val}$.
+For each possible value of the exploration path size $p_{val}$, we access its snapshot $snap_{viz}(p_{val})$ to compute: 
+ (i) reused axes rate(= $\frac{\#used\_axis - \#constructed\_axis}{\#used-axis}$) that compares between the number of used axis (available in the relation \emph{UsageAxis} in $snap_{viz}(p_{val})$) and the fictive number of constructed axis (available in the relation \emph{Axis} in $snap_{viz}(p_{val})$), and (ii)~reused visual encoding channels rate(= $\frac{\#used\_channels-\#constructed\_channels}{\#used-channels}$) compares between the number of used encoding channels (available in the relation \emph{UsageChannel} in $snap_{viz}(p_{val})$) and the fictive number of constructed encoding channels (available in the relation \emph{Usage} in $snap_{viz}(p_{val})$).
+
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.5]{figures/Tapp17/visRec/ConsisentcyRateDetails}
+\caption{Evolution of consistency rate when recommending visualizations}
+\label{fig:vis-consistency-details}
+\end{figure}
+
+
+Figure~\ref{fig:vis-consistency-details} reports results of our two metrics for varying sizes of exploration paths. This figure shows that the rate of re-using existing axes and visual encoding channels increases with the size of the exploration path. Indeed, the rates of re-using axes and visual encoding channels reach 38\% and 30\% consecutively when the exploration path contains four exploration steps.
+
+
+
+
+Overall, the evaluation study in this section shows that our visualization recommendation approach designs visualizations  in acceptable time that ranges between 1 and 20 ms.  We demonstrate also that our visualization recommendation takes into account previous rendered visualizations to render explorations results in a consistent way.
+
+
+
+
+
+
+%%%OLD version
+%\label{eval-sec:visRec}
+%
+%
+%
+%In what follows, we evaluate quantitatively the performance of the visualization recommendation computation in terms of runtime and consistency of recommended visualizations. 
+%
+%
+%Similarly to Sections~\ref{eval-sec:content}, and~\ref{eval-rec:quantification}, we use the three data warehouses presented in~Section~\ref{evlin-ds}  to evaluate the performance of our proposed visualization recommendation approach. 
+%
+%
+%
+%\paragraph*{\textbf{Runtime.}}
+%We study first the runtime of the three main steps (depicted in Figure~\ref{fig:vis-rec-process}, Page~\pageref{fig:vis-rec-process}) that are invoked when recommending visualizations.
+%To do that, we resort to the exploration queries described in Table~\ref{tab:queries1} (Page~\pageref{tab:queries1}).
+%These exploration queries are used in the course of our experiment by our collaborators to launch various exploration sessions. At each exploration session, we investigate several recommended queries. This triggers the computation of visualization recommendation at each step to render the associated recommended query's results.
+%Accordingly, we measure the runtime of the three steps of visualization recommendation that are: (i)~Exploration path computation, (ii)~Sorting queries in the path, and (iii)~Visualization computation.
+%
+%
+%As shown in Algorithm~\ref{fig:algVisRec} (Page~\pageref{fig:algVisRec}), our visualization recommendation approach relies mainly on the evolution provenance that tracks user's previous explorations, to recommend consistent visualizations.  Consequently, we compute runtimes of visualization recommendations at various steps of the exploration session made by users.
+%More precisely, we compute runtimes of the first, the fifth, the tenth, and the fifteenth visualizations recommended in the course of the exploration sessions. \mel{why not all steps from first to 15?}\hou{because it will be a meaningless curve. We don't expect big changes}
+%We choose to stop at the fifteenth visualizations as our user study discussed in the next section, shows that users usually perform using \prototype{}, exploration sessions of sizes ranging between 10 and 20 exploration steps.
+%
+%\begin{figure}[t]
+%\centering
+%\includegraphics[scale=0.5]{figures/Tapp17/visRec/VisRecRuntime}
+%\caption{Runtime of main steps of the visualization recommendation process}
+%\label{fig:vis-rec-runtime}
+%\end{figure}
+%
+%
+%
+%
+%
+%Figure~\ref{fig:vis-rec-runtime} reports runtimes for the three steps of the visualization recommendation process depicted in Figure~\ref{fig:vis-rec-process} (Page~\pageref{fig:vis-rec-process}) at various stages of the exploration (the first, the fifth, the tenth, and the fifteenth explorations).
+%The first step is called~\emph{PathComp}. It corresponds to the computation of the exploration path leading to the current exploration query.
+%The second step~\emph{SortPath} maps to the phase of sorting queries present in the path in descending order of their similarity with the current inspected query.
+%Finally, we compute the runtime of~\emph{ComputeViz} that corresponds to constructing the recommended visualization using visual encodings of visualizations previously seen.
+%
+%The results depicted in Figure~\ref{fig:vis-rec-runtime} show first that overall, the computation of the visualization recommendation is fast.
+%Indeed, its runtime ranges between 1 and 15 ms. It is thus negligible compared to the previously discussed query recommendation time.
+%
+%We observe that the runtime of the overall process of visualization recommendation is almost equal to zero at the first recommendation. This is explained by the fact that evolution provenance has one node and no paths to explore at the beginning. Accordingly, the runtimes of computation of the exploration path and its sorting are negligible in this case. Similarly, we have an empty history of previous user visualization resources. So,~\emph{ComputeViz} uses a predefined template to design the recommended visualization. This leads thereby to a negligible runtime of the~\emph{ComputeViz} step.
+%
+%
+%Concerning the remaining tracked exploration steps, we observe in Figure~\ref{fig:vis-rec-runtime} that runtimes of~\emph{SortPath} are negligible at all tracked stages of the exploration session.  This is explained by the small size of exploration paths generated alongside users' explorations. 
+%Indeed, the real-world exploration sessions used here give rise to  shallow and wide graphs with a larger number of short paths rather than a small number of long paths.
+%This is explained by the fact that users typically use the \emph{recover} interaction (see Automaton~\ref{fig:automata}, Page~\pageref{fig:automata}) to get back to a previously seen exploration step and proceed from there.
+%
+%
+%We see also that the step~\emph{PathComp} is done in acceptable times. This runtime increases slightly at the beginning until tenth exploration step.
+%This is explained by the increase of the evolution provenance graph's size. As the user inspects more queries' results through the exploration session, the size of the evolution provenance graph increases also. Accordingly, the time of searching the exploration path that starts from the initial user's query to reach ultimately the current exploration, is more important.
+%Yet, we notice at the end of tracked exploration sessions, that  the runtime of computation path decreases slightly.
+%This is again due to the fact that some users during experiments resume early phases of the exploration to study other topics. In this case, the computation of path is again faster.
+%
+%
+%
+%Regarding the step~\emph{ComputeViz}'s runtime, we observe in Figure~\ref{fig:vis-rec-runtime} that the runtime of the step~\emph{ComputeViz} is almost stable alongside the visual data exploration process (except of the first step of exploration). 
+%Recall that the runtime of the \emph{ComputeViz} step is impacted by the size of the exploration path. {\color{Fuchsia}Indeed, the \emph{ComputeViz} step accesses iteratively to the visualizations associated to queries present in the exploration path to complete visual encodings not yet specified in the current visualization to recommend. Once the specification of the current visualization to recommend is complete, the \emph{ComputeViz} skips remaining elements present in the exploration path and returns the recommended visualization.}
+%In this context, our subsequent experiments (see Experiment~\ref{par:cons-rate}) show that the $top-2$ visuallizations present in the sorted exploration path are usually sufficient to construct the recommended visualization.
+%This explains the almost stable runtime of step~\emph{ComputeViz} where we use almost two or three previous visualizations regardless of the size of the exploration path to design the recommended visualization.
+%% \mel{phrasing}
+%
+%
+%
+%
+%
+%
+%  \paragraph*{\textbf{Consistency rate.}}
+%  \label{par:cons-rate}
+%As described in Section~\ref{sec:vis-rec}, our novel visualization recommendation approach leverages a new metric that is consistency to render a set of coherent visualizations alongside the exploration session. 
+%Accordingly, we have studied the consistency between recommended visualizations rendered within the same exploration session.
+%To do that, we have used the same exploration steps used in the runtime experiment.
+%{\color{Fuchsia}More specifically, we have tracked the set of previous visualizations that our proposed recommendation approach used to generate the first, the fifth, the tenth and the fifteenth visualizations recommended in the course of exploration session.
+%
+%As our recommendation process may re-use more than one visualization component from a previous visualization to render the current investigated exploration step, we have also computed the rate of re-used axes and visual encodings channels.
+%We explain our choice to track these two components (already presented  in Section~\ref{sec:evo-core} (Page~\pageref{subsec:explorStep})) as follows: (i) axes provide a reference for reading the visual/data mapping, (ii) the visual encoding channel  is the fine-grained component of a visualization. It describes the visual mappings of each concept (or information).
+%Recall that consistency metric (as defined in Figure~\ref{sec:vis-metrics}, Page~\pageref{sec:vis-metrics}) consists of presenting the same information (or concept) in the same way.
+%Thereby, tracking axes and visual encodings channels is useful to estimate the coherence of representing same concepts in the course of an exploration session and to quantify thereby the consistency metric.
+%To do that, we compute at the first, the fifth, the tenth and the fifteenth visualizations recommended in the course of exploration session the number of re-used axes and visual encodings as follows: (i) reused axes rate= $\frac{\#used\_axis - \#constructed\_axis}{\#used-axis}$, and reused visual encoding channels rate= $\frac{\#used\_channels-\#constructed\_channels}{\#used-channels}$
+%
+%
+%\begin{figure}[t]
+%\centering
+%\includegraphics[scale=0.5]{figures/Tapp17/visRec/ConsisentcyRate}
+%\caption{Number of previous visualizations re-used when recommending visualizations}
+%\label{fig:vis-consistency}
+%\end{figure}
+%
+%
+%\begin{figure}[t]
+%\centering
+%\includegraphics[scale=0.5]{figures/Tapp17/visRec/ConsisentcyRateDetails}
+%\caption{Evolution of consistency rate iwhen recommending visualizations}
+%\label{fig:vis-consistency-details}
+%\end{figure}
+%
+%
+%
+%Figures~\ref{fig:vis-consistency}, and~\ref{fig:vis-consistency-details} depict results of consistency rate. More precisely, Figure~\ref{fig:vis-consistency} shows the average number of previous exploration steps involved when designing recommended visualizations at the first, the fifth, the tenth and the fifteenth exploration steps.
+%Overall, results show that the consistency rate increases as we advance in the exploration session until reaching the tenth exploration step.
+%Indeed, until the tenth step, the evolution provenance graph increases as it contains further information about investigated queries and visualizations giving thereby our visualization recommendation more opportunities to re-use more previous visualizations and thereby more existing visual encodings.
+%This is confirmed in Figure~\ref{fig:vis-consistency-details} that show that the rate of re-using existing axes and visual encoding channels increases at the first ten steps of the exploration session. Indeed, the rates of re-using axes and visual encoding channels reach 22\% and 27\% consecutively at the tenth exploration step.
+%
+%Later, we observe in Figure~\ref{fig:vis-consistency} that the number or re-used previous visualizations decreases at the fifteenth exploration step. 
+%This observation goes in line with results depicted in Figure~\ref{fig:vis-consistency-details} where we see that rate of re-using previous axes and visual encodings channels decrease slightly also.
+%This is related to the fact that many users resume exploration steps at very early stage of the exploration session to investigate other information. Accordingly, we have in this case a small exploration path. This mitigates the efficiency of our visualization recommendation approach that requires the presence of an important content of provenance to increase the usage of visual encodings of previous visualizations.
+%
+%
+%
+%Overall, the evaluation study in this section shows that our visualization recommendation approach designs visualizations  in acceptable time that ranges between 1 and 12 ms.  We demonstrate also that our visualization recommendation takes into account previous rendered visualizations to render explorations results in consistent way.
+%}

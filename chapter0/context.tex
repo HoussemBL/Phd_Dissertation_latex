@@ -1,0 +1,56 @@
+\label{sec:context}
+With the increasing number and complexity of data processing applications, it is crucial to provide techniques to analyze and to extract value from the large amount of data produced by these applications. 
+
+One of the key activities in data science to handle this challenge is visual data exploration (known also as exploratory data analysis (EDA)~\cite{tukey77}), a practice that uses mainly data visualization and analysis techniques to understand data and gain new insights. Systems fitting in this class provide facilities to write queries and visualize the results quickly.
+In visual data exploration systems, users are typically engaged in a loop as depicted in Figure~\ref{fig:hil} where they explore the data iteratively to gain new knowledge. At each iteration of this loop, users issue queries to retrieve the data they want to study further. They next need to construct visualizations suitable to render the issued query's result.  
+Investigating these results may spark further interest, in turn leading to a new iteration of exploration. 
+ \begin{figure}[t]
+\centering
+\includegraphics[scale=0.4]{figures/introduction/humanInTheLoop}
+\caption{Human-in-the-Loop Visual data exploration process}
+\label{fig:hil}
+\end{figure}
+
+
+However, in practice this cyclic visual data exploration process (cf.~Figure~\ref{fig:hil}) suffers from two major problems that are (i) identifying and specifying the queries that narrow down the data of interest, and (ii) finding visualizations for the query results that support the human analysis process.
+These two problems are commonly encountered when exploring data visually. They mitigate the efficiency of the visual data exploration process and they impede users, thereby leading to the possible oversight of important information available in the explored dataset.
+
+To cope with the two aforementioned problems, several existing work (e.g.,~\cite{Mackinlay:2007,Drosou2013,Vartak,Sellam:16,Tang:2017,Milo:2016,Mutlu:2016,Milo:2018,Wongsuphasawat2016,Wongsuphasawat:2017}) have been proposed. In general, these existing visual data exploration work provide recommendations to assist users in their exploration jobs.
+More specifically, we distinguish two classes of existing visual data exploration systems based on the type of recommendation: (i)~visual data exploration solutions that provide \emph{query recommendations} to guide users to interesting portions of the studied data sets and (ii)~visual data exploration approaches that offer \emph{visualization recommendations} to construct visualizations that appropriately render investigated data.
+
+
+
+While recent research succeeds to improve the efficiency of the visual data exploration process, there is still a significant gap between query recommendation systems and visualization recommendation systems.
+Indeed, existing work supporting users in the data querying step (cf.~Figure~\ref{fig:hil}), do not offer any support in the course of the data visualization step (cf.~Figure~\ref{fig:hil}). Opposed to that, existing work supporting users in the data visualization step of the visual data exploration process typically offer no or very limited support for the data querying step. 
+Overall, no work so far has considered the process of exploration in its entirety and therefore misses the opportunity of leveraging knowledge gained from (previous) exploration cycles in a holistic way.
+
+
+
+
+%%%%Goals of thesis
+Accordingly, in this thesis, we aim at supporting users alongside the \emph{full} process of exploration. This requires to bridge the gap between visualization and query recommendation for visual data exploration that were always considered in existing work separately in order to offer users a more efficient visual data exploration experience. 
+
+%%%%How it is done
+Towards achieving this goal, we consider \emph{provenance} to support various types of recommendations  proposed to users alongside the visual data exploration process.
+In general, the provenance describes the production process of an end product, which can be anything from a piece of data to a physical object. 
+In our context, provenance describes the different stages (cf.~Figure~\ref{fig:hil}) performed by users throughout the visual data exploration. The overarching goal of this thesis is to study how provenance can effectively be used to offer users guidance throughout the whole visual exploration process, thereby improving the overall efficiency and quality  of the exploration process. This requires to address the following problems:
+
+\begin{itemize}
+\item We need to identify a provenance model that tracks the visual data exploration process and devise solutions to efficiently capture this provenance. 
+\item We need algorithms that process and analyze the provenance for the purpose of computing recommendations that guide users in their exploration. 
+\item We need to integrate the solutions we devise into a holistic visual data exploration framework to assist users throughout the whole exploration process.
+%To do that, we propose necessary methods for the provenance computation throughout the visual data exploration processes. Later, we suggest necessary approaches to analyze collected provenance traces.
+%\item Second, we aim at leveraging provenance to provide a more efficient visual data exploration process and to offer thereby users more pleasant exploration experiences.
+\end{itemize}
+
+%%The overarching goal of this thesis is to improve on the state-of-the-art visual data exploration process by leveraging provenance. %Towards reaching this goal, we study the following research questions.
+%To achieve our overarching goal of provenance-based visual data exploration, we answer the following questions in this thesis: 
+%(i)~can we offer users a holistic visual data exploration framework that assists them in the whole process of the visual data exploration?
+%%(ii)~which data model should we adopt to capture provenance through the visual data exploration process?, 
+%(ii)~what data model is useful to capture provenance through the visual data exploration process?, 
+%(iii)~how to process the collected provenance for recommendations?  
+%
+
+%The contributions summarized in the next section address the three problems listed above. 
+
+

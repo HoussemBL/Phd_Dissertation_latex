@@ -1,0 +1,33 @@
+
+In this thesis, we proposed a set of new methods and approaches that aim at improving users' experiences when exploring data visually.
+
+First, we introduced in Chapter~\ref{chap:overview} our framework \framework{} meant to explore visually data. Furthermore, we described thoroughly the components present in our visual data exploration framework. 
+Consequently, we introduced \prototype{}, an instance of our framework that is meant to explore visually data warehouses. 
+
+Later, we proposed in Chapter~\ref{chap:evoDM} a new model of evolution provenance that captures prominent information in the course of the visual data exploration process including users' interactions, exploration queries, and visualizations. 
+%In this context, we discussed how \prototype{}, the instance of our framework \framework{} collects effectively the evolution provenance in the course of the visual exploration of data warehouses.
+
+After that, %we continued describing the implementation of \prototype{} the instance of our framework \framework{}.
+%For that, 
+we discussed in Chapter~\ref{chap:EVLIN} the set of provenance-based methods proposed to support users throughout the whole visual data exploration process.
+More specifically, we discussed a content-based query recommendation approach that returns the set of interesting queries worth inspecting next.
+ To support the visual exploration process, we contributed also a visualization recommendation approach meant to render appropriately investigated recommended queries.
+ Indeed, unlike existing visual data exploration that support users either in writing queries or in visualizing data, we proposed these two provenance-based recommendations approaches that assist users in querying and visualizing data. 
+
+Given the high diversity and possibly large number of recommendations produced by our content-based query recommendation approach, we proposed in Chapter~\ref{chap:EVLIN} a quantification approach that measures the ``interestingness'' of each recommendation. The measure of recommendations interestingness relies on the deviation metric that compares the dissimilarity of recommendation's data distribution with the data distribution in the whole explored dataset.
+The computed interestingness scores are visualized as an impact matrix, pointing thereby users to potentially interesting recommendations to investigate next.
+
+Furthermore, we described in the same Chapter~\ref{chap:EVLIN} our merge approach that aggregates periodically the evolution provenance collected from many previous users' exploration jobs into a multi-user graph. 
+Subsequently, this kind of multi-user graphs is exploited by our second query recommendation approach (described in Chapter~\ref{chap:EVLIN}) that computes collaborative-filtering recommendations.
+This new type of recommended queries is harnessed to improve the process of quantifying the interestingness of recommendations output by our content-based query recommendation approach. 
+Indeed, we discussed in Chapter~\ref{chap:EVLIN} how we leverage collaborative-filtering recommendation to diversify interestingness scores to 
+%reflect global trends (commonality or popularity of such recommendation) as well as local insights.
+guide better users to interesting portions of the studied data sets.
+
+All aforementioned approaches underwent an extensive evaluation process that is thoroughly discussed in Chapter~\ref{chap:eval}. Overall, quantitative experiments results showed the efficiency of our provenance-based methods implemented in \prototype{} (our prototype for visual exploration of data warehouses).
+We performed also qualitative experiments results to study the effectiveness of our provenance-based methods. The results of qualitative experiments showed general satisfaction among users when visually exploring data using \prototype{}.
+
+
+Inspired by the important role of evolution provenance aggregation towards supporting collaborative-filtering recommendation in our framework \framework{}, we proposed finally in Chapter~\ref{chap:TaPP19} a new aggregation approach that summarizes provenance documents following W3C-PROV standard. Therefore, we showed the usefulness of our structure-based provenance summaries on several use cases, when using appropriate visualizations and interaction techniques. Additionally, we performed a preliminary experimental evaluation that studies the performance of our proposed provenance summary process. 
+Overall, experiments results showed the capability of our proposed approach to process rapidly several input provenance traces and to output concise summaries easy to analyze.
+ 

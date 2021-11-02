@@ -1,0 +1,236 @@
+\label{eval-rec:quantification}
+After the computation of the content-based query recommendation, our proposed process of recommendations quantification (cf.~Section~\ref{quantification-rec}) is invoked to assign an interestingness score to each recommendation to help users select the next exploration step to analyze.
+
+
+In this section, we conduct several experiments to study the effectiveness and the performance of our proposed approach quantifying recommendations' interestingness.
+%{\color{Fuchsia}
+Similarly to the previous section, we use the three data warehouses introduced in~Section~\ref{evlin-ds} to evaluate the performance of all proposed approaches. We resort also to the usage of collected real visual data exploration sessions. To this end, we collaborated first with researchers in our department where they were also involved in rating the interestingness of recommendations proposed in the course of exploration.
+%} 
+
+\subsection{Effectiveness of quantification methods} 
+\label{sec:effectivness-quant}
+In Section~\ref{quantification-rec}, we have presented our deviation metric adopted for the quantification of recommendation interestingness.
+It measures the dissimilarity between data distributions of the recommended query's data region and the whole database. 
+
+Accordingly, we have discussed possible implementations that could be used to compute the deviation metric. More specifically, we have implemented as discussed in Section~\ref{quantification-rec} the following four quantification functions:~(i) Euclidean distance (EU); (ii)~Chi square (CS); (iii)~Kullback Leibler (KL); and (iv)~Earth Mover's Distance (EM). 
+
+
+
+ %In what follows, we target studying the performance of these four implementations in terms of accuracy. 
+In what follows, we study the performance of these four implementations in terms of theeffectiveness of scores assigned to each recommendation.
+
+To perform this study, we have first tracked 12 exploration sessions made by researchers in our department when exploring the flights, formula one, and the soccer data warehouses. 
+In each exploration session, we have invited our collaborators to select randomly five recommendations to investigate next. Later, we asked them to rate the interestingness of the five recommended queries using a 5-point scale from 1 (not interesting) to 5 (highly interesting).  
+To avoid influencing researchers during the investigation of recommendations, we have used during this experiment a specific version of \prototype{} that does not provide quantification of recommendations feature.
+ In other words, participants received at each exploration step a set of not quantified recommendations. This enables participants to choose freely any recommendation that might be interesting or not interesting.
+
+
+This results in a data set containing 60 rated recommended queries. 
+%{\color{Fuchsia}
+Table~\ref{tab:expert-rating} encompasses the number of recommendations falling in each rating score value.
+%}
+In what follows, we leverage our collaborators' ratings to study the performance of our four studied quantification functions in terms of information retrieval metrics.
+To do that, we apply the following process for each studied quantification function.
+   \begin{table}[b]
+ \centering 
+ \scriptsize
+\resizebox{0.9\linewidth}{!}{ 
+\begin{tabular}{|p{2cm}|p{1.1cm}|p{0.5cm}|p{0.5cm}|p{0.5cm}|p{0.5cm}|p{0.5cm}|} \hline
+\textbf{Rating value} &\textbf{not rated}&\textbf{1} & \textbf{2}&\textbf{3} & \textbf{4} & \textbf{5}\\ \hline
+Number of rated recommendations& 4&15&11&8&15&7\\ \hline
+
+%  \begin{tabular}{|p{2cm}|p{0.7cm}|p{0.7cm}|p{0.7cm}|p{0.7cm}|p{0.7cm}|p{0.7cm}|} \hline
+%\textbf{Rating value}&\textbf{1} & \textbf{2}&\textbf{3} & \textbf{4} & \textbf{5}\\ \hline
+%Number of rated recommendations& 19&11&8&15&7\\ \hline
+\end{tabular}
+}
+ \caption{Rated explorations}
+ \label{tab:expert-rating}
+ \end{table}
+
+
+
+
+We sort initially the 60 recommendations in descending order of their interestingness scores computed using each studied quantification function. We then compute  the F1 score associated with different sizes of the top-k recommendations.
+We set initially $k$ to one and we compute F1 score. Afterward, $k$ is iteratively incremented (until reaching 60) and the F1 score is re-computed.
+
+To compute the F1 score at each iteration, we need to identify initially the set of really interesting recommendations to be able to construct later the true positive $TP$, the false positive $FP$, the true negative $TN$, and the false negative $FN$ sets.
+%{\color{Fuchsia}  
+For that, we define the ground truth by splitting labeled recommendations into two sets using a cut-off value $c$: (i) the set of interesting recommendations whose ratings values are bigger or equal to $c$, and (ii) the set of non-interesting recommendations whose ratings values are less than $c$.
+Note that we use in the course of this experiment moderate to high values of users' ratings ([3,4,5]) as cut-off values to construct the ground truth.
+%}
+
+ \begin{figure*}
+       % \centering
+        \begin{subfigure}[b]{0.42\textwidth}
+            \centering
+            \includegraphics[scale=0.35]{figures/recQuantification/KL-RP.pdf}
+   \caption[Performances results of the Kullback Leibler (KL)]%
+            {{\small Performances results of the Kullback Leibler (KL)}}    
+            \label{fig:KLdist}
+        \end{subfigure}
+           %\hfill
+                 \hspace{2.5em}
+        \begin{subfigure}[b]{0.42\textwidth}   
+            \centering 
+            \includegraphics[scale=0.35]{figures/recQuantification/CS-RP.pdf} 
+           \caption[Performances results of the Chi Square (CS)]%
+            {{\small Performances results of the Chi Square (CS))}}    
+            \label{fig:CS-dist}
+        \end{subfigure}
+        \vskip\baselineskip
+                \begin{subfigure}[b]{0.42\textwidth}  
+            \centering 
+            \includegraphics[scale=0.35]{figures/recQuantification/EU-RP.pdf}   
+  \caption[Performances results of the Euclidian distance (EU)]%
+            {{\small Performances results of the Euclidian distance (EU)}} 
+            \label{fig:EU-dist}
+        \end{subfigure}
+          %\hfill
+                 \hspace{2.5em}
+        \begin{subfigure}[b]{0.42\textwidth}   
+            \centering 
+            \includegraphics[scale=0.35]{figures/recQuantification/EM-RP.pdf}  
+   \caption[Performances results of the Earth Mover (EM)]%
+           {{Performances results of the Earth Mover (EM)}}   
+            \label{fig:EM-dist}
+        \end{subfigure}
+        \caption[Comparison of performances of functions implementing the quantification of recommendations' interestingness]
+       {\small Comparison of performances of functions implementing the quantification of recommendations' interestingness} 
+        \label{fig:scores-RP}
+    \end{figure*}
+
+
+Figure~\ref{fig:scores-RP} depicts the performance of our four implemented quantification functions, computed in terms of F1 score when using various values of users' ratings ([3,4,5]) as cut off $c$ between interesting and non-interesting recommendations. More specifically, each line chart depicted in Figure~\ref{fig:scores-RP} shows the evolution of the following three scores \emph{f-measure-c} with $c \in [3,4,5])$.
+Each score \emph{f-measure-c} corresponds to F1 score computed when considering the recommendations whose user's rating is larger or equal to the value of $c$ as interesting recommendations.
+It is worth stressing that computing F1 score of a quantification function $f$ for a particular cut off setting $c$ at ranking position $k$ relies on recall and precision metrics computed as follows:
+\begin{itemize}
+\item Recall is computed as $=\frac{TP_{ck}}{TP_{c}}$ with $TP_{c}$ is the total number of recommendations considered as interesting following users' ratings (user's rating is bigger or equal to $c$) and $TP_{ck}$ is the number of interesting recommendations obtained when considering the top-k recommendations sorted in descending order of their interestingness scores computed using the quantification function $f$. 
+ 
+ \item Precision is computed as $=\frac{TP_{ck}}{k}$ with $TP_{ck}$ is the number of interesting recommendations obtained when considering the top-k recommendations sorted in descending order of their interestingness scores computed using the quantification function $f$. The number $k$ is the ranking position. It refers to the top-k  recommendations considered at this stage of computation. 
+
+\end{itemize} 
+
+%{\color{Fuchsia}
+Note that we also computed F1 scores also when considering lower users' ratings values as cut-off (e.g., 1, 2). For these particular settings, F1 scores performances are similar for the four studied quantification functions. Hence, we can not conclude which quantification function outperforms others.
+%}
+Accordingly, we decide to omit these results for the sake of figures' simplicity. 
+
+
+
+
+
+
+For moderate values of cut off (e.g., 3, 4), we observe in Figure~\ref{fig:scores-RP} that the best score values of the F1 score are obtained using Kullback Leibler (KL) and Earth Mover (EM). 
+More specifically, the best f-measure-4 value reaches 0.65 using these two functions (KL and EM) when setting the cut off to 4 while the Kullback Leibler (KL) slightly outperforms the Earth Mover (EM) when setting the cut-off to 3. Indeed, the highest f-measure-3 associated with the latter is 0.78 while the highest f-measure-3 associated with the former is 0.8.
+Furthermore, we observe that the highest F1 score values recorded for the Kullback Leibler (KL) and Earth Mover (EM) quantification functions are obtained in a similar order when setting the cut off to 3 or 4. For instance, the best F1 score obtained when setting the cut off to 3, is obtained when considering the top-26 recommendations output using the Kullback Leibler (KL) while the best F1 score for Earth Mover (EM) function is obtained  when investigating the top-27 recommendations.
+
+
+Finally, for high values of cut off (e.g., 5), the Kullback Leibler (KL) outperforms significantly the remaining quantification functions including namely the Earth Mover (EM).
+Indeed, the highest F1 score value is associated with the Kullback Leibler (KL) when considering the top-10 recommendations sorted in descending order of their values. 
+
+
+
+
+
+%\begin{figure}[t]
+%  \centering
+%  \includegraphics[scale=0.6]{figures/recQuantification/SortingUsers}
+%  \captionof{figure}{Accuracy score computation for the studied quantification functions}
+%  \label{fig:RP-sorting}
+%\end{figure}
+
+
+
+
+
+
+
+
+To conclude, our experiments show that the Kullback Leibler (KL) and the Earth mover distance (EM)  have the best F1 performances compared with the Chi Square (CS) and the Euclidian distance (EU). 
+ More specifically, the Kullback Leibler (KL) and the Earth mover distance (EM) have comparable F1 performances when adopting cut off values set to 3 and 4.
+
+Yet, we observe that the Kullback Leibler (KL) outperforms clearly all remaining studied quantification functions (including the  Earth mover distance (EM)) when setting the cut off to 5.
+ This indicates that the Kullback Leibler (KL) function provides more robust performance when quantifying the interestingness of recommendations. Accordingly, we adopt in what follows the Kullback Leibler (KL) function to compute the interestingness scores of recommendations %generated by our visual data exploration system \prototype{}.
+ output by our system \prototype{}. 
+
+
+
+
+
+
+
+
+\subsection{Performance study} 
+\begin{table}[b]
+\centering
+\resizebox{0.45\linewidth}{!}{
+\sffamily\footnotesize
+\tabulinesep=2pt
+ \begin{tabu}{|p{0.6cm}|p{2.5 cm}|p{2 cm}|} \hline
+\textbf{Query} &  \textbf{\#Recommendation} &\textbf{Size (MB)}\\ \hline
+Q1 &30&29\\ \hline
+Q2 &16&40\\ \hline
+Q3 &20&23\\ \hline
+Q4 &24&3,29\\ \hline
+Q5 &20&3,84\\ \hline
+Q6 &48&0,91\\ \hline
+Q7 &60&6,83\\ \hline
+Q8 &40&2,79\\ \hline
+Q9 &88&1,76\\ \hline
+\end{tabu}}
+ \caption{Set of exploration queries used in the evaluation}
+ \label{tab:queries2}
+\end{table}
+In chapter~\ref{sec:rec-computation}, we discussed our two optimizations proposed to speed up the computation of interestingness scores (implemented using Kullback Leibler (KL) function) associated with each recommended query output by our system \prototype{}. 
+
+
+%The first optimization $Opt1$ consists of computing the minimum shared regions sufficient to compute interestingness scores of all recommendations.The second optimization $Opt2$ complies with $Opt1$. Indeed, it consists of proactively computing shared data regions that are used subsequently to compute interestingness scores of recommendations. The rationale behind that is to compensate for the overhead incurred by the materialization of shared data regions when quantifying recommendations.
+%{\color{Fuchsia}
+As a reminder, $Opt1$ computes two materialized views (once) to then reuse this intermediate result to quantify multiple query recommendations. This is done once a user has selected a data region of interest (see the third step in~Figure~\ref{fig:exStepConduct}, Page~\pageref{fig:exStepConduct}). $Opt2$ introduces different timing by eagerly computing one of the materialized views prior to the interaction, as it is independent of the selected data region. 
+%}
+
+
+
+Accordingly, we study in this section the impact of our proposed optimizations on quantification runtime when exploring data warehouses. 
+As representative examples, we show runtime results for the nine exploration queries described in Table~\ref{tab:queries1}.
+These queries are used to launch nine exploration sessions over the three data warehouses presented in Section~\ref{sec:setup}.
+%\mel{Not done so far, right? Also not here, if I understand correctly. I am wondering if we could have the problem that while quantification / runtime etc are fine for the (manually engineered) queries, it may no longer be good for derived queries. Are some of the nine queries derivations of one another that could ?simulate? an exploration session? I think the user study results go a long way but the question may appear. }
+
+Furthermore, we provide Table~\ref{tab:queries2} that gives additional information about each exploration query. Indeed, it encompasses  the number of recommended queries associated with each exploration query present in Table~\ref{tab:queries1} and the size of the initially accessed data region. 
+
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[scale=0.55]{figures/recQuantification/OptimizationRuntimes.pdf}
+  \captionof{figure}{Runtime results of implementations quantifying interestingness of recommendations}
+  \label{fig:runtimeOpt}
+\end{figure}
+
+Figure~\ref{fig:runtimeOpt} shows runtime results when quantifying recommendations with and without optimizations.
+Overall, we observe that the proposed optimizations are effective in reducing the runtime. Indeed, we get runtimes improvement of 80\% (e.g., $Q1$, $Q2$, and $Q3$) compared to the runtime of the baseline quantification recommendation method.
+We observe also that optimization techniques were less effective for $Q4$, $Q5$, and $Q6$. This is explained by the small size of the explored regions and the small number of recommendations of these queries as described in Table~\ref{tab:queries2}.
+Recall that the complexity of the recommendation quantification depends on these two factors as discussed in Section~\ref{sec:rec-computation}. 
+Hence low values of these two factors simplify the task of recommendation quantification that can be computed in acceptable time without optimization.
+This observation is further confirmed when observing runtimes when quantifying recommendations for $Q7$, $Q8$, and $Q9$. Indeed, these queries have small sizes of their associated explored data regions. Yet, they have a large number of recommendations as indicated in Table~\ref{tab:queries2}. 
+In this case, our optimizations were effective in reducing the runtimes when quantifying the recommendations of these queries.
+
+We observe that $Opt1$ performs well for most of the depicted exploration queries while $Opt2$ is more effective for exploration queries $Q1$, $Q2$, and $Q3$. 
+Note that this particular range of exploration queries is meant to explore large size of the explored regions as indicated in Table~\ref{tab:queries2}. This impacts the size of shared views constructed using $Opt1$ that are in their turn large. 
+This leads to a considerable overhead incurred by the expensive construction operation.
+$Opt2$ succeeds in this case to proactively compute one large materialized view before that user asks explicitly for recommendations. This alleviates later the overhead incurred by the materialization of shared data regions during the quantification of recommendations computation.
+
+
+Overall, results of experiments discussed in this section show that recommendation's quantification process implemented using Kullback leibler (KL) function succeeds to provide robust performances in terms of accuracy.
+Furthermore, our experiments show an effective improvement of the efficiency of the recommendation's quantification phase in \prototype{} when employing our proposed optimizations. Accordingly, we succeed to speed up the computation of the recommendations' interestingness scores which is crucial for interactive visual exploration. 
+
+Finally, we point out that the runtime of the content-based query recommendation (cf.~Section~\ref{eval-sec:content}) and the runtime of the interestingness scores quantification add up for the overall visual exploration process supported in \prototype{}. 
+Indeed, based on the runtime results reported in Figures~\ref{fig:exper2} and~\ref{fig:runtimeOpt}, the overall runtime between interacting with a visualization and obtaining a quantified list of query recommendations takes between 1,5 seconds and 9 seconds which is acceptable (but there is room for improvement).
+
+
+
+
+
+
+
+

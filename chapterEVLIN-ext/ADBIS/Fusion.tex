@@ -1,0 +1,703 @@
+\subsection{Merging of evolution provenance graphs}
+\label{sec:fuse}
+
+
+We discuss in this section the process of evolution provenance merge to obtain a multi-user exploration graph.
+Essentially, the merge of evolution provenance graphs takes as input an exploration session graph $\sessionGraph{}$ and the current version of the multi-user graph $\usersGraph{}$, determines a one-to-one matching between the set of vertices (more precisely, the queries of exploration steps), and finally merges matching nodes. Note that for simplicity, we slightly abuse the notation and consider that nodes of both graphs represent queries only.
+
+More formally, during the matching phase, given the set of exploration steps modelled by vertices $\sessionV \in \sessionGraph$ and $\usersV \in \usersGraph$, we determine a one-to-one matching $\matching$ between nodes $ n_i \in \sessionV$ and $n_j \in \usersV$ such that for each $m = (n_i, n_j) \in \matching$, $sim(n_i, n_j) \geq \thetaFuse$ (with $\thetaFuse$ is a similarity threshold). The merge phase then produces a multi-user graph $\usersGraph'$ with $\usersV' = \usersV \cup_{\approx} \sessionV$ and $\usersE' = \usersE \cup_{\approx} \sessionE$. The symbol $\cup_{\approx}$ denotes that the usual equality considered by set union is extended to also consider similar objects as ``equal''.
+
+
+
+We first discuss the matching function that we use in Section~\ref{subsec:match-sim}. 
+Remaining paragraphs in this sub-section cover different variants of applying this measure to obtain a merged multi-user graph. 
+These variants trade off runtime efficiency with the achieved merge rate. 
+
+\subsubsection{Measuring the similarity of exploration steps}
+\label{subsec:match-sim}
+
+The similarity $sim$ of two exploration steps with respective queries $Q$ and $Q'$ over the same dataset $D$ quantifies the extensional overlap of $Q(D)$ and $Q'(D)$. This leaves open many possibilities of defining a similarity measure. 
+Equation~\ref{eq:sim}, that is based on the Jaccard coefficient $Jaccard(S, S') = \frac{\mid S \cap S' \mid}{\mid S \cup S' \mid}$, presents one possible implementation of a similarity measure that we adopt. 
+The similarity measure in Equation~\ref{eq:sim} uses three functions to extract token sets of each SQL-clause of an exploration query $Q$ (see Definition~\ref{def:exp-query}): $getSelect(Q) = \{a_1, \ldots, a_n, f(m)\}$,\\ $getTables(Q) = \{t | t \text{ referred to in } rel(D)\}$, and\\ $getConditions(Q) = \{p_i | p_i \text{ a predicate in } cond\}$. Then:
+\begin{equation}
+ \small\addtolength{\tabcolsep}{-6pt}
+\begin{array}{lcl}
+sim(Q_1,Q_2)  & = &   \alpha \times Jaccard(getSelect(Q_1), getSelect(Q_2)) \\
+ &+  &  \beta \times Jaccard(getTables(Q_1), getTables(Q_2)) \\
+ &+ &  \gamma \times Jaccard(getConditions(Q_1), getConditions(Q_2))
+\end{array}
+\label{eq:sim}
+\end{equation}
+\noindent where $\alpha, \beta, \gamma$ are weights, $\alpha + \beta + \gamma = 1$. By default, we use equal weights for all clauses.
+
+
+While other, possibly more sophisticated measures are conceivable, the optimizations presented in Section~\ref{sec:finding} for efficiently finding queries to be recommended (in an online, i.e., time-critical fashion) %are specific to the proposed similarity measure. 
+are specific to the similarity measure based on Jaccard coefficient.
+ 
+ 
+    
+  
+  \subsubsection{Obtaining a global matching of exploration steps}
+  \label{sec:fuse-cycles}
+
+
+
+ Conceptually, we can compute the similarity of all pairs of exploration steps in $\sessionV \times \usersV$ and retain only those pairs with a similarity above threshold $\thetaFuse$ as candidate matches. Based on these, we can select a one-to-one matching $\matching$ following several possible interpretations, e.g., stable marriage~\cite{Irving1994}. However, it is easy to show that obtained matches may lead to a merged multi-user graph that includes cycles, which violates our definition of evolution provenance graph (cf.~Definition~\ref{def:session}, Page~\pageref{def:session}) and also the rationale of a recommended exploration step. For instance, Figure~\ref{fig:stab-marr} shows, on the left, a possible matching (rendered as dashed edges) between two DAGs  as determined by stable marriage~\cite{StableM}. 
+ The merged graph, resulting from merging nodes labeled \textsf{0} with \textsf{B},  \textsf{2} with \textsf{C}, and \textsf{3} with \textsf{A} (highlighted in red) is depicted on the right hand side. Observe that in the merged graph, we now have a cycle between nodes~(0B),~(1), and ~(3A).
+
+\begin{figure}[t]
+		\begin{center}
+		\resizebox {0.7\textwidth} {!} {
+			\begin{tikzpicture}[-latex, auto, node distance = 2 cm and 3cm, on grid, semithick, state/.style ={circle, top color = white, bottom color = processblue!20, draw, processblue, text = blue, minimum width = 0.5 cm}, 		fused_state/.style = {circle, top color = white, bottom color = antiquebrass!20, draw, antiquebrass, text = black, minimum width = 0.5 cm}, edge_style/.style = {draw = processblue!60, dashed}]
+				\node[fused_state] (A3) at (5.5,2.75) {3A};
+				\node[fused_state] (B0) at (5.5,4) {0B};
+				\node[fused_state] (2C) at (7,2.75) {2C};
+				\node[state] (11) at (7,4) {1};
+				\node[state] (A) at (2,4) {A};
+				\node[state] (B) at (1.5,2.75) {B};
+				\node[state] (C) at (3.5,3) {C};
+				\node[state] (0) at (0,4) {0};
+				\node[state] (1) at (-2.5,4) {1};
+				\node[state] (2) at (-1.5,3.5) {2};
+				\node[state] (3) at (-2.5,2.75) {3};
+				\path [->] (A) edge node {$$} (B);
+				\path [->] (A) edge node {$$} (C);
+				\path [->] (0) edge node {$$} (1);
+				\path [->] (1) edge node {$$} (2);
+				\path [->] (1) edge node {$$} (3);
+				\path [edge_style] (3) edge node {$$} (A);
+				\path [edge_style] (0) edge node {$$} (B);
+				\path [edge_style] (2) edge node {$$} (C);
+				\path [->] (B0) edge node {$$} (11);
+				\path [->] (A3) edge node {$$} (B0);
+				\path [->] (11) edge node {$$} (A3);
+				\path [->] (11) edge node {$$} (2C);
+				\path [->] (A3) edge node {$$} (2C);
+			\end{tikzpicture}
+			}
+		\end{center}
+\centering
+		\caption{Stable marriage application on exploration sessions~\cite{Houssem:19:adbis} 
+		}
+		\label{fig:stab-marr}
+	\end{figure}
+
+
+
+
+Note that our merge problem also aims at generating a compact merged graph that encompasses less redundancy. The reduction of redundancy is important to avoid recommending similar explorations while the compactness of the merged graph is important to ensure a fast traversal of the graph when computing collaborative-filtering recommendations.
+
+From these observation, we introduce the problem of merging evolution provenance graphs as follows:\\
+Given two evolution provenance graphs $G_1=(N_1,E_1)$, $G_{2}=(N_{2},E_{2})$, a similarity function $sim$(), and a similarity threshold $\thetaFuse$,  find the set of 1:1 matchings $\matching$ such that
+
+
+\begin{itemize}
+\item  for each $(n_i, n_j) \in \matching$, $sim(n_i, n_j) \geq \thetaFuse$  with $n_i \in N_1$ and $n_j \in N_2$
+\item the following equation is maximized
+ \begin {equation}
+ \sum^{|\matching|}_{i=0}  sim(\matching_i.n_{i1},\matching_i.n_{i2})
+ %benefit_{sim} - \lambda_{matching} \times count_{sim}
+ \end{equation}
+with $n_{i1} \in N_1$ and $n_{i2} \in N_2$, $|\matching|$ is the number of matching pairs and $sim(\matching_i.n_1,\matching_i.n_2)$ returns the similarity value of a matching pair $\matching_i$.
+\item the merged graph $G_{merge}=(N_{merged},E_{merged})$ is a directed acyclic graph that follows the Definition~\ref{def:MUg} (Page~\pageref{def:MUg}).  More specifically, each matched pair of nodes are replaced by a merged node in the merged graph.  Edges pointing  to (and outgoing from) matched nodes are in turn added to the merged graph and rerouted to point at (stem from) merged nodes.
+\end{itemize}
+
+
+
+%\hou{check that we are always using $\sessionV_{MU}$}
+%\hou{first demonstration}\\
+%In relation to our problem, we review state of the art and we find the 1-1 homomorphism problem introduced in~\cite{Fan:2010:GHR} where a graph $G_1$ is said to be 1-1-homomorphism %(p- hom) 
+%to $G_2$ w.r.t. a similarity function sim() and a similarity threshold $\alpha$, 
+%if there exists an injective mapping $\sigma$ from $V_1$ to $V_2$ such that for each node $v \in V_1$,
+%\begin{itemize}
+%\item if $\sigma(v) = u$, then $sim(v, u) \geq \alpha$; and
+%\item for any distinct nodes $v_1$, $v_2$ in $G_1$, $\sigma(v_1)\neq \sigma(v_2)$. 
+%\item for each edge $(v,v')$ in $E_1$, there exists a nonempty path $u/.../u'$ in $G_2$ such that $\sigma(v') = u'$, i.e., each edge from $v$ is mapped to a path emanating from $u$.
+%\end{itemize}
+%{\color{Fuchsia}
+In relation to our problem, we review state of the art and we find the 1-1 homomorphism problem introduced in~\cite{Fan:2010:GHR} where a graph $G_1=(N_1,E_1)$ is said to be 1-1-homomorphism to $G_2=(N_2,E_2)$ w.r.t. a similarity function sim() and a similarity threshold $\thetaFuse$, 
+if there exists an injective mapping $\matching$ from $N_1$ to $N_2$ such that for each node $n_i \in N_1$,
+\begin{itemize}
+\item if $\matching(n_i) = n_j$ (with $n_j \in N_2$), then $sim(n_i, n_j) \geq \thetaFuse$; and
+\item for any distinct nodes $n_1$, $n_2$ in $G_1$, $\matching(n_1)\neq \matching(n_2)$. 
+\item for each edge $(n_i,n'_i)$ in $E_1$, there exists a nonempty path $n_j/.../n'_j$ in $G_2$ such that $\matching(n_i) = n_j$ and $\matching(n'_i) = n'_j$ (with $n_j,n'_j \in N_2$), i.e., each edge from $n_i$ is mapped to a path outgoing from $n_j$.
+\end{itemize}
+
+
+%Overall, our problem is a special case of the 1-1 homomorphism problem introduced in~\cite{Fan:2010:GHR}. Indeed, a matching $\matching$ of two evolution provenance graphs $G_1$ and $G_2$ exists iff there a 1-1 homomorphism mapping $\sigma$ from $G_1$ to $G2$ that~(i) maps each edge $(v,v')$ in $G_1$ to an edge $(\sigma(v),\sigma(v'))$ in $G_2$, (ii)~adopts node label similarity, moreover, (iii)~if $(\sigma(v),\sigma(v'))$ is an edge in $G_2$, then $(v,v')$ must be an edge in $G_1$; in contrast, 1-1 homomorphism only requires edges from $G_1$ to find a match in $G_2$, but not the other way around, and finally (iv)~merges $G_1$ and $G_2$ and returns a DAG.
+%While conditions (i), (ii), and (iii) are self explanatory following the definition of the 1-1 homomorphism problem, authors in~\cite{Fan:2010:GHR} have not discussed the DAG property of the graph resulting from matching the two DAGs $G_1$ and $G_2$ using the 1-1 homomorphism solution.
+Overall, we are tackling a problem that is highly similar to the 1-1 homomorphism problem introduced in~\cite{Fan:2010:GHR}. One main difference between the two problems concerns edge mapping. Indeed, our merge problem considers a more strict policy when mapping edges. Hence, if $(\matching(v),\matching(v'))$ is an edge in $G_2$, then $(v,v')$ must be an edge in $G_1$; in contrast, 1-1 homomorphism only requires edges from $G_1$ to find a matched path in $G_2$. Finally, we point out that our merge problem considers the format of the merged graph resulting from $G_1$ and $G_2$. Indeed, our problem returns a DAG. In contrast, authors in~\cite{Fan:2010:GHR} have not discussed the DAG property of the graph resulting from matching the two DAGs $G_1$ and $G_2$ using the 1-1 homomorphism solution.
+
+Accordingly, we provide below a proof that  the 1-1 homomorphism solution produces a DAGs as a result.
+
+
+\begin{proof}
+\label{pr:DAG-homo}
+\textbf{Assumption}: 
+Suppose that $\matching$ is a mapping solution of the 1-1 homomorphism problem when comparing two DAG graphs $G_1$ and $G_2$.
+More specifically, $\matching$ finds two subgraphs $G_{sub_1} \subseteq G_1$ and $G_{sub_2} \subseteq G_2$ such that $G_{sub_1}$  is homomorphic to $G_{sub_2}$.
+Accordingly, $G_{sub_1}$  and $G_{sub_2}$ are merged based on the 1-1 homomorphism solution $\matching$. Assume that the merge of $G_{sub_1}$  and $G_{sub_2}$ produces a graph $GM$ with a cycle $c$.\\
+%{\color{Fuchsia}
+$\Longrightarrow $ there exists a cycle $c$ in $GM$ such that we have two paths $p=y/.../x$  and $p'=x/.../y$ with $p,p' \in GM$.\\
+$\Longrightarrow $ recall that $G_{sub_1}$ and $G_{sub_2}$ are DAGs. Then $p=y/.../x$ is not in $G_{sub_1}$ when $p'=x/.../y$ is in $G_{sub_1}$ with $x \in G_{sub_1}$ and $y \in G_{sub_1}$.\\
+$\Longrightarrow $ there exists a path $p_2=B/.../A$ in $G_{sub_2}$ with $B \in G_{sub_2}$ and $A \in G_{sub_2}$ such that $\matching(x)=A$ and $\matching(y)=B$. \\
+$\Longrightarrow $ recall that $G_{sub_1}$  is homomorphic to $G_{sub_2}$, we have $\matching(x)=A$, $\matching(y)=B$ and we have a path $x/.../y$ in $G_{sub_{1}}$.
+Then based on the definition of 1-1 homomorphism solution, we conclude there is a nonempty path $A/.../B$ in $G_{sub_2}$ such that each edge $e \in x/.../y$ has a mapping in the path $A/.../B$.\\
+$\Longrightarrow $ We have two contradictory information. There is a nonempty path $A/.../B$ in $G_{sub_2}$ (concluded in the third step of our proof) and there is a nonempty path $B/.../A$ in $G_{sub_2}$ (see the previous step). This means that $G_{sub_2}$ is not DAG.
+This breaches our assumption of DAG properties of $G_1$ and $G_2$.
+%}
+\end{proof}
+
+
+%Our proof ensures that a 1-1 homomorphism solution returns a DAG merged graph. This validates our observation where we show that our problem is special case of 1-1 homomorphism problem. Note that authors in~\cite{Fan:2010:GHR} prove that the 1-1 homomorphism problem is NP-complete. Hence, finding an exact solution to our problem is in turn NP-complete.
+Our proof ensures that a 1-1 homomorphism solution returns a DAG merged graph. This validates our observation that states that our studied problem is similar to the 1-1 homomorphism problem. Note that authors in~\cite{Fan:2010:GHR} prove that the 1-1 homomorphism problem is NP-complete. Based on a proof analogous to the proof provided in~\cite{Fan:2010:GHR} , we can show that our problem NP-complete.
+
+
+
+
+
+
+%\hou{first demonstration}
+%{\color{red}Overall, we tackle a mutli-objective problem that aims at : (i) avoiding cycles, (ii) maximizing similarities values of matched pairs, and (iii) maximizing number of matched pairs.
+%The simplification of our problem by fixing one dimension that is acyclicity leads to a problem that aims at maximizing number of matching and maximizes the value of similarity of matched pairs.  This corresponds to \emph{inexact matching} problem~\cite{Yan:2016} that can be formulated as a quadratic assignment problem (QAP)~\cite{RePEc:cwl}, being well-known NP-complete~\cite{rainier:09}. Hence finding an exact solution to our problem is in turn NP-complete. }
+
+
+
+%~~\\
+%\hou{Second demonstration}
+%In what follows, we show that finding an exact solution to this problem is NP-hard.
+%To demonstrate the NP-hardness of our tackled problem, we provide a proof that is mainly inspired from~\cite{Fan:2010:GHR} where authors discuss the problem of graphs' structural similarity. Few adjustments are introduced in the proof~\cite{Fan:2010:GHR} to study the complexity of our problem. 
+
+
+
+%%%ORIGINAL PROOF
+%\begin{proof} %[Proof NP-hard]
+%\label{proof:np-hard}
+%Our studied problem consists of searching the optimal matching $\matching$ between two evolution provenance graphs $G_1$ and $G_2$ that are DAG.
+%
+%%First we note that this problem is in the class NP. 
+%To verify a given solution $G_{12}$ result of merging two evolution provenance graphs $G_1$ and $G_2$, we simply need to verify the similarity of merged nodes and check whether there are no cycles in $G_{12}$ . This verification can be done in $O(n^2)$ time. {\color{Fuchsia}Hence, our studied problem is in the class NP.}
+%
+%
+%
+%We next show that this problem is NP-hard by reduction from the 3SAT problem, which is NP-complete~\cite{Garey:1990:CIG:574848}.
+%
+%Let  $\phi$ be a 3SAT instance of the form $C_1 \wedge \ldots \wedge C_n$ where $C_j$ are clauses of  $\phi$ with $j \in [1,n]$.
+%These clauses are defined over the variables ${x_1,\ldots,x_m}$ such that each clause $C_j$ ($j \in [1,n]$) is of the form $y_{j_{1}} \vee y_{j_{2}}  \vee y_{j_{3}}$ and for $i \in [1,3]$, $y_{j_{i}}$ is either $x_{p_{ji}}$ or $\overline{x_{p_{ji}}}$ for $p_{ji} \in [1,m]$. 
+%
+%
+%Given $\phi$ the instance of the 3SAT problem, we construct two DAGs $G_1$, $G_2$ and a similarity function $sim_{reduction}()$ such that $G_{12}$ is the result of the optimal merge of $G_1$ and $G_2$ if and only if $\phi$ is satisfiable. \\
+%(1) The DAG $G_1 = (V_1, E_1)$ is defined as follows:
+%\begin{itemize}
+%\item  $V_1 = {R_1,C_1,...,C_n,X_1,...,X_m}$;
+%\item  $E_1 = {(R_1,X_i),(X_{p_{j1}} ,C_j),(X_{p_{j2}} ,C_j),(X_{p_{j3}} ,C_j)}$ for each $i \in [1,m]$ and each $j \in [1,n]$ 
+%
+%
+%\end{itemize}
+%Intuitively, graph $G_1$ encodes the instance $\phi$ of 3SAT. Node $X_i$ ($i \in [1,m]$) denotes variable $x_i$, and node $C_j$ ($j \in [1,n]$) represents clause $C_j$. Node $R_1$ is the root of graph G1, which connects to all $X_i$ nodes ($i \in [1,m]$). An edge ($X_i,C_j$) in $E_1$ encodes that variable $x_i$ appears in clause $C_j$ , i.e., $x_i$ is one of the three variables $x_{p_{j1}},x_{p_{j2}}$ and $x_{p_{j3}}$.
+%
+%For example, consider an instance for the 3SAT problem: $\phi = C_1 \wedge C_2$, where $C1 =x_1 \wedge x_2 \wedge x_3$ and $C2 =x_2 \wedge x_3 \wedge x_4$. The corresponding graph $G_1$ is depicted in Figure~\ref{fig:g1}.\\
+%(2) The DAG $G_2 = (V_2, E_2)$ is defined as follows:
+%\begin{itemize}
+%\item  $V_2 = {R_2,T, F, X_{T1}, X_{F1},\ldots,X_{Tm}, X_{Fm}, 0_1,\ldots,7_1,\ldots,0_n,\ldots,7_n}$;
+%
+%
+%\item  $E_2 = {(R_2,T),(R_2,F)} \cup { (T,X_{Ti}),(F,X_{Fi}) } \cap E_{2}'$ for each $i \in [1,m]$. 
+%
+%\item $E_{2}'$ contains $7 \times 3$ edges foreach clause $C_j =y_{j1} \wedge y_{j2} \wedge y_{j3}$ of $\phi$ ($j \in [1,n]$), and there are in total $21n$ edges in $E_{2}'$.
+%\begin{enumerate}[label=\alph*)]
+%\item Treating true as 1 and false as 0, we represent the truth assignments of clause $C_j$ in terms of 8 nodes $C_j(\rho)$, where $\rho$ ranges over all truth assignments of variables $x_{p_{j1}}$, $x_{p_{j2}}$ and $x_{p_{j3}}$. Each node $C_j(\rho)$ is a three-bit constant $y_{j1}y_{j2}y_{j3}$ with a subscript $j$, determined by $\rho(x_{p_{j1}})$, $\rho(x_{p_{j2}})$ and $\rho(x_{p_{j3}})$, e.g., $2_{1}$.
+%
+%\item  For each truth assignment $\rho$ of $x_{p_{j1}}$, $x_{p_{j2}}$ and $x_{p_{j3}}$ that makes $C_j$ true, $E_{2}'$ consists of the following edges: ($X_{T_{p_{jk}}} ,C_j(\rho)$) if $\rho(X_{p_{jk}})$ = true, or ($X_{F_{p_{jk}}} ,C_{j}(\rho)$) if $\rho(X_{p_{jk}})$ = false, where $k \in [1, 3]$.
+%\end{enumerate}
+% \end{itemize}
+%
+%Intuitively, graph $G_2$ encodes the truth assignments of the variables that satisfy the clauses in the instance $\phi$ of 3SAT. Node $X_{Ti}$ ($i \in [1,m]$, respectively $X_{Fi}$) means assigning variable $x_i$ a true (respectively false) value. Nodes ${0_j , . . . , 7_j}$ represent $Cj(\rho)$, which are denoted as a three-bit constant w.r.t. the truth assignments of the three variables in clause $C_j$. Node $R_2$ is the root of graph $G_2$.  Nodes $T$ and $F$ are simply included for the ease of exposition.
+% Edges from $X_{Ti}$ or $X_{Fi}$ to nodes {$0_j,...,7_j$} encode the relationships between the truth assignments of the variables ($x_{p_{j1}} , x_{p_{j2}} and x_{p_{j3}}$ ) and the corresponding $C_j(\rho)$.
+% 
+% For example, graph $G_2$ corresponding to the 3SAT instance $\phi$ given above is shown in Figure~\ref{fig:g2}. Observe that both $G_1$ and $G_2$ are DAGs.\\
+% 
+% (3) The similarity function $sim_{reduction}$ is defined as follows:
+% \begin{itemize}
+% \item $sim_{reduction}(R_1,R_2)=1$
+% \item  $sim_{reduction}(X_i,X_{Ti})$ =1 and $sim_{reduction}(X_i,X_{Fi})$ = 1 for $i \in [1,m]$;
+% \item   $sim_{reduction}(C_j,0_j)$ = 1, $\ldots$, $sim_{reduction}(C_j,7_j)$ = 1 for $j \in [1,n]$;
+% \item  $sim_{reduction}(v,u)=0$ for any other nodes $v \in V_{1}$ and $u \in V_2$.
+% \end{itemize}
+% This function $sim_{reduction}()$ guarantees that (a) the root $R_1$ of $G_1$ must be merged with the root $R_2$ of $G_2$, (b) node $X_i$ ($i \in [1,m]$) in $G_1$ is merged with either node $X_{Ti}$ (true) or $X_{Fi}$ (false) of $G_2$ , and (c) node $C_j$ in $G_1$ ($j \in [1,n]$) is merged with one of the nodes {$0j,...,7j$} of $G_2$.\\
+%
+%
+%\begin{figure}[t]
+%\centering
+%\resizebox{.3\linewidth}{!}{
+%\begin{tikzpicture}%
+%  [>=stealth,
+%   shorten >=1pt,
+%   node distance=2cm,
+%   on grid,
+%   auto,
+%   every state/.style={draw=black!60, fill=black!5, very thick}
+%  ]
+%\node[state] (x2)                  {$X_2$};
+%\node[state] (start) [above=of x2] {$R_1$};
+%\node[state] (x3) [right=of x2] {$	X_3$};
+%\node[state] (x4) [right=of x3] {$X_4$};
+%\node[state] (x1) [left=of x2] {$X_1$};
+%\node[state] (c1) [below=of x1] {$C_1$};
+%\node[state] (c2) [below=of x4] {$C_2$};
+%
+%\path[->]
+%   (start) edge[->]     node                      {} (x1)
+%           edge[->] node[swap,very near start]{} (x2)
+%           edge[->]    node                      {} (x3)
+%           edge[->]    node                      {} (x4)
+%   
+%      (x1) edge[->]     node                      {} (c1)
+%      (x2) edge[->] node[swap,very near start]{} (c1)
+%           edge[->]    node                      {} (c2)
+%           
+%      (x3) edge[->] node[swap,very near start]{} (c1)
+%           edge[->]    node                      {} (c2) 
+%           
+%        (x4) edge[->]     node                      {} (c2)   
+%          
+%   ;
+%\end{tikzpicture}}
+%	\caption{Example graph $G_1$}
+%		\label{fig:g1}
+%\end{figure}
+%
+%
+%\begin{figure}[t]
+%\centering
+%\resizebox{1\linewidth}{!}{
+%\begin{tikzpicture}%
+%  [>=stealth,
+%   shorten >=1pt,
+%   node distance=2cm,
+%   on grid,
+%   auto,
+%   every state/.style={draw=black!60, fill=black!5, very thick}
+%  ]
+%\node[state] (xt4)                  {$X_{T4}$};
+%\node[state] (start) [above=of xt4] {$R_2$};
+%\node[state] (tr) [right=of start] {$T$};
+%\node[state] (fl) [left=of start] {$F$};
+%
+%
+%\node[state] (xt3) [left=2cm of xt4] {$X_{T3}$};
+%\node[state] (xt2) [left=2cm  of xt3] {$X_{T2}$};
+%\node[state] (xt1) [left=2cm of xt2] {$X_{T1}$};
+%
+%\node[state] (xf1) [right=2cm of xt4] {$X_{F1}$};
+%\node[state] (xf2) [right=2cm of xf1] {$X_{F2}$};
+%\node[state] (xf3) [right=2cm of xf2] {$X_{F3}$};
+%\node[state] (xf4) [right=2cm of xf3] {$X_{F4}$};
+%
+%
+%\node[state] (71) [below=of xt4] {$7_1$};
+%\node[state] (61) [left=2cm of 71] {$6_1$};
+%\node[state] (51) [left=2cm of 61] {$5_1$};
+%\node[state] (41) [left=2cm of 51] {$4_1$};
+%\node[state] (31) [left=2cm of 41] {$3_1$};
+%\node[state] (21) [left=2cm of 31] {$2_1$};
+%\node[state] (11) [left=2cm of 21] {$1_1$};
+%\node[state] (01) [left=2cm of 11] {$0_1$};
+%
+%\node[state] (02) [right=2cm of 71] {$0_2$};
+%\node[state] (12) [right=2cm of 02] {$1_2$};
+%\node[state] (22) [right=2cm of 12] {$2_2$};
+%\node[state] (32) [right=2cm of 22] {$3_2$};
+%\node[state] (42) [right=2cm of 32] {$4_2$};
+%\node[state] (52) [right=2cm of 42] {$5_2$};
+%\node[state] (62) [right=2cm of 52] {$6_2$};
+%\node[state] (72) [right=2cm of 62] {$7_2$};
+%
+%
+%\path[->]
+%   (start) edge[->]     node         {} (tr)
+%           edge[->]      node        {} (fl)
+%          
+%   
+%      (tr) edge[->]     node                      {} (xt1)
+%           edge[->]     node                      {} (xt2)
+%           edge[->]     node                      {} (xt3)
+%           edge[->]     node                      {} (xt4)
+%       (fl) edge[->]     node                      {} (xf1)
+%           edge[->]     node                      {} (xf2)
+%           edge[->]     node                      {} (xf3)
+%           edge[->]     node                      {} (xf4)
+%           
+%      (xt1) edge[->]     node                      {} (71) 
+%      edge[->]     node                      {} (32) 
+%      
+%      (xt2) edge[->]     node                      {} (31)  
+%            edge[->]     node                      {} (71)  
+%            
+%            
+%       (xt3) edge[->]     node          {} (31)  
+%            edge[->]     node            {} (71) 
+%            edge[->]     node            {} (32) 
+%           
+%        (xf4)  
+%              edge[->]     node          {} (31) 
+%              edge[->]     node          {} (32) 
+%   ;
+%\end{tikzpicture}
+%}
+%	\caption{Example graph $G_2$}
+%		\label{fig:g2}
+%\end{figure}
+% 
+% It is easy to verify that the above construction is in PTIME. We next verify that this is indeed a reduction from the 3SAT instance, i.e., there is an optimal merge solution when processing $G_1$ and $G_2$ if and only if the 3SAT instance $\phi$ is satisfiable.
+% 
+%  ``=>''  Assume that there is an optimal matching  $\lambda$ that we can apply to merge $G_1$ and $G_2$. We show that there is a truth assignment $\rho$ that makes $\phi$ true. The truth assignment $\rho$ is defined as follows. For each variable $x_i$ ($i \in [1,m]$), $\rho(xi) =$ true if $\lambda(X_i) = X_{Ti}$, and $\rho(x_i)$ = false if $\lambda(X_i) = X_{Fi}$. Note that node $X_i$ in $G_1$ cannot be mapped to both nodes $X_{Ti}$ and $X_{Fi}$ in $G_2$ since $\lambda$ is a function. 
+%  {\color{Fuchsia}Recall that also that the mapping $\lambda$ should not introduce cycles. Accordingly, it searches the best mapping of $C_j$ among descendants of nodes $X_{Ti}$ and $X_{Fi}$ in $G_2$.}
+%  For each node $Cj$ ($j \in [1, n]$), $\lambda(C_j)$ will return one node from ${0_j , . . . , 7_j}$ as  $sim_{reduction}(C_j,0_j)$ = 1, $\ldots$, $sim_{reduction}(C_j,7_j)$ = 1 for $j \in [1,n]$.
+%This guarantees that $\rho$ must make clause $C_j$ true, by the construction of graph $G_2$. Hence the truth assignment $\rho$ indeed makes $\phi$ true.
+% 
+% ``<=''   Conversely, if there is a truth assignment $\rho$ that makes $\phi$ true, we show that there is an optimal matching $\lambda$ between $G_1$ and $G_2$. This matching $\lambda$ is defined as follows: (1) $\lambda(R_1) = R_2$; (2) for each $i \in [1,m]$, $\lambda(X_i) = X_{Ti}$ if $\rho(x_i) = true$, and $\lambda(X_i) = X_{Fi}$ if $\rho(x_i) = false$; and (3) for each $j \in [1, n]$, $\lambda(C_j) = C_j(\rho)$ defined as above.  {\color{Fuchsia}It is easy to verify that $\lambda$ is indeed an optimal mapping as all nodes of $G_1$ are matched. Additionally, all matchings encompass high similarity values. Furthermore, it is also easy to verify that this mapping does not introduce cycles.}
+% 
+%\end{proof}
+
+
+
+%%SHORTER VERSION
+%\begin{proof} %[Proof NP-hard]
+%\label{proof:np-hard}
+%Our studied problem consists of searching the optimal matching $\matching$ between two evolution provenance graphs $G_1$ and $G_2$ that are DAGs.
+%
+%
+%To verify a given solution $G_{12}$ is a result of merging two evolution provenance graphs $G_1$ and $G_2$, we simply need to verify the similarity of merged nodes and to check whether there are no cycles in $G_{12}$ . This verification can be done in $O(n^2)$ time. {\color{Fuchsia} Furthermore, we can adopt a skyline computation approach to verify that $G_{12}$ maximizes matching benefit (high similarity values) as well as the number of matched pairs. This verification can be also done in $O(n^2)$ time. Hence, our studied problem is in the class NP.}
+%
+%
+%
+%We next show that this problem is NP-hard by reduction from the 3SAT problem, which is NP-complete~\cite{Garey:1990:CIG:574848}.
+%Given an instance of the 3SAT problem, we reduce to an instance of our evolution provenance graphs matching.  The reduction process is inspired mainly from the reduction described in~\cite{Fan:2010:GHR}.
+%
+%Let  $\phi$ be a 3SAT instance of the form $C_1 \wedge \ldots \wedge C_n$ where $C_j$ are clauses of  $\phi$ with $j \in [1,n]$.
+%These clauses are defined over the variables ${x_1,\ldots,x_m}$ such that each clause $C_j$ ($j \in [1,n]$) is of the form $y_{j_{1}} \vee y_{j_{2}}  \vee y_{j_{3}}$ and for $i \in [1,3]$, $y_{j_{i}}$ is either $x_{p_{ji}}$ or $\overline{x_{p_{ji}}}$ for $p_{ji} \in [1,m]$. 
+%
+%
+%Given $\phi$ the instance of the 3SAT problem, we construct two DAGs $G_1$, $G_2$ and a similarity function $sim_{reduction}()$ such that $G_{12}$ is the result of the optimal merge of $G_1$ and $G_2$ if and only if $\phi$ is satisfiable. \\
+%Intuitively, graph $G_1$ encodes the instance $\phi$ of 3SAT. Node $X_i$ ($i \in [1,m]$) denotes variable $x_i$, and node $C_j$ ($j \in [1,n]$) represents clause $C_j$. Node $R_1$ is the root of graph G1, which connects to all $X_i$ nodes ($i \in [1,m]$). An edge ($X_i,C_j$) in $E_1$ encodes that variable $x_i$ appears in clause $C_j$ , i.e., $x_i$ is one of the three variables $x_{p_{j1}},x_{p_{j2}}$ and $x_{p_{j3}}$.
+%
+%(2) The DAG $G_2$  encodes the truth assignments of the variables that satisfy the clauses in the instance $\phi$ of 3SAT. Node $X_{Ti}$ ($i \in [1,m]$, respectively $X_{Fi}$) means assigning variable $x_i$ a true (respectively false) value. Nodes ${0_j , \ldots , 7_j}$ represent $C_j(\rho)$, which are denoted as a three-bit constant w.r.t. the truth assignments of the three variables in clause $C_j$. Node $R_2$ is the root of graph $G_2$.  Nodes $T$ and $F$ are simply included for the ease of exposition.
+% Edges from $X_{Ti}$ or $X_{Fi}$ to nodes {$0_j,\ldots,7_j$} encode the relationships between the truth assignments of the variables ($x_{p_{j1}} , x_{p_{j2}} and x_{p_{j3}}$ ) and the corresponding $C_j(\rho)$.
+% 
+%  (3) The similarity function $sim_{reduction}$ is defined as follows:
+% \begin{itemize}
+% \item $sim_{reduction}(R_1,R_2)=1$
+% \item  $sim_{reduction}(X_i,X_{Ti})$ =1 and $sim_{reduction}(X_i,X_{Fi})$ = 1 for $i \in [1,m]$;
+% \item   $sim_{reduction}(C_j,0_j)$ = 1, $\ldots$, $sim_{reduction}(C_j,7_j)$ = 1 for $j \in [1,n]$;
+% \item  $sim_{reduction}(v,u)=0$ for any other nodes $v \in V_{1}$ and $u \in V_2$.
+% \end{itemize}
+% This function $sim_{reduction}()$ guarantees that: (i) the root $R_1$ of $G_1$ must be merged with the root $R_2$ of $G_2$, (ii) node $X_i$ ($i \in [1,m]$) in $G_1$ is merged with either node $X_{Ti}$ (true) or $X_{Fi}$ (false) of $G_2$ , and (iii) node $C_j$ in $G_1$ ($j \in [1,n]$) is merged with one of the nodes {$0j,...,7j$} of $G_2$.\\
+%
+%
+% 
+% It is easy to verify that the above construction is in PTIME. We next verify that this is indeed a reduction from the 3SAT instance, i.e., there is an optimal merge solution when processing $G_1$ and $G_2$ if and only if the 3SAT instance $\phi$ is satisfiable.
+% 
+%  ``=>''  Assume that there is an optimal 1:1 matching  $\lambda$ that we can apply to merge $G_1$ and $G_2$. We show that there is a truth assignment $\rho$ that makes $\phi$ true. The truth assignment $\rho$ is defined as follows. For each variable $x_i$ ($i \in [1,m]$), $\rho(xi) =$ true if $\lambda(X_i) = X_{Ti}$, and $\rho(x_i)$ = false if $\lambda(X_i) = X_{Fi}$. Note that node $X_i$ in $G_1$ can not be mapped to both nodes $X_{Ti}$ and $X_{Fi}$ in $G_2$ since $\lambda$ is a 1:1 matching function. 
+% Recall that the mapping $\lambda$ should not introduce cycles. Accordingly,  $\lambda$ should match $C_j$  residing in leaf nodes of $G_1$ to one of leaf nodes of $G_2$ to avoid the construction of cycles.
+%This leads to matching   $C_j$  to one of descendants of nodes $X_{Ti}$ and $X_{Fi}$ in $G_2$.
+% Thereby, for each node $Cj$ ($j \in [1, n]$), $\lambda(C_j)$ will return one node from ${0_j , . . . , 7_j}$ as  $sim_{reduction}(C_j,0_j)$ = 1, $\ldots$, $sim_{reduction}(C_j,7_j)$ = 1 for $j \in [1,n]$.
+%This guarantees that $\rho$ must make clause $C_j$ true, by the construction of graph $G_2$. Hence the truth assignment $\rho$ indeed makes $\phi$ true.
+% 
+% ``<=''   Conversely, if there is a truth assignment $\rho$ that makes $\phi$ true, we show that there is an optimal 1:1 matching $\lambda$ between $G_1$ and $G_2$. This matching $\lambda$ is defined as follows: (1) $\lambda(R_1) = R_2$; (2) for each $i \in [1,m]$, $\lambda(X_i) = X_{Ti}$ if $\rho(x_i) = true$, and $\lambda(X_i) = X_{Fi}$ if $\rho(x_i) = false$; and (3) for each $j \in [1, n]$, $\lambda(C_j) = C_j(\rho)$ defined as above.  It is easy to verify that $\lambda$ is indeed an optimal mapping as all nodes of $G_1$ are matched. Additionally, all matchings encompass high similarity values. Furthermore, it is also easy to verify that this mapping does not introduce cycles.
+% 
+%\end{proof}
+
+
+
+
+%Given the NP-hardness of our studied problem, 
+Accordingly, we propose in what follows two approximate merge solutions. 
+The two proposed strategies prune the matching space (where we compute candidate matches to begin with) such that we can guarantee that the merged graph remains a DAG. Depending on how constraining the pruning strategy is, the matching quality may vary, as experiments validate.   
+
+
+\subsubsection{The \rlmLong{} algorithm}
+The first algorithm is inspired by a match-merging algorithm that summarizes (through the merging of nodes) unordered trees~\cite{schulz:vissoft18}. The problem is transformed into a variant of the stable marriage problem~\cite{StableM} where sub-trees are compared and merged recursively. The match-merging strategy relies on the hierarchy of trees to identify sub-trees prone to merge, recursively descending through the tree. Given that exploration session graphs are DAGs, we can transform them into layered graphs~\cite{healy:gd02}, as illustrated in Figure~\ref{fig:graphs2}. 
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.75]{figures/ADBIS/levelsGraph.pdf}
+	\caption{Two exploration session graphs~\cite{Houssem:19:adbis}}
+		\label{fig:graphs2}
+\end{figure}
+
+ \begin{algorithm}[t]
+	\caption{\rlm($\sessionGraph$,$\usersGraph$, $\thetaFuse$)}
+	 \label{algo:rlm_main}
+	 \KwIn{$\sessionGraph(N,E)$: a user graph,  $\thetaFuse:$ a similarity threshold, \\
+		\hspace{3.5em}$\usersGraph(N_{MU},E_{MU})$: the multi-user graph
+	}
+	 \KwOut{$\usersGraph'(N',E')$: merged multi-user graph
+	 }
+	$R_l= $ set of candidate nodes in $\sessionV$ at layer $l$ \; \tcc{initially filled with all root nodes at level 0}  \label{rlm:line1}
+	$R_{MU,l} = $ set of candidate nodes in $\usersV$ at layer $l$ \; \tcc{initially filled with all root nodes at level 0}   \label{rlm:line2}
+	 $N' = \sessionV \cup \usersV$ \;   \label{rlm:line3}
+	 $E' = \emptyset$\;  \label{rlm:line4}
+	$layerMatchMerge(R_l, R_{MU,l}, \usersGraph'(N',E'), \thetaFuse)$\;
+	       % \vspace{-1em}
+        \Return{$\usersGraph' $}\;
+  \end{algorithm}
+  
+Similarly to~\cite{schulz:vissoft18}, we only match and merge nodes at layer $i$  in $\sessionV$ with nodes at layer $i$ in $\usersV$.\\
+The details of the main processing of our first algorithm, which we call \emph{\rlmLong{} (\rlm)}, are provided in Algorithm~\ref{algo:rlm_main}. Given an exploration session graph, a multi-user graph, and a similarity threshold, it first determines all nodes of layer 0 (root nodes) to be matched between the two graphs (lines~\ref{rlm:line1}--~\ref{rlm:line2}). It further initializes the set of nodes $N'$  and the set of edges $E'$ of the merged graph result $\usersGraph'$ (lines~\ref{rlm:line3} and~\ref{rlm:line4} ). It then calls $layerMatchMerge$ that recursively matches nodes and updates $G'$ to merge matching nodes. Once $layerMatchMerge$ returns, the merged graph is returned. 
+
+
+
+     \begin{algorithm}[t]
+	\caption{layerMatchMerge($\sessionV$,$\usersV$,$G'(N',E')$, $\theta$)}
+	 \label{algo:rlm_match}
+	 \KwIn{$\sessionV$: nodes of the exploration session graph, \\
+	 	\hspace{2.5em}\quad $\usersV$: nodes of the multi-user graph,\\
+	 	\hspace{2.5em} $\theta$: a similarity threshold,\\
+		\hspace{2.5em} $G'(N',E')$: the merged graph, initially empty\\}
+    
+		$candidateMatches = computeSimilarPairs(\sessionV, \usersV, \theta)$\;  \label{lmm:line1}
+	$\matching = stableMatching(candidateMatches)$\;\label{lmm:line2}
+
+	\ForEach{$m = (n, n_{MU}) \in \matching$}{	\label{lmm:line3}
+			$N_{merged} = merge(m)$\;  \label{lmm:line4}
+			$N' = \left( N' \setminus \{n, n_{MU}\} \right) \cup N_{merged}$\tcc*{replace individual nodes by merged one}	
+			\ForEach{$(p, n, l) \in E'$ and $(p, n_{MU}, l) \in E'$}{
+				$E' = \left(E' \setminus \{(p, n, l)\} \right) \cup \{ (p, N_{merged}, updateLabel()) \} $\tcc*{update edges pointing to $n$ and $n_{MU}$ } 
+			}
+			%\tcc{ add edges to children both $n$ and $n_{MU}$ to $E'$}
+			\ForEach{ $(n, c, l) \in \sessionE$ and $(n_{MU}, c, l) \in \usersE$ }{
+				$E' = E' \cup \{ (n, c, l)\}$\tcc*{ add edges to children both $n$ and $n_{MU}$ to $E'$}	 \label{lmm:line9}		}
+		}  
+		\tcc{Recursive matching of children}
+		\If{$children(n_i) \neq \emptyset \wedge children(n_j) \neq \emptyset$}{ \label{lmm:line10}
+					$layerMatchMerge(children(n_i), children(n_j), \usersGraph'(N',E'), \theta))$\; \label{lmm:line11}
+		}
+    \end{algorithm}
+
+
+
+    As shown in Algorithm~\ref{algo:rlm_match}, $layerMatchMerge$ takes two sets of vertices $\sessionV$ and $\usersV$ as input. These are subsets of the matched exploration session graph and multi-user graph, selected to (i) be at the same layer and (ii) have matching ancestors in the merged graph $G'(N',E')$. The final input parameter is the similarity threshold to be used to determine candidate matches, which is done in line~\ref{lmm:line1}. 
+Using stable matchings existing solutions, e.g., Gale Shapley algorithm~\cite{StableM},  we determine a stable matching $\matching$ in line~\ref{lmm:line2}. In lines~\ref{lmm:line3} --~\ref{lmm:line9}, each match is  processed as follows: First, the individual matching nodes are replaced in line~\ref{lmm:line4} by a merged node in the node set of the merged graph, i.e., $N'$. This entails an update of edges pointing to replaced nodes, which are ``rerouted'' to point at the merged node. Since no merge has yet occurred at lower layers, we simply connect children of the matching nodes to the merged nodes by adding the corresponding edges to $E'$. Finally, we recursively proceed in lines~\ref{lmm:line10}--~\ref{lmm:line11} with matching and merging children of merged nodes.
+    
+    
+   Overall, the complexity of Algorithm~\ref{algo:rlm_match} is in O($|N_{layers}| \times width_{layer}^{2}$)  with $|N_{layers}| =\max( |G1.layers| ,|G2.layers|)$ is the maximum number of layers of processed graphs and $width_{layer}=\max_{i=1}^{|G1.layers \cup G2.layers|} |$width--layer$(i)|$ is the layer of processed graph having the maximum number of nodes.
+We postpone the evaluation of the performance of Algorithm~\ref{algo:rlm_match} to Section~\ref{eva:merge}.
+
+It is worth stressing also that our Algorithm~\ref{algo:rlm_match} does not introduce cycles and preserves the DAG property. 
+%This is proved in Proof~\ref{pr:DAG}.
+We prove this in what follows by contradiction:
+\begin{proof}
+\label{pr:DAG}
+\textbf{Assumption}: 
+%\rlm{} algorithm produces a merged graph $GM$ with a cycle $c$ when merging two DAG graphs $G_1$ and $G_2$.\\
+The application of \rlm{} on two DAG graphs $G_1$ and $G_2$ leads to the generation of matching set $\matching$.
+Accordingly, we use $\matching$ to merge $G_1$ and $G_2$. This results in a merged graph $GM$ with a cycle $c$.\\
+$\Longrightarrow $ there exists an edge $e$ from node $y$ to $x$ in $GM$ such that $e$ is not in $G_1$ and $x \in G_1$ and $y \in G_1$ and $layer(x)<layer(y)$ with $layer(n)$ is a function that returns the layer number associated to an input node $n$.
+
+$\Longrightarrow $ there exists an edge $e'$ from node $B$ to $A$ in $G_2$ with $B \in G_2$ and $A \in G_2$ such that $\matching(x)=A$ and $\matching(y)=B$. % with $M$ are the matched pairs done by \rlm{}. 
+In this case,  we have  $layer(B)<layer(A)$.
+
+$\Longrightarrow $ we have matching $M(x)=A$ and $M(y)=B$. Following our algorithm \rlm{}, this means that $layer(B)=layer(y)$ and $layer(A)=layer(x)$.
+Recall that $layer(x)<layer(y)$ this means that $layer(A)<layer(B)$. This is in contradiction with the conclusion made in the previous line.
+\end{proof}
+
+    
+\begin{figure}[t]
+\centering
+       %  \includegraphics[scale=0.5]{figures/ADBIS/RLM_result.pdf}
+       \resizebox {0.75\textwidth} {!} 
+	{
+            \begin{tikzpicture}[-latex, auto, node distance = 4 cm and 5cm, on grid, semithick, state/.style ={circle, top color = white, bottom color = processblue!20, draw, processblue, text = blue, minimum width = 0.7 cm}, fused_state/.style = {circle, top color = white, bottom color = antiquebrass!40, draw, antiquebrass, text = black, minimum width = 0.7 cm}, edge_style/.style = {draw = processblue!60, dashed}, alt_state/.style = {circle,  top color = white, bottom color = Emerald!60, draw, Emerald, text = black, minimum width = 0.7 cm}]
+						\node[alt_state] (A) at (-1, 9.2) {$X_{f0}$};
+						\node[alt_state] (B) at (-1, 4.5) {$X_{f1}$};
+						\node[state] (B2) at (3.5, 9.2) {$X_2$};
+						\node[state] (C2) at (8.5, 9) {$X_{21}$};
+						\node[state] (C3) at (3.5, 8) {$X_{11}$};
+						\node[fused_state] (D2) at (4, 6.2) {$X^{'}_{12}$};
+						\node[fused_state] (D3) at (4, 4.5) {$X^{'}_{11}$};
+						\node[fused_state] (E2) at (8.5, 6.7) {$X^{'}_{111}$};
+						\node[fused_state] (E3) at (8.5, 4.5) {$X^{'}_{112}$};
+						
+						\node[alt_state] (a) at (10, 6)  {$$};
+						\node[state] (a) at (10, 7)  {$$};
+						\node[fused_state] (a) at (10, 8)  {$$};
+						\node[text width=2.5cm] at (12, 6) {  merged nodes };
+						\node[text width=2.5cm ] at (12, 7) {  nodes from $G_1$};
+						\node[text width=2.5cm] at (12, 8) {  nodes from $G_2$};
+						
+						
+						\path [every node/.style={sloped,anchor=south,auto=false}] (A) edge node[above,sloped] {$<ZoomIn, a_n>, 8$} (B);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (A) edge node[above,sloped] {$<Extension, a_n>, 2$} (B2);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (B2) edge node[above,sloped] {$<Extension/Slice, a_n>, 1$} (C2);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (B) edge node[above,sloped] {$<ZoomIn, a_i>, 1$} (C3);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (B) edge node[above,sloped] {$<Drill, a_2>, 2$} (D2);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (B) edge node[above,sloped] {$<Extension, a_2>, 3$} (D3);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (D2) edge node[above,sloped] {$<Drill/Slice, a_h>, 1$} (E2);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (D3) edge node[above,sloped] {$<Drill, a_i>, 1$} (E2);
+						\path [every node/.style={sloped,anchor=south,auto=false}] (D3) edge node[above,sloped] {$<Drill, a_t>, 1$} (E3);
+					\end{tikzpicture}}
+
+			
+		%\caption{Fused mutli-users exploration graph~\cite{Houssem:19:adbis} (with nodes in blue belong to graph $G_1$ depicted in Figure~\ref{fig:graphs2}, nodes in red color belong to graph $G_2$ depicted in Figure~\ref{fig:graphs2}, and nodes in green color are result of the merge process)}
+				\caption{Fused mutli-user exploration graph~\cite{Houssem:19:adbis}}
+			\label{fig:fuse3}
+\end{figure}
+    
+
+ Figure~\ref{fig:fuse3} depicts the merged multi-user graph resulting from the application of Algorithm~\ref{algo:rlm_main} on two layered exploration graphs shown in Figure~\ref{fig:graphs2}.
+Using this algorithm, assume that both root nodes are matched. This entails a merge of both nodes into the node $X_{f0}$ (as depicted in Figure~\ref{fig:fuse3}). Then, the algorithm proceeds to layer 1, where the exploration steps $X_1$ and $X'_1$ having consecutively queries $Q_1$ and $Q'_{1}$ are matched. This entails a merge of both these nodes at layer 1. As a consequence, at layer 2, further possible matches among pairs in $\{X_{11}\} \times \{X'_{11}, X'_{12}\} $ are searched. Assuming no further matches are found, the algorithm stops at this layer, resulting in the merged multi-user graph depicted in Figure~\ref{fig:fuse3}.   
+
+
+
+     
+
+\subsubsection{The \mlmLong{} algorithm}
+While we have shown in the previous section that the \rlm{} algorithm does not introduce cycles in the merged graph, it is quite restrictive in terms of possible matches as it assumes that all exploration sessions begin with a similar query at layer~0 and once matching paths diverge, they cannot converge at later layers. This assumption does not necessarily mimic reality where exploration sessions can start with completely different tasks and overlap later. 
+Accordingly, this assumption prevents us from finding a solution that generates a compact merged graph which is one of the main goals of our studied problem. %The reduction of redundancy is important to avoid recommending similar explorations while the compactness of the merged graph is important to ensure a fast traversal of the graph when computing collaborative-filtering recommendations.
+Thus, we propose the~\emph{\mlmLong (\mlm)} algorithm, shown in Algorithm~\ref{algo:mlm}, which is a meet-in-the-middle approach between a full stable marriage approach (that introduces cycles) and the layered variant (that produces few matches).
+
+
+ \begin{algorithm}[t]
+	\caption{\mlm($\sessionGraph$,$\usersGraph$, $\thetaFuse$)}
+	 \label{algo:mlm}
+	 \KwIn{$\sessionGraph$: the user exploration session graph, \\
+	 	\hspace{2.5em}\quad $\usersGraph$: the multi-user graph,
+	 	\quad $\thetaFuse$: a threshold }
+	 \KwOut{$mergeCand$: pairs of nodes (and their similarities) to be fused
+	 }
+	 $n = \sessionGraph.nextNode()$\; \label{mlm:line1}
+	 Mark node $n$ as visited\; \label{mlm:line2}
+	$\usersV{}_{,candidates}  = getCandidateNodes(\usersGraph{})$\;  \label{mlm:line3}
+	$mergeCand = $ set of  $(n_i, n_j, s)$ triples of matching node pairs with similarity $s$, initially empty\;
+	$ candidateMatches = computeSimilarPairs(\{n\}, \usersV{}_{,candidates}, \thetaFuse)$\;
+	\If{ $candidateMatches \neq \emptyset$}{
+		$bestMatch = $ match in $candidateMatches$ with the highest similarity score \;  \label{mlm:line7}
+		\tcc{unify checks if 1:1 matching is violated among all merge candidates}
+		$mergeCand = mergeCand.unify(bestMatch, \sessionGraph)$\;  \label{mlm:line8}
+		\If{$bestMatch \neq NULL$}	{   \label{mlm:line9}
+			$mergeCand = mergeCand \cup bestMatch$\;
+			Mark all nodes in $\sessionGraph{}_{m}$ and $\usersGraph{}_{m}$ as visited and matched\; \label{mlm:line11}
+			
+		}
+	}
+	\If{$\sessionGraph.hasNext()$}{
+		$mergeCand = mergeCand \cup \mlm(\sessionGraph,\usersGraph, \thetaFuse)$\;
+	}
+ \ForEach{ $merge \in mergeCand $}{
+		  $layerMatchMerge(children(merge.m1), children(merge.m2),\usersGraph, \thetaFuse)$;  \label{mlm:line15}
+		}
+    \end{algorithm}
+
+
+
+
+The \mlm{} algorithm takes the same input as the \rlm{} algorithm, however, it relies on an iterator $nextNode()$ that traverses a graph in breadth-first-order of nodes that have not been marked as visited (which happens in lines~\ref{mlm:line2} and~\ref{mlm:line11} of Algorithm~\ref{algo:mlm}). 
+While we get in line~\ref{mlm:line1} the next node $n$ of the exploration session graph, line~\ref{mlm:line3} retrieves in the multi-user graph, the candidates of merge with node $n$, using the $getCandidateNodes$ method.
+The set $mergeCand$ includes triples $(n_i, n_j, s)$ where $n_i \in \sessionGraph$, $n_j \in \usersGraph$, and $s = sim(n_i, n_j)$. At every stage of processing, it includes a valid 1:1 association of nodes to be merged among the two graphs. In line~\ref{mlm:line7} , we identify candidate matches between node $n$ and the selected subset of nodes in $\usersGraph$. The best match, if it exists, is unified in line~\ref{mlm:line8}  with the existing matching $mergeCand$. The unification checks if  $mergeCand \cup \{bestMatch\}$ is still a 1:1 matching. If it is not, it resolves the issue. We will discuss two variants of this method later. 
+Given a non-NULL (valid) $bestMatch = (n, n_j, s)$, we mark in line~\ref{mlm:line11}  all nodes in the subgraphs of $\sessionGraph$ and $\usersGraph$ starting at $n$ and $n_j$ respectively as matched (and obviously as visited) nodes. 
+This prevents them from being selected as next node. 
+Assuming no further non-matched or non-visited nodes exist in $\sessionGraph$, \mlm{} returns $mergeCand$ that corresponds to $\matching$.
+Thereafter, we call in line~\ref{mlm:line15}  Algorithm~\ref{algo:rlm_match} to possibly find more matches in sub-graphs starting at each pair present in $\matching$.
+
+
+
+Overall, the complexity of our \mlm{} algorithm is in O($|G_1| \times |G_2|$)  with 
+ $|G_1|$ and $|G_2|$ are the size of the two merged graphs $G_1$ and $G_2$.
+ The number of recursive calls to \rlm{} algorithm is in O($\Im$) with $\Im$ is the depth of the smallest graph between $G_1$ or $G_2$. In other words, $\Im$ is the number of layers in the smallest graph under merge.
+We postpone the evaluation of the performance  of \mlm{} algorithm to Section~\ref{eva:merge}.
+
+
+
+
+Figure~\ref{fig:dynamicity} depicts the multi-user graph obtained when applying Algorithm~\ref{algo:mlm} on the two exploration graphs shown in Figure~\ref{fig:graphs2}.
+Indeed, Algorithm~\ref{algo:mlm} discovers initially the best matching candidate that is $(X_0, X'_1, s)$. Accordingly, it merges nodes present in best matching $(X_0, X'_1, s)$ and calls \rlm{} algorithm to go over their sub-graphs. This leads to two subsequent merges as depicted in Figure~\ref{fig:dynamicity}. Overall, Algorithm~\ref{algo:mlm} generates a more compact fused-exploration graph whose size is less than the fused graph obtained in Figure~\ref{fig:fuse3}.
+
+ \begin{figure}[t]
+\centering
+  %\includegraphics[width=0.6\linewidth]{figures/ADBIS/mlm-graph-example.pdf}
+	\resizebox {0.75\textwidth} {!} {
+				\begin{tikzpicture}[-latex, auto, node distance = 4 cm and 5cm, on grid, semithick, state/.style ={circle, top color = white, bottom color = processblue!20, draw, processblue, text = blue, minimum width = 0.7 cm}, fused_state/.style = {circle, top color = white, bottom color = antiquebrass!40, draw, antiquebrass, text = black, minimum width = 0.7 cm}, edge_style/.style = {draw = processblue!60, dashed}, alt_state/.style = {circle,  top color = white, bottom color = Emerald!60, draw, Emerald, text = black, minimum width = 0.7 cm}]
+					\node[alt_state] (A1) at (-1, 0) {$X_{f1}$};
+					\node[fused_state] (A2) at (-1, 4) {$X'_0$ };
+					\node[alt_state] (B) at (3.5, 2) {$X_{f2}$};
+					\node[state] (B2) at (3, 4) {$X_2$};
+					\node[fused_state] (C2) at (3, 0) {$X'_{11}$};
+					\node[state] (D2) at (8, 4) {$X_{21}$};
+					\node[alt_state] (F) at (8, 2) {$X_{f3}$};
+					\node[fused_state] (G) at (8, 0) {$X'_{112}$};
+					
+					\node[alt_state] (a) at (10, 1)  {$$};
+						\node[state] (a) at (10, 2)  {$$};
+						\node[fused_state] (a) at (10, 3)  {$$};
+						\node[text width=2.5cm] at (12, 1) {  merged nodes };
+						\node[text width=2.5cm ] at (12, 2) {  nodes from $G_1$};
+						\node[text width=2.5cm] at (12, 3) {  nodes from $G_2$};
+					
+					\path [every node/.style={sloped,anchor=south,auto=false}] (A1) edge node {$<ZoomIn, a_k>, 2$} (B2);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (A1) edge node {$<Drill, a_2>, 3$} (B);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (A1) edge node {$<Extension, a_2>, 4$} (C2);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (A2) edge node {$<ZoomIn, a_n>, 10$} (A1);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (B2) edge node {$<Extension/Slice, a_n>, 1$} (D2);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (B) edge node {$<Drill/Slice, a_h>, 2$} (F);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (C2) edge node {$<Drill, a_i>, 2$} (F);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (C2) edge node {$<Drill, a_t>, 1$} (G);
+				\end{tikzpicture}
+			}
+
+	%\caption{Fused mutli-user graph using \mlm{}~\cite{Houssem:19:IS} (with nodes in blue belong to graph $G_1$ depicted in Figure~\ref{fig:graphs2}, nodes in red color belong to graph $G_2$ depicted in Figure~\ref{fig:graphs2}, and nodes in green color are result of the merge process)}
+	\caption{Fused mutli-user graph using \mlm{}~\cite{Houssem:19:IS}}
+
+	\label{fig:dynamicity}
+	
+\end{figure}
+    
+    
+ As mentioned previously, we consider different variants of $unify$ (line~\ref{mlm:line8}). 
+ %These actually go hand in hand and deal with ensuring the 1:1 matching property of the intended matching is violated.
+These actually go hand in hand and deal with intended matching that may violate the 1:1 matching property.
+  This property may be violated when a best match $m = (n, n_j, s)$ (obtained in line~\ref{mlm:line7}) includes a node $n_j \in \usersGraph$ that is already part of the matching, i.e., $\exists (n_i, n_j, s') \in mergeCand$. We say that such a match $m' = (n_i, n_j, s')$ is conflicting with $m$. To ensure a  final 1:1 matching $\matching$, we consider two strategies to incrementally build the matching. 
+ 
+ The first one avoids the appearance of conflicting matches, while the second strategy resolves these.  
+ The conflict avoiding strategy \ca{} simply retains the first matching found to a node $n_j$ of the multi-user-graph, i.e., it will always retain $m'$ and reject $m$. This can be implemented efficiently by ensuring that any previously matched node is no longer a candidate to which matches are searched for. That is $getCandidateNodes$ always returns all nodes of $\usersGraph$ that have not been marked as matched. As a consequence, $unify$ can simply perform the union $mergeCand \cup \{bestMatch\}$, because $bestMatch$ is guaranteed to match a non-matched node of $\sessionGraph$ with a non-matched node of $\usersGraph{}$.
+ 
+ The second strategy, denoted as \cres{}, allows conflicts to arise by always returning all nodes of $\sessionGraph$ when calling $getCandidateNodes$. Then, two cases are possible. In the first case, the similarity of the more recent match $m$ is lower than the score of $m'$, i.e., $s \leq s'$. In this case, $m$ is ignored, which updates $bestMatch$ to $NULL$. Otherwise, $m'$ is revoked, and $bestMatch$ remains $m$. To revoke $m'$, we remove both $m'$ and all matches to its descendant nodes from $mergeCand$. The nodes involved in the removed matches are unmarked, i.e., switch back from matched to unmatched nodes. 
+ 
+%Later, we study extensively in Chapter~\ref{chap:eval} the two strategies. 
+We evaluate  the two strategies in Chapter~\ref{chap:eval}.
+Overall, evaluation results show that the second strategy \cres{} is the best suited when merging evolution provenance graphs.
+ 
+ 
+%\subsection{Related work}
+%In the following, we review most relevant research area related to our contributions discussed in this section.  
+%
+%
+%\noindent \textbf{Graph merging.}  Our merge approach fits in the scope of inexact matching where there are structural differences between processed graphs.
+%Traditionally, inexact matching is presented as an assignment problem where a cost function is introduced to compute the optimal assignment.
+% In this case, the problem consists of finding an assignment that minimizes such cost. 
+%This leads to two formulations of the graph matching problem. 
+%The first formulation called Linear Sum Assignment Problem, considers only information about the vertices. Several Hungarian-type algorithms~\cite{Kuhn55thehungarian,JonkerV87} exist to solve these kind of problems. 
+% However, applying these solutions to our directed exploration session graphs may lead to cycles as shown in Section~\ref{sec:fuse-cycles}.
+% 
+%The second formulation, called quadratic assignment problem (QAP)~\cite{RePEc:cwl} leverages vertices and edges information.
+%Indeed, it aims at minimizing the number of adjacency disagreements between the two matched graphs. 
+%Yet, it was proven in~\cite{rainier:09} that QAP is NP-Hard. Accordingly, several relaxation algorithms, e.g.,~\cite{Leordeanu:2009:IPF,Liu:2014:GNC} have been proposed to find an approximate solution.
+%Essentially,  these approximate solutions e.g.,~\cite{Leordeanu:2009:IPF,Liu:2014:GNC} 
+%transform the graph matching problem into a sequence of convex problems, such that a given initial solution is improved iteratively by decreasing the cost function up to a fixed point.
+%In our work, we adopt a similar approach where find initially most interesting matchings to perform. Those seed matchings are performed and used to trigger the discovery of further matchings to perform.
+%Nonetheless, our work differs from existing approximate solutions such as~\cite{Leordeanu:2009:IPF,Liu:2014:GNC} in the initialization of the seed matching solution that will be subsequently improved.
+%Indeed, our work is more oriented to graphs integration rather than matching. 
+%Thus, we aim at maximizing the integration of a small graph representative of a user exploration on a bigger graph corresponding to the multi-users graph.
+%This ``one-way matching'' relieves the complexity of the problem of finding a seed matching solution to expand later.
+%Hence, we match initially the user's exploration graph nodes to the global graph in order to identify seed pair vertices whose children are later matched recursively.
+% 
+%~~\\
+%\noindent \textbf{Graphs Summary.}  
+%Our merge approach that maintains periodically the multi-user graph also relates to tgraph summarization.
+% The main goal of graph summarization is to generate a concise graph summary beneficial for several purposes, e.g., efficient storage and query processing. 
+%In this context, we mention~\cite{Liu:2018:GSM} as a recent survey on the topic of graph summary. This survey 
+%categorizes state-of-the-art graph summary approaches by the type of graphs taken as input as well as by the core methodology employed.
+%
+% While these work focus mainly on compressing  all similar nodes inside the same graph or between homogeneous graphs, we focus on performing a 1:1 merge of two similar nodes belonging to different graphs. 
+%Indeed, our goal is to increase the compactness of the multi-user graph while preserving the DAG aspect of the merged graph rather than compressing aggressively the multi-user graph.  
+% Yet, graph summary techniques could be an interesting research avenue to further minimize our multi-user graph.
+

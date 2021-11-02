@@ -1,0 +1,62 @@
+
+
+
+%\begin{algorithm}
+%    \caption{Data recommendation algorithm}
+%    \label{fig:alg}
+%    \begin{algorithmic}[1] % The number tells where the line numbering should start
+%        \Procedure{DataRecommender}{$Q, D, Lin(r), \theta_L, \theta_{supp}$} 
+%           % \State $Lineage(r) \gets \text{get data provenance of } r \text{ wrt } D$
+%         \ForAll{$a \in schema(Lin(r))$ }
+%         	 \ForAll{$v \in adom(a)$ } \Comment{$adom(a)$ is  the active domaine of $a$}
+%	 	 \State $f_{Lin} \gets \text{compute } f_{a,v}(Lin(r)) \text{ using Equation~\ref{eq:f-lin} }$
+%                			\If{ $f_{Lin} \geq \theta_L$ }
+%					
+%					
+%					 \State $f_D \gets \text{compute } f_{a,v}(D) \text{ using Equation~\ref{eq:f-lin} }$
+%					  \State $support \gets supp_{a,v}(r) \text{ as defined by Equation~\ref{eq:support}}$
+%						\If{ $support \geq \theta_{supp}$ } 
+%							  \State $RMap  \gets mapInsert(RMap, (a,v))$
+%							\EndIf
+%				\EndIf
+%                \EndFor
+%        \EndFor
+%        
+%        \ForAll{ $a_i, a_j  \in keys(RMap) \times keys(RMap), i \neq j$}
+% 	\If{Functional dependency $a_i \rightarrow a_j$ holds}
+%		  \State $mapRemove(RMap, a_j)$
+%            \EndIf
+% \EndFor
+%        
+%            \State \textbf{return} $RMap$
+%        \EndProcedure
+%    \end{algorithmic}
+%\end{algorithm}
+
+
+  \begin{algorithm}[t]
+ % \scriptsize
+   \caption{Data recommendation algorithm}
+    \label{fig:alg}
+  \KwIn{$Q$, $D$, $Lin(r)$, $\theta_L$, $\theta_{supp}$} 
+  \KwOut{$RMap$: data recommendations in form of a mapping associating attribute $a$ to value lists $L_V$}  
+% $Lin(R) \leftarrow$ get data provenance of $r$ wrt $D$ \;
+ \ForEach{$a \in schema(Lin(r))$}{        \label{dra:lineSchemaLoop}
+ 	\ForEach{ $v \in adom(a)$ }{
+		$f_{Lin} \leftarrow$ compute $f_{a,v}(Lin(r))$ using Equation~\ref{eq:f-lin}\;
+		\If{ $f_{Lin} \geq \theta_L$ }{   \label{dra:linefLIN}
+			$f_D  \leftarrow $ compute $f_{a,v}(D)$ using Equation~\ref{eq:f-lin}\;    \label{dra:compute}
+			$support \leftarrow supp_{a,v}(r)$ as defined by Equation~\ref{eq:support} \;
+			\If{ $support \geq \theta_{supp}$ } {   \label{dra:support}
+				$RMap \leftarrow mapInsert(RMap, (a,v))$ \;    \label{dra:lineRMap} \label{dra:insertMap} \label{dra:insert}
+			}
+		} 
+	}
+ }
+ \ForAll{ $a_i, a_j  \in keys(RMap) \times keys(RMap), i \neq j$}{
+ 	\If{Functional dependency $a_i \rightarrow a_j$ holds}{
+		$mapRemove(RMap, a_j)$\;
+	}
+ }
+ \textbf{Return} $RMap$\;
+    \end{algorithm}

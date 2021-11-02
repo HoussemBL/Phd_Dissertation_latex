@@ -1,0 +1,244 @@
+\label{eval-sec:content}
+%\mel{Steps should be in the order they have been discussed in Section 5. Also, the experiments should follow this order. }
+
+As described in Section~\ref{sec:content-query-rec}, our content-based recommendation approach comprises three steps that are: provenance computation, data recommendation, and query reformulation.
+In what follows, we conduct a series of experiments to evaluate the three steps in terms of parameter sensitivity, accuracy, and performance. %invoked in the course of the content-based recommendation computation.
+
+
+
+To do that, we defined nine exploration queries that conform to Definition~\ref{def:exp-query}.
+The proposed queries vary in the underlying data warehouse, the used aggregation functions, the complexity of conditions, and the join combinations.
+We summarize the used queries in Table~\ref{tab:queries1}. 
+
+
+
+   \begin{table}[t]
+ \centering \scriptsize
+\resizebox{1\linewidth}{!}{ 
+\begin{tabular}{|p{1.5cm}|p{0.5cm}|p{8cm}|} \hline
+\textbf{Data \newline warehouse} &\textbf{Query} & \textbf{Definition} \\ \hline
+
+Flights&Q1 &\texttt{SELECT }count(*),C.code\texttt{ FROM }Carriers\texttt{ AS }C,Tail\texttt{ AS }T,Flights\texttt{ AS }F\texttt{ WHERE }F.uniquecarrier=C.code\texttt{ AND }F.tailnum=T.tailnum\texttt{ AND } T.manufacturer='BOEING'\texttt{ AND }$distance \geq 1500$\texttt{ GROUP BY }C.code\\ \hline
+Flights&Q2 &\texttt{SELECT }sum(carrierdelay),code\texttt{ FROM }Carriers\texttt{ AS }C, Flights\texttt{ AS }F, Airports\texttt{ AS }A\texttt{ WHERE }A.iata=F.origin\texttt{ AND }F.uniquecarrier=C.code\texttt{ AND }A.state='CA' \texttt{ GROUP BY }code \\ \hline
+Flights&Q3 &\texttt{SELECT }avg(distance), A.state\texttt{ FROM }Airports\texttt{ AS }A, Flights\texttt{ AS }F\texttt{ WHERE }A.iata=F.origin\texttt{ AND }deptime\texttt{ BETWEEN }2000\texttt{ AND }2200 \texttt{ GROUP BY }A.state
+  \\ \hline
+Formula 1&Q4 &\texttt{SELECT }count(*),C.constructor\_nationality\texttt{ FROM }result\texttt{ AS }R,constructor\texttt{ AS }C\texttt{ WHERE }C.constructor\_id=R.constructorfk\_id \texttt{ GROUP BY }C.constructor\_nationality\\ \hline
+  
+Formula 1&Q5 & \texttt{SELECT }count(*),R1.race\_name\texttt{ FROM }result\texttt{ AS }R, race\texttt{ AS }R1\texttt{ WHERE }R1.race\_id=R.racefk\_id \texttt{ GROUP BY }R1.race\_name  \\ \hline
+  
+Formula 1&Q6 &\texttt{SELECT }sum(R.points),D.driver\_nationality\texttt{ FROM }result\texttt{ AS }R, driver\texttt{ AS }D\texttt{ WHERE }D.driver\_id=R.driverfk\_id\texttt{ AND }$rank>0$ \texttt{ GROUP BY }D.driver\_nationality  \\ \hline
+  
+Soccer&Q7 &\texttt{SELECT }avg(goal),L.league\_name\texttt{ FROM }match\texttt{ AS }M, league\texttt{ AS }L\texttt{ WHERE } M.league\_id=L.league\_id \texttt{ GROUP BY }L.league\_name \\ \hline
+  
+%Soccer&Q8 &\texttt{SELECT }count(*),goal\texttt{ FROM }match \texttt{ GROUP BY }goal   \\ \hline
+%Soccer&Q9 &\texttt{SELECT }count(*),result\texttt{ FROM }match \texttt{ GROUP BY }result  \\ \hline
+
+Soccer&Q8 &\texttt{SELECT }count(*),country\_id\texttt{ FROM }match\texttt{ WHERE }result='home\_win'\texttt{ GROUP BY }country\_id\\ \hline
+Soccer&Q9 &\texttt{SELECT }count(*),country\_id\texttt{ FROM }match\texttt{ WHERE }result='away\_win'\texttt{ GROUP BY }country\_id\\ \hline
+  
+\end{tabular}
+}
+ \caption{Set of exploration queries used in the evaluation}
+ \label{tab:queries1}
+ \end{table}
+ 
+
+
+
+ \paragraph*{\textbf{Thresholds settings.}}
+
+Our first experiment focuses on a particular step of  the content-based query recommendation process that is the \emph{data recommendation} step. 
+This particular step is invoked to compute the set of interesting attribute-values, used later to construct recommended queries.
+
+As shown in Algorithm~\ref{fig:alg}, the \emph{data recommendation} step depends mainly on the lineage threshold $\theta_{L}$ and the database threshold $\theta_{supp}$ to filter out uninteresting attribute-values recommendation candidates. Yet, assigning values to $\theta_{L}$  and $\theta_{supp}$ is not a trivial task.
+On the one hand, setting high values to these two thresholds ($\theta_{L}$ and $\theta_{supp}$) will lead to a small number of recommendations and increases thereby the likelihood of discarding interesting attribute-values pairs worth recommending. On the other hand, assigning low thresholds values may lead to a high number of recommended attribute-values pairs that mainly include uninteresting information.
+Furthermore, used thresholds values of $\theta_{L}$ and $\theta_{supp}$ need to be set generically, independently from the explored data warehouses. 
+
+
+To identify suited parameter settings, we perform a parameter sensitivity study by varying the thresholds and studying the effect of this variation on the effectiveness of recommendations.
+
+Recall that following our recommendation approach described in Algorithm~\ref{fig:alg} (Page~\pageref{fig:alg}), we need initially to compute frequencies of all attribute-value pairs present in the lineage. Later, $\theta_{L}$ is used to filter out attribute-value candidates having mediocre frequency values in the lineage. Hence, we need to find a suitable value of frequency that we can use it to filter out irrelevant attribute-value candidates.
+One possible solution to find a suitable frequency value consists of computing the standard deviation $SD$ of attribute-value' frequencies in the lineage. In this case, the standard deviation measures the dispersion of attribute-value' frequencies from the mean of frequencies in the lineage. Hence, attribute-value candidates whose frequencies are above the standard deviation value may likely belong to the set of relevant candidates that need to be further processed in the subsequent steps of our content-based query recommendation approach. 
+Accordingly, we use standard deviations of attribute-value' frequencies in the lineage to identify interesting attribute-values candidates present in the lineage.
+
+
+Similarly, based on Definition~\ref{def:att-val} (Page~\pageref{def:att-val}), we use $\theta_{supp}$ to measure the significant change of an attribute-value pair's frequency in the lineage compared with the frequency of the same pair in the whole database.
+Accordingly, we use $\mu \in \{ \times 1.5, \times 2, \times 3\} $ to express the strength of the frequency's change of an attribute-value candidate in the lineage compared to the whole database. 
+In other words, an attribute-value candidate $(a,v)$ having a frequency in the lineage $f_{a,v}(L)$ and a frequency in the database $f_{a,v}(D)$ is considered interesting either if $f_{a,v}(L)=\mu \times f_{a,v}(D)$ or if $f_{a,v}(D)=\mu \times f_{a,v}(L)$.
+Consequently, $\theta_{supp} \in \{log_e(1.5), log_e(2), log_e(3)\}$ following Definition~\ref{eq:support}.
+
+
+Based on these rationales, we construct several settings of threshold values that are the result of the cross product of possible values assigned to $\theta_{L}$  and $\theta_{supp}$. The set of investigated settings are described in Table~\ref{tab:thresh-config}.
+
+     \begin{table}[t]
+ \centering
+ % \scriptsize
+\resizebox{0.5\linewidth}{!}{ \begin{tabular}{|p{2.5cm}|p{2cm}|p{2cm}|} \hline
+\textbf{Configuration} & \textbf{$\theta_{L}$}  & \textbf{$\theta_{supp}$}\\ \hline
+$C_1$ &  $SD_{L}$  & $log_e(1.5)$\\ \hline
+$C_2$ &  $SD_{L}$  & $log_e(2)$\\ \hline
+$C_3$ &  $SD_{L}$  & $log_e(3)$\\ \hline
+$C_4$ &  $2 \times SD_{L}$  & $log_e(1.5)$\\ \hline
+$C_5$ &  $2 \times SD_{L}$  & $log_e(2)$\\ \hline
+$C_6$ &  $2 \times SD_{L}$  & $log_e(3)$\\ \hline
+
+$C_7$ &  $3 \times SD_{L}$  & $log_e(1.5)$\\ \hline
+$C_8$ &  $3 \times SD_{L}$  & $log_e(2)$\\ \hline
+$C_{9}$ &  $3 \times SD_{L}$  & $log_e(3)$\\ \hline
+
+$C_{10}$ &  $4 \times SD_{L}$  & $log_e(1.5)$\\ \hline
+$C_{11}$ &  $4 \times SD_{L}$  & $log_e(2)$\\ \hline
+$C_{12}$ &  $4 \times SD_{L}$  & $log_e(3)$\\ \hline
+
+\end{tabular}}
+ \caption{Set of thresholds settings}
+ \label{tab:thresh-config}
+ \end{table}
+
+Note that the \emph{data recommendation} step is the crux of our content-based query recommendation approach. Indeed, the set of interesting attribute-value pairs  are  identified in this particular step. Later these attribute-values are used to derive recommended queries.
+Accordingly, we study in what follows the impact of threshold configuration on the set of interesting attribute-value pairs output by the \emph{data recommendation} step.
+
+
+More specifically, we prepare initially a ground truth data set about the interestingness of candidates computed by our \emph{data recommendation} step. To this end, we presented three data analysis experts with the full set of recommended attribute-values generated with low values of lineage and database thresholds values ($\theta_{L}$ set to the fifth of the standard deviations of attributes' frequencies in the lineage and $\theta_{supp}$ set to 0.1) when exploring the queries depicted in Table~\ref{tab:queries1}.
+Later, we ask the experts to classify each recommended attribute-values as interesting or not interesting with respect to the investigated exploration query.
+Overall, the three experts investigated around 320 attribute-values pairs recommended when exploring all the exploration queries depicted in Table~\ref{tab:queries1}. Among these recommendations, they found around 50 interesting attribute-values pairs worth recommending to users. We use in what follows $P_{valid}$ to refer to this particular set of interesting attribute-values pairs found by experts.
+
+Subsequently, we compute the set of recommended attribute-values generated by our \emph{data recommendation} using various configurations of thresholds that are depicted in Table~\ref{tab:thresh-config}. Accordingly, we compare between the ground truth set $P_{valid}$ and $P_{rec}$: the recommendation sets obtained for each setting.
+More specifically, we compute for each setting: 
+(i)~the recall($=\frac{|P_{rec} \cap P_{valid}|}{|P_{valid}|}$) that counts the ratio of interesting attribute-values pairs retrieved to the total number of interesting attribute-values found by experts;
+(ii)~the precision($=\frac{|P_{rec} \cap P_{valid}|}{|P_{rec}|}$) that counts the ratio of interesting attribute-values pairs retrieved to the total number of attribute-values pairs output using this setting and (iii)~F1-score($=\frac{2 \times recall \times precision\}}{recall + precision}$) which is the trade-off score between the precision and recall. 
+
+
+
+Finally, we average the scores computed for each setting applied to each query present in Table~\ref{tab:queries1}.
+
+
+  \begin{figure}[t]
+\centering
+\includegraphics[scale=0.55]{figures/Tapp17/threshold_config.pdf}
+\caption{Accuracy study of various data recommendation configurations}
+\label{fig:thresh-study}
+\end{figure}
+
+
+
+Figure~\ref{fig:thresh-study} depicts the average of recall, precision, and F1-score for the various settings.
+As expected, we observe a constant drop in recall performance as we adopt moderate to high thresholds settings. 
+ Yet, this range of strict settings (except $C_{12}$) succeeds to maintain acceptable performance of recall (that is always above 0.7).
+
+ Contrary to the previous observation, we see that precision performance is improved as we use moderate to high thresholds settings.  
+For instance settings $C_{8}$, $C_{9}$ and, $C_{11}$ have high precision scores that are around 0.8.
+Overall, we see in Figure~\ref{fig:thresh-study}  that setting $C_{8}$ succeeds to maintain a good precision performance (around 0.8) as well as a high recall rate (around 0.8). Accordingly, it has the best F1 score.
+%\mel{As this is averaged for all scenarios, can you say that c8 is the best also for each individual scenario?} 
+
+
+Given the above results, we adopt the configuration $C_{8}$ ($3 \times SD_{L}$  and $log_e(2)$) in all subsequent experiments as it was demonstrated to be the best configuration in terms of F1 score. 
+ 
+
+
+
+
+
+ 
+  \paragraph*{\textbf{Evolution of recommendation candidates number.}}
+  \begin{figure}[b]
+\centering
+\includegraphics[scale=0.65]{figures/Tapp17/candidates_evolution.pdf}
+\caption{Evolution of candidates number}
+\label{fig:candidates_evolution}
+\end{figure}
+ %Our second experiment considers the evolution of the number of candidate recommendations through the three major steps of our content-based query recommendation process depicted in Figure~\ref{fig:query-rec-process}. 
+Our second experiment considers the evolution of the number of candidate recommendations through the \emph{data recommendation} step (cf.~Section~\ref{subsec:data-rec}, Page~\pageref{subsec:data-rec}). 
+
+More specifically, we report in Figure~\ref{fig:candidates_evolution} three measurements for each query: (i)~$Lineage-(a,v)$ refers to the number of candidate attribute-value pairs that are candidates after considering the provenance of $r$ (i.e., candidates remaining at line~\ref{dra:linefLIN} of Algorithm~\ref{fig:alg}, Page~\pageref{fig:alg} ), (ii)~ $DB-(a,v)$ is the number of recommended attribute-value pairs (cf. Definition~\ref{def:av-pairs}, Page~\pageref{def:av-pairs}) processed at line~\ref{dra:support} of Algorithm~\ref{fig:alg} (Page~\pageref{fig:alg}), and (iii)~ $final-(a,Lv)$ reflects the final number of data recommendations output ultimately by the content-based query recommendation approach. These three measurements are computed for the nine exploration queries written in Table~\ref{tab:queries1}.
+
+
+The results depicted in Figure~\ref{fig:candidates_evolution}, indicate that each candidate pruning step is effective and allows to reduce the number of recommendations to be processed by the user to a manageable number. 
+Also, the returned recommendations are less redundant and more concise, potentially having a positive influence on users' satisfaction as we will show later in Section~\ref{sec:final-userstudy}.
+
+
+
+
+  \paragraph*{\textbf{Lineage size impact on recommendation.}}
+
+The inspection of results of the previous experiment reported in Figure~\ref{fig:candidates_evolution} shows that the final number of recommended attribute-values pairs vary significantly from an exploration query to another. For instance, the final number of recommended attribute-values pairs $(a,L_v)$ in the previous experiment ranges between  1 (case of $Q5$) and 6 (e.g. $Q8$ and $Q9$).
+
+To this end, we study in this experiment a factor that may impact the number of recommendations output using our approach.
+More specifically, we study now the impact of the lineage size on the number of candidates generated by the \emph{data recommendation} step.
+  \begin{figure}[t]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/Tapp17/SizeLinVScandidatesNumber.pdf}
+\caption{The impact of lineage's size on candidates number}
+\label{fig:lineageImpact}
+\end{figure}
+
+For that, we have computed the average of lineage sizes generated when performing exploration using the seed exploration queries depicted in Table~\ref{tab:queries1}. Subsequently, we have classified these lineages based on their sizes in four categories: (i)~the first range corresponds to explorations where the computed lineage size is less than 100 tuples, (ii)~the second range reflects exploration queries whose lineage size is between 100 tuples and 1000 tuples, (iii)~the third range reflects explorations queries whose lineage size is between 1000 tuples and 10000 tuples, (iv)~the fourth range corresponds to big lineages encompassing a number of tuples ranging between 10000 and 100000.
+
+
+
+For each range, we compute the average number of recommended attribute-values output by the \emph{data recommendation} step. Figure~\ref{fig:lineageImpact} depicts the variation of the number of the recommended attribute-values depending on the size of lineage. We observe that small lineage leads to a bigger number of recommendations. 
+We explain that as follows: as the lineage size decreases, the data distribution of any attribute present in the lineage becomes more specific and increases thereby the likelihood of getting attribute-value pairs whose frequencies change significantly in the lineage compared with their frequencies in the whole database.
+
+%\mel{conclusion?}
+In practice, this means that our content-based recommendation strategy provides a larger set of recommendations when a (seed) query explores specific sub-cubes / sub-regions whereas a very general query (where most of the data in the database is selected as data region to focus on) results in fewer recommendations. This fits the interaction paradigm of our framework, where users select a region of interest.
+
+
+
+
+
+  \paragraph*{\textbf{Runtime measure.}}
+
+Our next experiment examines the runtime of the three main steps of the content-based query recommendation that are \emph{provenance computation}, \emph{data recommendation}, and \emph{query reformulation} for the same nine exploration queries used previously. 
+Each exploration query, presented in Table~\ref{tab:queries1}, is used as a seed query, first triggering visual recommendation. A user then randomly selects $r \in Q(D)$, an interaction that triggers the content-based query recommendation. 
+
+
+For each exploration query, we tried three different interactions triggering three different recommendation sets.
+Note that the query reformulation is lazily executed. Indeed, \prototype{} reformulates on demand a recommended query once it is selected explicitly by the user over the impact matrix discussed in Section~\ref{subsec:visQuantification}. 
+However, we adjust \prototype{} during experiments to implement a batch query reformulation of all pair attributes-values $final-(a,Lv)$ output by the data recommendation step.
+
+
+Figure~\ref{fig:exper2} shows the results, averaging runtimes of each stage over 27 runs (three exploration scenarios for each query) of the experiment. We first observe that the overall runtime of the content-based query recommendation is acceptable (between 0.1s and 1.6s).
+  \begin{figure}[t]
+\centering
+\includegraphics[scale=0.55]{figures/Tapp17/runtime-content-rec.pdf}
+\caption{Runtime comparison of recommendation steps}
+\label{fig:exper2}
+\end{figure}
+Next, we see that the time needed for the query reformulation runtime is negligible compared to the other two steps despite that we take into account the worst-case scenario where we reformulate at once all recommended queries. 
+Additionally, we see that the computation times of provenance vary significantly.
+Hence, it takes between 45 and 65\% of the overall runtime for $Q1$, $Q2$, and $Q3$, whereas it is always below 25 \% of the runtime for the remaining experiments.
+This is explained by the fact that the flights data warehouse has a larger size compared to the two other data warehouses. Accordingly, the user has more chance to query large regions of data using the flights data warehouse. This is the case of $Q1$, $Q2$, and $Q3$ queries that target large regions of data. Accordingly, the lineage size is expected to be relatively large compared with lineage sets generated in scenarios exploring the Formula one and the Soccer data warehouses. In general, a large lineage set requires a longer provenance computation time.
+
+Similarly to the provenance computation runtime, we observe that the data recommendation runtime varies from an exploration query to another.
+For instance, some exploration queries such as $Q1$, $Q2$, $Q3$, $Q7$, $Q8$, and $Q9$ have high data recommendation runtimes while data recommendation is fast for other exploration queries (e.g., $Q4$, $Q5$, and $Q6$).
+From this result, we observe that provenance computation time impacts in many cases the data recommendation runtime.
+For instance, $Q4$, $Q5$, and $Q6$ have rapid provenance computation runtime. This means that these queries are associated with small lineage sets. Thereby, the data recommendation will be performed rapidly given the small search space of recommendation candidates.
+In the same spirit, the exploration queries $Q1$, $Q2$, and $Q3$ have high data recommendation runtimes due to the important size of lineage output by the provenance computation.
+Indeed, having large lineages (provenance sets) implies a larger search space of candidates of recommendations.
+In tight comparison between data recommendation runtimes of  $Q1$ and $Q2$, we observe that the data recommendation runtime of the exploration query $Q2$ is higher than this of exploration query $Q1$ despite that this latter has the worst provenance computation runtime.
+This is explained by the larger list of attributes-values candidates of $Q2$ compared to those in $Q1$ as shown in Figure~\ref{fig:candidates_evolution}.
+ Indeed, the discovery of a large list of candidates $Lineage-(a,v)$ in $Q2$ incurs an overhead in the subsequent steps of the data recommendation process (see Algorithm~\ref{fig:alg}, Page~\pageref{fig:alg}) where more filtering operations of candidates are performed in comparison with $Q1$.
+ Finally, we observe also that the exploration queries $Q7$, $Q8$, and $Q9$ proposed to explore the Soccer data warehouse, have high data recommendation runtimes despite that they have not high provenance computation runtime. 
+This is explained by the high dispersion of data distribution in the Soccer data warehouse. Indeed, as described in Table~\ref{tab-DW-stats}, this particular data warehouse encompasses a huge number of distinct values compared to the other data warehouses. Consequently, we have in this data warehouse a huge number of attribute-value candidates that need to be processed in the course of the data recommendation process.
+
+
+
+%{\color{Fuchsia}
+To summarize, we study our proposed content-based  query recommendation approach through a set of experiments discussed in this section.
+We first investigate suitable threshold settings used to filter out non-interesting candidates during recommendation. Our results reveal that setting the lineage threshold $\theta_{L}$ to $3 \times SD_{L}$  and the support lineage $\theta_{supp}$ to $log_e(2)$, leads to the best performance in terms of F1 score. Hence, this particular setting maximizes the generation of interesting recommendations while minimizing the likelihood of obtaining non-interesting recommendations.
+
+We investigate also the evolution of recommendation candidates' numbers in the course of our content-based query recommendation approach. Results of experiments show that our approach filters out efficiently a considerable number of non-interesting candidates of recommendations. Our experiments show also that the final number of recommendations output to the user varies depending on the lineage size. As the lineage size decreases, the final number of recommendations increases.
+
+Finally, we measure the runtime of the three main steps invoked in the course of our content-based query recommendation approach. 
+Overall, results show that the total average runtime of the three steps is acceptable and it ranges between 0.1s and 1.6s.
+The analysis of runtime results reveals also a couple of interesting observations.
+ Accordingly, we observe a high runtime of provenance computation when exploring data warehouses having large sizes (e.g., the flights data warehouse). 
+ We reveal also that some features of the explored data warehouse (such as the number of unique values) impact the data recommendation runtime. 
+Finally, we observe that a high provenance computation time is always linked with an important data recommendation runtime.
+ %}
+
+
+
+
+
+

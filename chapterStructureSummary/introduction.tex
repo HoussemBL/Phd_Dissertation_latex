@@ -1,0 +1,86 @@
+
+%As we have shown in Section~\ref{sec:prov-type}, various systems and approaches have been proposed to collect different types of provenance for various use cases, e.g., for the reproducibility and the debugging of complex computational processes~\cite{Herschel2017survey}. Therefore, the visual exploration of provenance allows users to get a better understanding of results and may lead to the discovery of information helpful to refine the computational processes for which provenance is tracked.
+%{\color{Fuchsia}In this context, we propose in this chapter a new approach that summarizes many provenance traces conforming the PROV-JSON\footnote{\url{https://www.w3.org/Submission/2013/SUBM-prov-json-20130424/}} standard. We further describe the analysis tasks that apply on these summaries. 
+%Note that we use in this chapter the term \emph{provenance trace}  to refer to a single provenance graph collected in one run of the computational processes for which provenance is tracked.}
+%To clarify our contribution, let us consider the following example. 
+
+
+In the previous chapters, we have described our provenance-based framework that provides a holistic approach to support users in exploring data visually.
+ Part of our proposed solution are evolution provenance graphs that represent either individual user exploration sessions or summaries of multiple user sessions. During our research, we noticed the value of analyzing these graphs, especially the summary graph. One very simple example is the discussion in Section~\ref{collaborative-query-rec}, where analyzing the topology of evolution provenance summary graph helped us to gain further insights on global trends commonly opted by users when exploring visually data.
+To better support such analysis, we present in this chapter a general approach meant to summarize various types of provenance conforming the standard exchangeable format for provenance PROV-JSON\footnote{\url{https://www.w3.org/Submission/2013/SUBM-prov-json-20130424/}}. We further describe the analysis tasks that apply to these summaries. 
+Note that we use in this chapter the term \emph{provenance trace} to refer to a single provenance graph collected in one run of the computational processes for which provenance is tracked.
+To clarify our contribution, let us consider the following example. 
+
+
+
+\begin{figure}[b]
+\includegraphics[scale=0.4]{figures/tapp19/example_traceMIT.pdf}
+\caption{Excerpt of evolution provenance collected in \prototype{}}
+\label{fig:universityX}
+\end{figure}
+
+
+\begin{example}
+  \label{par:example}
+We performed a user study to examine methodologies and practices adopted when exploring data visually.
+To do that, we hired ten students and we asked them to explore various data warehouses using \prototype{}, the instance of our framework \framework{}.
+ To better understand the behaviour of users during the user study, we have collected the evolution provenance tracking explorations made by each participant. 
+ These evolution provenance graphs are converted to the PROV-JSON, a standard, exchangeable format. 
+ Figure~\ref{fig:universityX} depicts an excerpt of the evolution provenance (comprising around 100 edges/nodes) tracked from one exploration session made in the user study. This provenance trace conforms to the PROV-JSON format. 
+ Essentially, ``agent1'' corresponds to the user performing this exploration session. We have also in this excerpt of evolution provenance trace three manipulations that are represented in Figure~\ref{fig:universityX} as three activities:  ``activity0'', ``activity1'', and ``activity2''.
+``activity0'' corresponds to the initial SQL query specified by the user in \prototype{} to start an exploration session. ``activity1'' refers to the computation of recommendations in the course of the exploration while ``activity2'' corresponds to the user's request to investigate the Zoom-In recommended query (cf.~Example~\ref{ex:query-ZoomIn}) associated to attribute $a1$.
+ Those activities are associated with the user ( see edges with labels ``assoc'').
+ These activities are involved in the generation of three entities: ``entity0'', ``entity1'', and ``entity2''. 
+ The two entities  ``entity0'', and ``entity1'' correspond to the exploration steps while the entity ``entity2'' refers to an impact matrix containing scored recommendations (cf.~Example~\ref{ex:sampleMatrix}).
+ \end{example}
+%  {\color{Fuchsia}Actually, the excerpt of evolution provenance trace shown in Figure~\ref{fig:universityX} is part of a large graph that contains an important number (around hundred) of vertices and edges. Accordingly, the visualization of the full evolution provenance trace associated {\color{Fuchsia}to one exploration session} is a cumbersome task. This complicates thereby the process of understanding users' behaviour when exploring visually the set of  evolution provenance traces captured in the course of the user study.}
+%Furthermore,  the analysis of a single evolution provenance trace alone is not sufficient to understand the global users' behaviour in the course of the user study. Yet, in this example, it would be more interesting to find out how this evolution provenance trace relates to provenance traces of other participants. This calls for generating evolution provenance traces for the ten participants and comparing those.  However, visually comparing all evolution provenance traces quickly becomes infeasible.
+%\mel{ the generalization to overall summarization for a given purpose should be spelled out (this is somewhat your problem statement, i.e., how to summarize graphs such that ...).}
+%\end{example}
+As mentioned in the example, we aim at studying users' behavior when exploring data using \prototype{}.
+Hence, it would be interesting to find out how evolution provenance traces of participants relate to each other. 
+Yet, a simple evolution provenance graph easily reaches a large size. 
+Consequently, comparing all evolution provenance traces quickly becomes infeasible.
+
+
+
+
+To simplify the comparative task motivated above, we propose in this chapter our structural-based summary approach.
+Our proposed approach infers initially the general structure of each provenance trace. The individual structures are then unified in a merged structure with annotations that quantify the coverages of sub-structures in the underlying collection of provenance traces. In what follows, a particular attention is given to the explanation of our proposed summary approach.
+
+\begin{figure}[b]
+\includegraphics[scale=0.4]{figures/tapp19/example_trace_summary.pdf}
+\caption{Structural summary of ten evolution provenance traces}
+\label{fig:Inf-type-university}
+\end{figure}
+
+\begin{example}\label{par:example2}
+ The structural summary of the ten evolution provenance traces collected in the course of our user study is depicted in Figure~\ref{fig:Inf-type-university}. Vertices present different structures available in the ten provenance traces. 
+ We distinguish mainly three families of structures: (i) entities structures: they are depicted as yellow circles in Figure~\ref{fig:Inf-type-university} (ii) activities structures: they are depicted as blue boxes in Figure~\ref{fig:Inf-type-university} and they present structures inferred from activities present in Figure~\ref{fig:universityX} and (iii) agents structures: they are depicted in orange trapezoid in Figure~\ref{fig:Inf-type-university} and they are inferred from agents present in Figure~\ref{fig:universityX}. 
+ Each structure definition is depicted in a white box near each vertex. Each edge is associated with two annotations that specify the type of provenance relationship and its frequency in the analyzed provenance traces. 
+ From this graph, we see that the activity structure ``actST5'' was the most present among available structures of activity. Recall that  the structure ``actST5'' corresponds to the situation where the user is asking for recommendation to explore interesting regions of the data.   This indicates that users rely mainly on recommendations suggested alongside the visual data exploration process.
+ Based on the edge linking the structure  ``actST5'' and the structure ``entSt1'', we see that 90 recommendation sets were proposed to the ten participants in the user study.   Among the 90 set of recommendations, we see that users prefer mostly to investigate recommendations of type `` Zoom-In'' (see the cardinality of edge linking ``actSt1'' and ``entST0''). Contrarily, a low number of recommendations of type extension were investigated by the participants in the user study (the cardinality of the edge between ``actSt4'' and ``entST0'' is equal to 25).
+ 
+From this summary, we can learn some common practices adopted by users when exploring data visually using \prototype{}.
+For instance, it becomes clear that we can distinguish types of recommendations commonly opted (e.g. recommendations of type ``Zoom-In'') from those less solicited by users (e.g., recommendations of type ``Extension'') when exploring data using \prototype{}.
+\end{example}
+
+
+
+
+
+The example above provides one motivating scenario that demonstrates the usefulness of the structural provenance summary approach.
+Further use cases are discussed in Section~\ref{sec:casestudy}. To achieve the functionality described in the example, we propose an end-to-end solution that infers the schema of multiple provenance traces in W3C-PROV format  to then summarize those in one graph. 
+This approach has several benefits including (i)~the summary allows to get a first rough overview about a collection of provenance traces; (ii)~it is useful to highlight commonalities and differences among the traces for comparative analysis, and (iii)~it allows to pinpoint corner cases and exceptions. 
+
+
+
+Overall, our proposed approach ensures the following contributions.
+\begin{itemize}
+\item \textbf{Provenance structure summarization}. We propose a two-phase algorithm to produce the structural summary of provenance traces. The first step infers the structure of each individual trace. These structures are then input to the second phase that produces the merged and weighted provenance structure summary graph, where weights translate the coverage of a relationship in the individual traces. %\mel{shouldn't the coverage be sth between 0 and 1?}
+\item \textbf{Provenance summary visualization and analysis.} We define several visual analysis tasks over the summary graph. For selected tasks, we showcase different visualizations as part of our preliminary use-case based evaluation.%  for 
+\item \textbf{System implementation and evaluation.} We implement the proposed approach in a prototype, for which we provide a preliminary performance evaluation. Results show the effectiveness of our approach in terms of runtime and conciseness of inferred summaries. %structures-based summaries.
+\end{itemize}
+
+The remainder of this section is structured as follows. Section~\ref{sec:related} discusses related work. Section~\ref{sec:prelim} covers necessary definitions and formal preliminaries. We present our structure-based summary approach in Section~\ref{sec:system}. Visual analysis tasks and use cases are presented in Section~\ref{sec:vis} and Section~\ref{sec:casestudy}. Finally, we discuss our implementation and evaluation in Section~\ref{sec:evaluation}. 
+Note that the content of this section is mainly based on methods and approaches described in~\cite{Houssem:19:TaPP}, which are based on our early work~\cite{baazizi2017}.

@@ -1,0 +1,79 @@
+\label{sec:setup}
+%We describe in this section how \prototype{}, the instance of our visual data exploration framework is implemented.
+%Furthermore, we give a glimpse of the set of data warehouses used through the experiments. 
+%Finally, we discussed the methodology adopted when performing experiments. 
+We discussed in this section the methodology adopted when performing experiments. 
+
+
+%\subsubsection{Data sets}
+% \prototype{}, the instance of our visual data exploration framework offers  exploration for the three data warehouses  discussed in Section~\ref{subsub:DS}.
+
+
+
+
+%\noindent \textbf{Formula One. } The first data warehouse\footnote{\url{https://www.kaggle.com/cjgdev/formula-1-race-data-19502017}} describes more than 23,000 formula one races made between 1950 and 2017.
+%It contains dimension tables describing race locations including more than 70 formula one circuits.
+%Dimension tables include a car constructors dimension that encompasses information about teams participating in the formula one. The third dimension concerns drivers' information. It stores information about more than 800 drivers.
+%
+%
+%\noindent \textbf{Soccer. }
+%The second data warehouse is the European soccer league database\footnote{\url{https://www.kaggle.com/hugomathien/soccer}}. It contains detailed information (possession, corner, cross, fouls, etc $\ldots$) about more than 25,000 fixtures and 10,000 players in 11 European championships for seasons between 2008 and 2016.
+%
+%
+%\noindent \textbf{Flights. }The third data warehouse describes US domestic flights\footnote{\url{https://stat-computing.org/dataexpo/2009/}}. It is the biggest data warehouse that we offer through \prototype{}. Indeed its fact table contains around 1 million flights. An overview of this data warehouse is already given in Example~\ref{ex:DW}. 
+%
+%
+%
+%
+%Overall, the main features of each data warehouse are summarized in Table~\ref{tab-DW-stats}.
+%
+%   \begin{table}[t]
+% \centering \scriptsize
+%\resizebox{1\linewidth}{!}{ 
+%\begin{tabular}{|p{1.5cm}|p{1.5cm}|p{3cm}|p{1.5cm}|p{1.5cm}|} \hline
+%\textbf{Data \newline warehouse} &\textbf{\#attributes} & \textbf{size of the fact table (\#tuples)}&\textbf{number of dimension tables} & \textbf{\#distinct values} \\ \hline
+%
+%US flights& 46& 1M &4&26316\\ \hline
+%Soccer& 60& 25k &26&122292\\ \hline
+%Formula& 46 & 23k& 4&13936\\ \hline
+%  
+%\end{tabular}
+%}
+% \caption{Information about data warehouses available in EVLIN}
+% \label{tab-DW-stats}
+% \end{table}
+
+
+
+
+
+
+
+%\subsubsection{Methodology}
+All experiments described in this section were conducted on a single machine with a 2.2 GHz quad-core Intel processor and 16 GB RAM.
+These experiments were applied to the following types of data.
+
+\paragraph*{ \textbf{Data warehouses.}}
+We evaluate our contribution when exploring only the US flight data warehouse using \prototype{}.
+{\color{Fuchsia}
+%Note that, we use only the US flight data warehouse during the evaluation of collaborative-filtering methods in Sections~\ref{eva:rec},~\ref{sec:final-userstudy} and~\ref{eva:usability}. 
+This is explained by the fact that we need to collect initially a history of explorations targeting the same data warehouse to be able later to perform later our collaborative-filtering recommendation approach. 
+Accordingly, we have recorded initially a set of exploration sessions targeting the US flight data warehouse.  
+%~\ref{eva:merge},
+We resorted also only to the US flight data warehouse when evaluating our proposed merge methods described in Section~\ref{sec:fuse} since the evaluation of proposed methods focuses mainly on the exploration session graphs' aspects (e.g., size, connectivity, etc$\ldots$) rather than the content of the data warehouse. Accordingly, we used the set of exploration sessions recorded initially when exploring the US flight data warehouse to understand the behavior of our proposed merge methods.
+ }
+
+\paragraph*{ \textbf{Real data.}}
+We collected real visual data exploration sessions. To this end, we collaborated first with researchers in our department. The rationale behind that is to collect a large real history of explorations that could be harnessed subsequently to provide collaborative-filtering recommendations.
+{\color{Fuchsia} Our collaborators were also involved in other activities such as rating the interestingness of recommendations and in labeling the similarity between exploration steps that belong to different exploration sessions.} 
+
+As we will show in Section~\ref{eval-evlin+} and Section~\ref{sec:final-userstudy}, we performed also a user study where graduate students were involved to explore visually the US domestic flights data warehouse using various instances of our framework \framework{}.
+For each study, we collected the evolution provenance that tracks all exploration steps performed within an exploration session as well as their ratings. 
+
+
+
+\paragraph*{ \textbf{Synthetic data.}}
+We used in some experiments synthetic data. For instance, we implemented an exploration session generator that takes a set of real exploration sessions and generates variants for each seed. This is beneficial later to evaluate the performance of our proposed merge approaches.
+
+
+

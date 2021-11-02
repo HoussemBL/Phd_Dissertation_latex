@@ -1,0 +1,23 @@
+\subsection{Overview of collaborative-filtering recommendation approach}
+\label{sec:overview}
+
+In this section, we leverage the evolution provenance already collected and stored as exploration session graph in order to incorporate collaborative-filtering query recommendation into our system \prototype{}. 
+To this end, we propose in Section~\ref{sec:fuse}  a set of merge methods that generate a multi-user exploration graph (cf.~Definition~\ref{def:MUg}) that summarizes multiple exploration session graphs. 
+
+
+
+
+
+The algorithms merge an exploration session graph $\sessionGraph{}$ into the (typically larger) multi-user graph $\usersGraph{}$ maintained by our system \prototype{}. 
+
+
+Later, our collaborative-filtering recommendation approach, detailed in Section~\ref{sec:finding}, considers $\usersGraph{}$ to compute query recommendations potentially interesting for a given (current) exploration step $\exploreStep$. 
+Note that the process of quantifying recommendations' interestingness (described in Section~\ref{quantification-rec}) also requires slight modifications to take into account the results of the collaborative-filtering recommendations. 
+These minor changes are introduced (as discussed in Section~\ref{sec:finding}) to compute an overall score for the recommendations displayed to the user.
+
+
+
+
+
+
+

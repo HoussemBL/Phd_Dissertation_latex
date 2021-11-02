@@ -1,0 +1,83 @@
+\label{sec:setup}
+We describe in this section how our visual data exploration system \prototype{} is implemented.
+Furthermore, we give a glimpse of the set of data warehouses used through the experiments. 
+Finally, we discuss the methodology adopted when performing experiments. 
+
+\subsection{Implementation}
+We have implemented our visual data exploration system \prototype{} as a web application. 
+Our implementation follows the model-view-controller design pattern. 
+The view layer is implemented using JSP, Bootstrap 3, and mainly Vega 1\footnote{\url{https://vega.github.io/vega/}} for interactive visualizations.
+The control layer is based on the Apache Struts framework and it implements the visual data exploration process using Java 8.
+The model layer leverages the Hibernate framework that offers the necessary facilities to interact with the database. Finally, \prototype\ leverages Perm~\cite{Glavic:09} as a backend database. Note that Perm~\cite{Glavic:09} is an extended version of PostgreSQL that supports provenance information management. 
+
+%An example scenario showing the functionality of \prototype\ is available as an online video\footnote{\url{https://www.youtube.com/watch?v=GgnUCQO_2DU}}. 
+
+
+
+\subsection{Datasets}
+\label{evlin-ds}
+Our evaluation relies on three real-world data sets from different domains.
+The domains are chosen so that some basic knowledge about database schemas and attributes can be assumed.
+
+
+
+
+
+\noindent \textbf{Formula One. } The first data warehouse\footnote{\url{https://www.kaggle.com/cjgdev/formula-1-race-data-19502017}} describes more than 23,000 formula one races made between 1950 and 2017. 
+It contains three dimensions: a dimension describing race locations including more than 70 formula one circuits, a car constructors dimension that encompasses information about teams participating in the formula one and a third dimension that concerns drivers' information. It stores information about more than 800 drivers.
+The facts recorded for each formula one race include various measures such as elapsed time, final position, stops number, etc $\ldots$
+
+\noindent \textbf{Soccer. }
+The second data warehouse is the European soccer league database\footnote{\url{https://www.kaggle.com/hugomathien/soccer}}. It contains detailed information (possession, corner, cross, fouls, etc $\ldots$) about more than 25,000 fixtures and 10,000 players in 11 European championships for seasons between 2008 and 2016.
+
+
+\noindent \textbf{Flights. }The third data warehouse describes US domestic flights\footnote{\url{https://stat-computing.org/dataexpo/2009/}}. It is the biggest data warehouse we consider. Its fact table contains around 1 million flights. An overview of this data warehouse is already given in Example~\ref{ex:DW} (see Page~\pageref{ex:DW}). As a reminder, the US domestic data warehouse contains information about one million flights done by more than 1500 airline companies between 2007 and 2008. It includes further information about 3300 airports and almost 4500 plane types used for the covered flights. The facts recorded for each flight include various numerical attributes such as delays, cancellation, arrival and departure time, etc $\ldots$
+
+
+The main features of each data warehouse are summarized in Table~\ref{tab-DW-stats}.
+
+   \begin{table}[b]
+ \centering \scriptsize
+\resizebox{1\linewidth}{!}{ 
+\begin{tabular}{|p{1.5cm}|p{1.5cm}|p{2.5cm}|p{2cm}|p{1.5cm}|} \hline
+\textbf{Data \newline warehouse} &\textbf{\#attributes} & \textbf{size of the fact table (\#tuples)}&\textbf{number of dimension tables} & \textbf{\#distinct values} \\ \hline
+
+US flights& 46& 1M &4&26316\\ \hline
+Soccer& 60& 25k &26&122292\\ \hline
+Formula one& 46 & 23k& 3&13936\\ \hline
+  
+\end{tabular}
+}
+ \caption{Information about data warehouses available in EVLIN}
+ \label{tab-DW-stats}
+ \end{table}
+
+
+
+
+
+
+
+\subsection{Methodology}
+
+All experiments described in this chapter were conducted on a single machine with a 2.2 GHz quad-core Intel processor and 16 GB RAM.
+These experiments were applied to the following types of data.
+
+\paragraph*{\textbf{Data warehouses.}}
+We resort to one or many real world data warehouses among those described in~Section~\ref{evlin-ds} to evaluate the performance of our proposed approaches.
+
+
+\paragraph*{\textbf{Real exploration sessions.}}
+We collected real visual data exploration sessions. To this end, we collaborated first with researchers in our department. The rationale behind that is to collect a large real history of explorations that could be harnessed subsequently to provide collaborative-filtering recommendations.
+ Our collaborators were also involved in other activities such as rating the interestingness of recommendations and in labeling the similarity between exploration steps that belong to different exploration sessions.
+
+As we will show in Section~\ref{sec:final-userstudy}, we performed also several user studies where graduate students explored visually the flights data warehouse using our system \prototype{}.
+For each study, we collected the evolution provenance that tracks all exploration steps performed within an exploration session. 
+
+
+
+\paragraph*{\textbf{Synthetic data.}}
+%We also used synthetic data in some experiments. For instance, we implemented an exploration session generator that takes a set of real exploration sessions and generates variants for each seed. 
+To more systemically evaluate the performance of our approaches, we also used synthetic data in some experiments.  For instance, we implemented an exploration session generator that takes a set of real exploration sessions and generates variants for each seed. 
+
+

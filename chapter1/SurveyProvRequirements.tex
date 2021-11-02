@@ -1,0 +1,110 @@
+Collecting, querying, or analyzing provenance to achieve the intended application generally adds additional load on any data processing system. 
+
+Intuitively, we proposed in our survey~\cite{Herschel2017survey} the set of requirements proposed, to be taken into account to mitigate the impacts of additional load.
+%Figure~\ref{fig:requirements_classification} depicts 
+The list of identified requirements that includes runtime, scalability, security, interoperability, system decoupling, and fault tolerance.
+In what follows, we confine our discussion of provenance requirements to a brief introduction of classes related to our contributions. Remaining requirements are fully detailed in our survey~\cite{Herschel2017survey}.
+
+
+
+%\begin{figure}[t]
+%\centering
+%\includegraphics[scale =  0.5]{figures/survey/requirements.pdf}
+%\caption{Classification of provenance requirements~\cite{Herschel2017survey}}
+%\label{fig:requirements_classification}
+%\end{figure}
+
+\subsubsection{Runtime}
+The runtime requirement focuses on the time ``lost'' for leveraging provenance, and divides into cost of processing provenance queries  and the cost for capturing provenance. 
+We distinguish approaches optimizing runtime during provenance query processing~\cite{Karvounarakis2010, Szablocs2011,Anand2010} or during provenance capture e.g.~\cite{Amsterdamer2011,Akoush2013, bidoit:edbt14, bidoit:cikm15}.
+
+In our work, we propose a set of provenance-based recommendation approaches that assist users in querying and visualizaing data in the course of the visual data exploration process. 
+These approaches consider the \emph{runtime} requirement as it is a critical issue for interactive visual exploration. Consequently, evaluation results made in Chapter~\ref{chap:eval} prove the effectiveness of our methods that are performed in acceptable times.
+
+
+
+%\subsubsection{Memory footprint}
+%Leveraging provenance typically also requires access and usage to both main memory and storage, leaving a \emph{memory footprint}. 
+%Hence, many provenance-enabled solutions have proposed techniques to optimize the storage (e.g.,~\cite{Barga2008,anand:edbt09,zhang:edbt10}). Other solutions use the main memory to perform caching of intermediate results e.g.,~\cite{Interlandi2015,bidoit:cikm15}.  
+%
+%{\color{Fuchsia}In our work, we consider the \emph{memory footprint} requirement.
+%More specifically, we propose a collaborative-filtering query recommendation approach that searches in provenance traces collected from previous visual exploration process, the set of explorations that are interesting to the current user. 
+%For that, we propose several techniques to fuse periodically these provenance traces capturing previous explorations made by users. Ultimately, our proposed merge techniques optimize the storage of fused evolution provenance. 
+%}
+%\vspace{-2em}
+\subsubsection{Scalability}
+This requirement may apply, in particular on the data volume (of processed data and provenance). Indeed, provenance systems must be capable to handle large amounts of provenance data that applications produce.
+Examples of work where the scalability requirement was taken into account include for instance~\cite{Interlandi2015,Muniswamy-Reddy2010,Akoush2013}.
+
+In our work, we consider the \emph{scalability} requirement.
+For instance, 
+%we propose a collaborative-filtering query recommendation approach that searches among provenance traces collected from previous visual exploration process, the set of explorations that are interesting to the current user. 
+%Therefore, we propose several methods that optimize the search of previous explorations highly interesting to the current user.
+%Evaluations results (cf. Chapter~\ref{chap:EVLIN-ext}) prove the efficiency of our collaborative-filtering recommendation approach that can mine large set of provenance traces in acceptable time.
+%Furthermore, 
+we propose in Chapter~\ref{chap:TaPP19} an approach to summarize several provenance traces that are under analysis. We show in this chapter that our proposed summary approach is capable to summarize large amounts of provenance traces.
+\subsubsection{Interoperability}
+Interoperability describes the ability of a provenance-enabled system to exchange provenance with other systems. %and to combine provenance produced by multiple systems. 
+
+To facilitate the exchange between provenance systems, standardization efforts have led to the definition of a W3C-PROV standard~\cite{missier:prov13}. 
+%A first standardization effort was the Open Provenance Model (OPM) \cite{Moreau11}. This latter was adopted in several provenance systems such as~\cite{miss08,Missier2011,Cao2009}. 
+%The W3C-PROV~\cite{missier:prov13} standard presents the second standarization effort. It is deeply inspired by OPM. Several approaches further extend the standard \cite{Nies2013, Missier2013}. 
+
+
+Despite the above standardization efforts, we observe that many provenance-enabled systems rely on proprietary formats for exchanging provenance using a variety of data models, including semantic, relational, and semi-structured ones.
+
+
+%{\color{Fuchsia}Note that our contributions consider also the \emph{interoperability} requirement. Indeed, we use  in this thesis provenance records that follow standard format as well as proprietary format.
+%
+%First, we take into account proprietary format when merging provenance. More specifically, our merge techniques are meant to fuse evolution provenance that respects the format that we propose in Chapter~\ref{chap:evoDM}. We broaden later the process of provenance aggregation.
+%Accordingly, we propose in this thesis a new approach that summarizes provenance information respecting the W3C-PROV standard.}
+
+Note that our contributions consider also the \emph{interoperability} requirement. Indeed, we use in this thesis provenance records that follow standard format as well as proprietary format.
+First, we adopt an evolution provenance whose data model is described in Chapter~\ref{chap:evoDM}, to track visual data exploration processes performed using our framework. 
+Later in Chapter~\ref{chap:TaPP19}, we propose a new approach that summarizes provenance information respecting the W3C-PROV standard.
+
+%\subsubsection{Query expressiveness}
+%\label{subsec:expressiveness}
+%
+%Concerning the expressiveness of provenance queries, we distinguish between (selective) search queries, navigation queries, and structured queries.
+%Several systems~\cite{Anand2010, Braun2009, Glavic:09, Bork13, freire:cse08} support the search queries in order to facilitate the analysis process of provenance graphs.
+%The navigation queries are also considered in many provenance-enabled systems. Example of navigations include for instance changing granularity (ZOOM IN/OUT) that is supported in ~\cite{Seltz11,Huq2013,Bork13,Anand2010}.
+%Finally, many provenance-enabled systems (e.g.,~\cite{Glavic:09,Braun2009,Anand2010,michlmayr:ISWC09,Karvounarakis2010}) propose various structured query languages to query the provenance information.
+%
+%{\color{Fuchsia}Our contributions consider also the \emph{query expressiveness} requirement. Hence, we provide for instance facilities to navigate and to browse excerpts of evolution provenance in the course of the visual data exploration (See Section~\ref{sec:expo-path}).}
+
+ 
+% \subsubsection{Application integration}
+% There are different means in extending an existing system with provenance capabilities. Provenance management can either be done at a layer decoupled from the main processing engine (e.g.,~\cite{Interlandi2015, Lerner2014, Alkhaldi2015, Akoush2013, karvounarakis:tods13}) or a tight integration is implemented by extending the processing engine with provenance capabilities (e.g.,~\cite{Craw11,Fehrenbach:2016:LP}). 
+% 
+% 
+%
+%
+%
+% \subsubsection{Security and privacy}
+%Making complete provenance available to all users may raise both security and privacy concerns~\cite{bertino:iis14}.
+%Generally, this problem is addressed either by implementing configurable access control mechanism (e.g.,~\cite{Cheung2006,Chebotko2008,michlmayr:ISWC09,Ni2009,Cadenhead:2011:LPA}) or by implementing sanitization (abstraction) techniques (e.g.,~\cite{cheney:csf11,Biton:2008,Dey2011,Missier2015}).
+%
+%
+%
+% \subsubsection{Fault tolerance}
+%{\color{Fuchsia}The fault tolerance requirement is the ability of the system to re-compute provenance when failure is detected. }
+% One solution is to use frameworks like Apache Hadoop or Apache Spark, as tasks for collecting provenance are distributed and replicated between nodes of the cluster. 
+% Consequently, when a node fails to execute a sub-task of the provenance process, another one will take over the execution of this function. Current provenance systems taking advantage of these functionalities and thus implementing fault tolerance for provenance capture include~\cite{Interlandi2015,Alkhaldi2015,Akoush2013}.
+ 
+%~~\\
+%We have described in this section the set of possible requirements considered when processing or computing the provenance. 
+%We point out that our contributions rely on provenance to provide an efficient visual data exploration.
+%Accordingly, our proposed approaches and solutions take into account several requirements depicted in Figure~\ref{fig:requirements_classification}.
+%For instance, we consider the \emph{runtime} requirement as it is a critical issue for interactive visual exploration. Indeed, we propose a content-based query recommendation approach that analyzes the why provenance of user's interaction to provide recommendations.
+%{\color{Fuchsia}Accordingly, the rapidity of processing the why provenance of user's interaction is taken into account in our contributions as we will show later.
+%}
+%
+%Our contributions consider also the \emph{memory footprint} and \emph{scalability} requirements. More specifically, we propose a collaborative-filtering query recommendation approach that searches in captured evolution provenance traces, the set of explorations that are interesting to the current user. 
+%For that, we propose several techniques to fuse periodically evolution provenance capturing previous explorations made by users. Our merge techniques optimize the storage of fused evolution provenance. They enable also an efficient collaborative-filtering recommendation computation when processing large set of evolution provenance as we will show in Section~\ref{eva:rec}.
+%
+%Note that our contributions consider also the \emph{interoperability} requirement. First, we take into account proprietary format when merging provenance. More specifically, our merge techniques are meant to fuse evolution provenance that respects the format that we propose in Chapter~\ref{chap:evoDM}. We broaden later the process of provenance aggregation.
+%Accordingly, we propose in this thesis a new approach that summarizes provenance information respecting the W3C-PROV standard.
+%
+%Our work considers also the \emph{query expressiveness} requirement. Hence, we provide for instance facilities to navigate and to browse excerpts of evolution provenance in the course of the visual data exploration (See Section~\ref{sec:expo-path}).
+%

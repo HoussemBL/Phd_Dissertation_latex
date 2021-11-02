@@ -1,0 +1,131 @@
+
+	\begin{figure}[t]
+
+		\begin{minipage}{0.44\textwidth}
+			\begin{center}
+				\resizebox {\textwidth} {!} {
+			\begin{tikzpicture}[-latex, auto, node distance = 4 cm and 5cm, on grid, semithick,
+agent/.style={trapezium, trapezium angle=60, minimum width=25mm,  fill=orange!40,  draw, inner ysep=5pt, outer sep=0pt, minimum height=0.81mm},
+activity/.style={
+  rectangle,
+  inner sep=0pt,
+  text width=25mm,
+  align=center,
+  draw=black,
+  fill=blue!40,
+  minimum height =7mm,
+   minimum width = 7mm
+  },
+  comment/.style={
+  rectangle,
+  inner sep=0pt,
+  text width=40mm,
+  align=center,
+  draw=black,
+  fill=white,
+  text = black,
+  minimum height =20mm,
+   minimum width = 5mm
+  },
+  entity/.style={ellipse,  fill=yellow!40, row sep=1cm, column sep=1cm, x radius=5cm,y radius=2cm ,rotate=0, minimum width=3cm, minimum height=1cm, align=center },
+state/.style ={circle, top color = white, bottom color = processblue!20, draw, processblue, text = blue, minimum width = 0.7 cm}, fused_state/.style = {circle, top color = white, bottom color = antiquebrass!40, draw, antiquebrass, text = black, minimum width = 0.7 cm}, edge_style/.style = {draw = processblue!60, dashed,-,>=stealth',shorten >=1pt,}, alt_state/.style = {circle, top color = white, bottom color = antiquefuchsia, draw, antiquefuchsia, text = white, minimum width = 0.5 cm}]
+
+
+
+					 \node[activity] (Act1) at (-3, 3.5) {$activity1$};
+           				 \node[entity] (e1) at (-5, 0) {$entity0$};
+
+					\node[entity] (e2) at (5, 5) {$entity1$ } ;
+
+					\node[comment] (c1) at (-5, -2.5) {$  \{ ''table1:metric1'': 4, ''table2:metric1'':2,
+        												"rel:university-name": '' Massachusetts Institute of Technology'' \}  $};
+					\node[comment] (c2) at (6, 3) {$  \{ ''rel:university-name": ''Massachusetts Institute of Technology" , ``rel:ranking'': 3 \}$};
+
+
+					\node[comment] (c4) at (-3, 5.5) {$ ``prov:type'': \{ ``\$'':"rel:query",``type'': "xsd:string" \} $};
+
+					\path [every node/.style={sloped,anchor=south,auto=false}] (e2) edge node {$gen$} (Act1);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (Act1) edge node {$use$} (e1);
+\path [every node/.style={sloped,anchor=south,auto=false}] (e2) edge node {$der$} (e1);
+          				\path [every agent/.style={dashed,auto=false}] (Act1) edge[edge_style] node {} (c4);
+
+					\path [every agent/.style={dashed,auto=false}] (e2) edge[edge_style] node  {}(c2);
+					\path [every agent/.style={dashed,auto=false}] (e1) edge[edge_style] node {} (c1);
+
+
+
+				\end{tikzpicture}
+				}
+			\end{center}
+			\caption{Provenance graph of Massachusetts Institute of Technology's ranking}
+			\label{fig:universityX}
+		\end{minipage}
+	%	\hspace{0.2cm}
+\end{figure}
+\begin{figure}[t]
+			\begin{minipage}{0.44\textwidth}
+			\begin{center}
+				\resizebox {\textwidth} {!} {
+				\begin{tikzpicture}[-latex, auto, node distance = 4 cm and 5cm, on grid, semithick,
+agent/.style={trapezium, trapezium angle=60, minimum width=25mm,  fill=orange!40,  draw, inner ysep=5pt, outer sep=0pt, minimum height=0.81mm},
+activity/.style={
+  rectangle,
+  inner sep=0pt,
+  text width=25mm,
+  align=center,
+  draw=black,
+  fill=blue!40,
+  minimum height =7mm,
+   minimum width = 7mm
+  },
+  comment/.style={
+  rectangle,
+  inner sep=0pt,
+  text width=40mm,
+  align=center,
+  draw=black,
+  fill=antiquefuchsia!40,
+  text = black,
+  minimum height =9mm,
+   minimum width = 5mm
+  },
+  entity/.style={ellipse,  fill=yellow!40, row sep=1cm, column sep=1cm, x radius=4cm,y radius=2cm ,rotate=0, minimum width=3cm, minimum height=1cm, align=center },
+state/.style ={circle, top color = white, bottom color = processblue!20, draw, processblue, text = blue, minimum width = 0.7 cm}, fused_state/.style = {circle, top color = white, bottom color = antiquebrass!40, draw, antiquebrass, text = black, minimum width = 0.7 cm}, edge_style/.style = {draw = processblue!60, dashed,-,>=stealth',shorten >=1pt,}, alt_state/.style = {circle, top color = white, bottom color = antiquefuchsia, draw, antiquefuchsia, text = white, minimum width = 0.5 cm}]
+
+
+
+					 \node[activity] (Act1) at (-1, 5.5) {$activity1$};
+           	 \node[entity] (e1) at (-3, 0) {$entitySt2$};
+					\node[entity] (e3) at (5, 5) {$entitySt1$ } ;
+					\node[entity] (e2) at (5, 0)  {$entitySt0$};
+					\node[comment] (c1) at (-3, -2.5) {$\{ "Entity": \{ ``table1:metric1'':  \tnum,
+           ``table2:metric2'':\tnum,
+           ``table3:metric3'':\tnum, "university\_name":   \tstr \} \}$};
+					\node[comment] (c2) at (7, -2.5) {$\{  "Entity": \{ "rel:university\_name": \tstr\, ``rel:ranking'':  \tnum \} \}$};
+\node[comment] (c3) at (6, 7) {$\{ "Entity": \{ ``table1:metric1'':  \tnum,
+``table2:metric2'':  \tnum,
+"rel:university\_name":   \tstr \} $};
+
+\node[comment] (c4) at (-2, 7.5) {$\{ "Activity": \{ ``prov:type'': \{ ``\$'':\tstr,
+``type'':  \tnum \} \}$};
+
+					\path [every node/.style={sloped,anchor=south,auto=false}] (Act1) edge node {$\langle use,1\rangle$} (e3);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (e2) edge node {$\langle gen,10\rangle$} (Act1);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (Act1) edge node {$\langle use,9\rangle$} (e1);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (e2) edge node {$\langle der,9\rangle$} (e1);
+					\path [every node/.style={sloped,anchor=south,auto=false}] (e2) edge node {$\langle der,1\rangle$} (e3);
+
+          \path [every agent/.style={dashed,auto=false}] (Act1) edge[edge_style] node {} (c4);
+					\path [every agent/.style={dashed,auto=false}] (e3) edge[edge_style] node {} (c3);
+					\path [every agent/.style={dashed,auto=false}] (e2) edge[edge_style] node  {}(c2);
+					\path [every agent/.style={dashed,auto=false}] (e1) edge[edge_style] node {} (c1);
+
+
+				\end{tikzpicture}
+				}
+			\end{center}
+			\caption{Strucutral provenance summary graph}
+			\label{fig:Inf-type-university}
+		\end{minipage}
+
+	\end{figure}

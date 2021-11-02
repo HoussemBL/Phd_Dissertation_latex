@@ -1,0 +1,35 @@
+In this section, we briefly present some possible research topics for future work building upon results from this thesis.
+
+
+
+\subsection{Interactive and comparative analysis of provenance traces}
+\label{sec:future1}
+We are interested in researching methods to explore provenance traces, both individually and collectively using interactive visual analytics techniques.
+In our current work described in this manuscript, we have the opportunity to collect diverse types of real provenance such as: (i) the evolution provenance traces of data exploration sessions that we generate in our framework \framework{} or that are collected using the visual analytics framework developed in~\cite{Bruder2019} (ii) the why provenance traces collected also in our visual data exploration framework \framework{} when investigating exploration queries' results (iii) the W3C-PROV provenance collected and summarized using our approach discussed in Chapter~\ref{chap:TaPP19}.
+We have also implemented diverse synthetic provenance generators that mimic different types of provenance e.g. the evolution provenance (in Chapter~\ref{chap:eval}) and the W3C-PROV provenance traces (in Chapter~\ref{chap:TaPP19}).
+
+
+
+Given the availability of various provenance information, an interesting new research direction would be the visual exploration of provenance data. 
+Our work described in this thesis shows the prominent role played by visual exploration towards revealing and surfacing insights. Similarly, visual data exploration techniques including namely recommendations could be proposed to analyze provenance information.
+
+The first step towards this goal was already done as described in Chapter~\ref{chap:TaPP19}. Hence, we have proposed a method to summarize a provenance set containing W3C-PROV provenance traces. Accordingly, we have defined a set of visual analysis tasks that could be applied to this kind of summary. 
+Performing efficiently the set of defined visual analysis tasks requires the design of convenient visualizations that render appropriately provenance summaries.
+As a consequence, we need in the future to propose  a new visualization recommendation approach that renders the suitable visualization of a provenance summary with respect to the visual analysis task.
+
+
+
+\subsection{Quantification of uncertain provenance traces}
+\label{sec:future2}
+
+
+The provenance traces collected in this thesis are complete in the sense that they comprise all possible/modeled data of the provenance traces. 
+Yet, collecting these complete traces may result in a significant overhead to both the process runtime and storage. 
+Given also that we target interactive visual exploration applications, it is important to support quick access to provenance data in the provenance management backend system.
+There are already some existing solutions that tackle this issue. For instance, Diestelk{\"a}mper et al.%~\cite{diestelkamper2017provenance}
+~\cite{diestelkamper2020} propose an approach that reduces the overhead of provenance computation in DISC systems. 
+Overall, these solutions provide interesting approaches that reduce significantly the runtime/storage overhead when computing provenance. Yet, these techniques typically incur some quality issues, e.g., uncertainty etc.
+
+To this end, an interesting new research direction would be to quantify the quality of the provenance information collected by these systems. 
+Accordingly, it will be highly interesting to communicate the provenance quality issues to the user as part of the interactive and visual representation of the provenance. To this end, an interesting research avenue will consist of  studying the methods required to quantify and visualize the quality of provenance. 
+

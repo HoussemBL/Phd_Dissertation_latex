@@ -1,0 +1,152 @@
+\label{sec:prov-type}
+
+%Based on our survey~\cite{Herschel2017survey}, we consider four main provenance types, 
+%namely~\emph{provenance meta-data}, \emph{information systems provenance}, \emph{workflow provenance} and \emph{data provenance}. 
+In what follows, we pay particular attention to the two particular types, namely data provenance and workflow provenance as they are related to our contribution.
+
+
+
+
+\smallskip
+
+\noindent \textbf{Workflow provenance.} 
+This type of provenance is tailored to processes that form workflows.
+%we focus on a specific type of processes that is called workflow.
+A workflow is considered as a graph, where vertices represent arbitrary functions or modules and edges capture interactions e.g., the flow of data between these vertices. 
+%\mel{say here how your work can be interpreted as an unstructred workflow.}
+The wealth of workflow provenance content allows for different forms and granularities of provenance. 
+This results in the classification proposed in our survey~\cite{Herschel2017survey} and depicted in Figure~\ref{fig:workflow_provenance}.
+All three forms depicted in Figure~\ref{fig:workflow_provenance}, are independent from one another. Hence, a provenance solution may support only one, two, or all three of them.
+\begin{figure}[t]
+\centering
+\includegraphics[scale=0.3]{figures/survey/workflow_provenance.pdf}
+\caption{Workflow provenance classification~\cite{Herschel2017survey}}
+\label{fig:workflow_provenance}
+\end{figure}
+First, we have the \emph{prospective provenance} (e.g.,~\cite{Alper2013, Dey2015}) that captures the structure and static context of a workflow. It is independent of any workflow execution or input data. Hence, it is statically derived from the workflow definition.
+
+The second type is \emph{retrospective provenance} (e.g.,~\cite{Altintas2006,Tan2010,Murta14}). 
+It stores information about a workflow execution, i.e., with information becoming available when actually running the workflow. 
+This information includes facts about the execution of each workflow step as well as the runtime environment. Retrospective provenance also preserves information on the resources that are accessed or generated during execution. 
+
+Finally, we have \emph{evolution provenance} (e.g.,~\cite{Callahan06, Altintas2006}). This form of provenance is also called provenance of the (development) process in the domain of scientific workflows \cite{Missier2013}. 
+It reflects the changes made during the design of a workflow. In this case, the provenance solution tracks all modifications made to alter a workflow. 
+We design in this thesis (see Chapter~\ref{chap:evoDM}) a new provenance model for visual data exploration.
+This provenance data model falls in the category of \emph{evolution provenance} as well as in the category of \emph{retrospective provenance}.
+Indeed, our new provenance data model describes an actual run of a visual data exploration process including namely user's interactions, exploration queries, and inspected visualizations.
+
+
+
+
+As \emph{evolution provenance} and \emph{retrospective provenance} categories are related to our contributions discussed later, we provide in Example~\ref{ex:evo-prov} a sample of provenance that illustrates these two categories.
+
+
+\begin{example}[Evolution and retrospective provenance samples]
+\label{ex:evo-prov}
+%Source: On Answering Why-Not ?eries Against Scientific Workflow Provenance, Khalid
+Assume that a scientist was using a scientific workflow $W_f$ to perform genomic analysis.
+Suppose that the scientist did not obtain insightful results when using $W_f$.
+Accordingly, the scientist performed several modifications to $W_f$. After each modification, the scientist executed $W_f$ to check obtained results.
+In this case the evolution provenance is a directed acyclic graph that summarizes the set of modifications made by the scientist. Each node in the evolution provenance graph represents a particular version of the workflow $W_f$. Edges of the evolution provenance graph represent the modifications applied to $W_f$ in order to derive several new versions of this workflow. 
+
+Imagine that after several modifications, the scientist decides to inspect again a previous version $W_{f_v}$ (made after several modifications on the input workflow $W_f$) in order to remember its results.
+In this case, the retrospective provenance is useful. It shows a graph containing the set of steps that constitutes this particular version $W_{f_v}$.
+The retrospective provenance shows results obtained using $W_{f_v}$. It includes also facts about the execution of each step in $W_{f_v}$ as well as the runtime environment.
+\end{example}
+
+
+\smallskip
+\noindent \textbf{Data provenance.} 
+Data provenance tracks the processing of individual data items manipulated throughout a data derivation process.
+Typically, this kind of provenance is applied on structured data models and declarative query languages with clearly defined semantics of individual operators.
+This is important to record the provenance of individual data items after running a data transformation or to extend the data or operators to pass on their provenance annotation as the data is processed. 
+
+Data provenance research focuses on explaining data present in a query result and may be categorized in three forms as surveyed in~\cite{Herschel2017survey}.
+In our work, we focus on one specific category  that is  is \emph{why provenance}~\cite{buneman:icdt01,cui:vldb01}. 
+This type of provenance describes the origins of data in the result of a query (i.e., based on what source data). More specifically, it returns the set of source tuples that witness the existence of the tracked query result. 
+Typically, this particular set of tuples is known in the literature as \emph{lineage}. 
+
+In this thesis, we leverage why provenance to provide recommendations strongly related to the users' interests when exploring data visually. We postpone the discussion of our provenance-based recommendation approach to Chapter~\ref{chap:EVLIN}.
+
+To further clarify the why provenance definition, consider the following Example~\ref{ex:whyPROV}.
+\begin{figure}[t]
+\centering \scriptsize
+
+\begin{tabular}{c}
+\scalebox{0.85}{
+\begin{tabular}{cc}
+
+\begin{tabular}{|c|c|c|c}\cline{1-3}
+\rowcolor{black!80}\color{white}flightID & \color{white}origin & \color{white}dest & \cellcolor{white} \\ \cline{1-3}
+\rowcolor{white}F1 & SEA& ORD & $t_1$ \\ \cline{1-3}
+\rowcolor{white}F2 & SFO& JFK &$t_2$ \\ \cline{1-3}
+\rowcolor{white}F3 & ORD& SFO & $t_3$ \\ \cline{1-3}
+\end{tabular}
+ 
+& 
+%\begin{tabular}{|c|c|c}  \cline{1-2}
+%\rowcolor{black!80}\color{white}iata &  \color{white}city & \cellcolor{white}\\ \cline{1-2}
+%\rowcolor{white}SEA &   Seattle & $t_4$ \\ \cline{1-2}
+%\rowcolor{white}SFO &   San Francisco & $t_5$ \\ \cline{1-2}
+%\rowcolor{white}RBD &   Dallas & $t_6$\\ \cline{1-2}
+%\end{tabular}
+
+\begin{tabular}{|c|c|c}  \cline{1-2}
+\rowcolor{black!80}\color{white}iata &  \color{white}city & \cellcolor{white}\\ \cline{1-2}
+\rowcolor{white}SEA &   Seattle & $t_4$ \\ \cline{1-2}
+\rowcolor{white}ORD&   Chicago & $t_5$ \\ \cline{1-2}
+\rowcolor{white}RBD &   Dallas & $t_6$\\ \cline{1-2}
+\end{tabular}
+ \\ \\ 
+ (a) Flights & (b) Airports  \\ 
+% 
+
+ \end{tabular}}
+ \\   \\   
+ \scalebox{0.85}{
+ \begin{tabular}{c}  
+  \textsf{SELECT }F.city\texttt{ as city\_dep }\textsf{ , }A.dest\textsf{ FROM }Flights\texttt{ as F },Airports\texttt{ as A }\textsf{ WHERE  }A.iata=F.origin\\
+\end{tabular} }
+ \\   
+ \\
+ \\
+% \begin{tabular}{c}  
+%\begin{tabular}{|c|c|c|c|c|c|c|c}\cline{1-7}
+%\multicolumn{2}{| c |}{Query result} &\multicolumn{3}{| c |}{Flights}  & \multicolumn{2}{| c |}{Airport}&     \\ 
+%\cline{1-7}
+%\rowcolor{black!80} \color{white}city\_dep& \color{white}dest & \color{white}prov\_flightnum & \color{white}prov\_origin & \color{white}prov\_dest&\color{white}prov\_iata &  \color{white}prov\_city& \cellcolor{white} \\ \cline{1-7}
+%\rowcolor{white} Seattle &ORD& F1 & SEA& ORD& SEA &   Seattle&$t_7$ \\ \cline{1-7}
+%\rowcolor{white} San Francisco& JFK& F2 & SFO& JFK& SFO &   San Francisco&$t_8$\\ \cline{1-7}
+%\end{tabular}
+%\end{tabular} \\
+
+\scalebox{0.9}{
+ \begin{tabular}{c}  
+\begin{tabular}{|c|c|c|c|c|c|c|c|c}\cline{1-8}
+\multicolumn{2}{| c |}{Query result} &\multicolumn{3}{| c |}{Flights}  & \multicolumn{2}{| c |}{Airport}& \multicolumn{1}{| c |}{Why\_provenance}&     \\ 
+\cline{1-8}
+\rowcolor{black!80} \color{white}city\_dep& \color{white}dest & \color{white}prov\_flightID & \color{white}prov\_origin & \color{white}prov\_dest&\color{white}prov\_iata &  \color{white}prov\_city&\color{white} Lineage&  \cellcolor{white} \\ \cline{1-8}
+\rowcolor{white} Seattle &ORD& F1 & SEA& ORD& SEA &   Seattle&$\{t_1,t_4\}$&$t_7$ \\ \cline{1-8}
+\rowcolor{white} Chicago& SFO& F3 & ORD& SFO& ORD&  Chicago&$\{t_3,t_5\}$&$t_8$\\ \cline{1-8}
+\end{tabular}
+\end{tabular}} \\
+
+
+\end{tabular}
+\caption{Sample why provenance}
+\label{fig:tables-why}
+\end{figure}
+
+\begin{example}[Why provenance example]
+\label{ex:whyPROV}
+This example leverages the data warehouse of US domestic flights described in Example~\ref{ex:DW}.
+For that, we consider the query and the relations $Flights$ and $Airport$ depicted in Figure~\ref{fig:tables-why}. For convenience, we show a simplified version of relations $Flights$ and $Airport$ in Figure~\ref{fig:tables-why}. Additionally, we provide in each table an identifier for each tuple at the right of the tuple.
+We propose a query that joins a \emph{Flight} with an \emph{Airport} relation to return the city of departure and the id of the airport of destination. This results in two tuples produced by joining a tuple from relation  \emph{Flight} with a tuple from relation \emph{Airport}. For instance, the tuple $t_7$ is derived from tuples $t_1$ and $t_4$. In this case, tuples $t_1$ and $t_4$ present the why provenance information associated to $t_7$.
+%Each tuple in the result of this query is produced by joining a tuple from relation  \emph{Flight} with a tuple from relation \emph{Airport}. For instance, the tuple $t_7$ is derived from tuples $t_1$ and $t_4$.
+Overall, the why provenance of each result of this query is described in the last column of the relation depicted at the bottom of Figure~\ref{fig:tables-why}.
+\end{example}
+
+
+
+
+
