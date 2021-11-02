@@ -1,0 +1,82 @@
+
+%\paragraph*{Proof parenthood lower bound ZoomIn-Slice , Extension-Slice}
+We have described in Section~\ref{subsec:child-parent}, our parenthood based pruning approach to optimize the computation of collaborative filtering when processing multi-users graphs.
+We have also provided in the same Section~\ref{subsec:child-parent} a proof of our parenthood based approach applied for 
+%In this appendix, we provide proofs demonstrating the validity of our pruning approach. 
+This proof applies for exploration queries of types ``Zoom IN''  and ``Extension''. 
+
+In this appendix, we provide remaining proofs that demonstrate the applicability of our parenthood based pruning approach on other types of exploration queries generated using our system \prototype{} (cf.~Section~\ref{sec:query-reformule}, Page~\pageref{sec:query-reformule}).
+More specifically, we provide first a proof demonstrating that our pruning approach holds for queries of types ``Zoom IN/Slice'' or ``Extension/Slice'' . We provide later a second proof showing the applicability of our approach of queries of types ``Drill'' or ``Drill down''.
+
+\begin{proof}
+This proof applies for edge $e$ between $X_{parent}$ to $X_{child}$ having ``Zoom IN/Slice'' or ``Extension/Slice''  as label for the operation type. 
+
+Let $getSelect(Q) = \{a, f(m)\}$, $getSelect(Q_{parent}) = \{ a_p, f_p(m_p)\}$ and $Q_{child} = \{a_c, f_p(m_p)\}$. Note that the select clauses of $Q_{parent}$ and $Q_{child}$ are guaranteed to overlap only in $f_p(m_p)$) based on our derivation rules described in Figure~\ref{fig:QueryDER}.
+%(see Table.~\ref{tab:Recqueries}). 
+
+\[Jaccard(Q_{child},Q)=  \frac{  \{a, f(m)\} \cap  \{ a_c, f_p(m_p) \} } {\{ a, f(m), a_c,  f_p(m_p) \}}\]
+
+By removing $a_c$ from the denominator, $ Jaccard(Q_{child},Q) \leq  \frac{  \{a, f(m)\} \cap  \{ a_c, f_p(m_p) \} } {\{ a, f(m),  f_p(m_p) \}}$
+By adding $a_p$ to the numerator and to the the denominator,  $ Jaccard(Q_{child},Q) \leq  \frac{ \left( \{a, f(m)\} \cap  \{ a_c, f_p(m_p) \} \right) \cup \{ a_p\} } {\{ a,a_p, f(m),  f_p(m_p) \}}$
+
+
+This is equivalent to: 
+%$Jaccard(Q_{child},Q)   \leq    \frac{ \{a, f(m) \} \cap \left(\{ a_p, f_p(m_p) \} \cup \{ a_c \}   \right) }{\{ a, f(m), a_p, f_p(m_p) \} }  $\\
+$Jaccard(Q_{child},Q)   \leq    \frac{ \{a, a_p,f(m) \} \cap \left(\{ a_c,a_p, f_p(m_p) \}   \right) }{\{  a,a_p, f(m),  f_p(m_p)  \} }  $\\
+
+%$\Rightarrow Jaccard(Q_{child},Q)   \leq    \frac{ \left( \{a, f(m) \}  \cap \{ a_p, f_p(m_p) \} \right)   \cup \left( \{a, f(m) \}  \cap \{ a_c \}   \right) }{\{ a, f(m), a_p, f_p(m_p) \} } $\\
+$\Rightarrow Jaccard(Q_{child},Q)   \leq    \frac{ \{a, a_p,f(m) \} \cap \left(\{ a_c,a_p, f_p(m_p) \}   \right)  }{\{  a,a_p, f(m),  f_p(m_p)  \} }  $\\
+
+%$\Rightarrow Jaccard(Q_{child},Q)   \leq   Jaccard(Q_{parent}, Q) + \frac{  \{a, f(m) \}  \cap \{ a_c \}   }{\{ a, f(m), a_p, f_p(m_p) \} }$ \\
+$\Rightarrow Jaccard(Q_{child},Q)   \leq    \frac{\left( \{a, a_p,f(m) \} \cap \{ a_p, f_p(m_p) \}   \right) \cup \left(  \{a, a_p,f(m) \} \cap \{ a_c \}  \right)}{\{  a,a_p, f(m),  f_p(m_p)  \} }  $\\
+
+$\Rightarrow Jaccard(Q_{child},Q)   \leq    \frac{\left( \{a,f(m) \} \cap \{ a_p, f_p(m_p) \}  \right) \cup (\left( \{ a_p\} \cap \{ a_p, f_p(m_p) \}  \right) \cup \left(  \{a, a_p,f(m) \} \cap \{ a_c \}  \right)}{\{  a,a_p, f(m),  f_p(m_p)  \} }  $\\
+
+$\Rightarrow Jaccard(Q_{child},Q)   \leq    \frac{\left( \{a,f(m) \} \cap \{ a_p, f_p(m_p) \}  \right) \cup (\left( \{ a_p\} \right) \cup \left(  \{a, a_p,f(m) \} \cap \{ a_c \}  \right)}{\{  a,a_p, f(m),  f_p(m_p)  \} }  $\\
+
+
+$\Rightarrow Jaccard(Q_{child},Q)   \leq    \frac{\left( \{a,f(m) \} \cap \{ a_p, f_p(m_p) \}  \right)}{\{  a,a_p, f(m),  f_p(m_p)  \} } +  \frac{\left( \{ a_p\} \right) \cup \left(  \{a, a_p,f(m) \} \cap \{ a_c \}  \right)}{\{  a,a_p, f(m),  f_p(m_p)  \} }  $\\
+
+$\Rightarrow Jaccard(Q_{child},Q)   \leq   Jaccard(Q_{parent}, Q) +  \frac{\left( \{ a_p\} \right) \cup \left(  \{a, a_p,f(m) \} \cap \{ a_c \}  \right)}{\{  a,a_p, f(m),  f_p(m_p)  \} }  $\\
+
+$\Rightarrow Jaccard(Q_{child},Q)   \leq   Jaccard(Q_{parent}, Q) +  \frac{ \left(  \{a, f(m) \} \cap \{ a_c \}  \right)}{\{  a, f(m),  f_p(m_p)  \} }  $\\
+
+%$\Rightarrow Jaccard(Q_{child},Q)   \leq    Jaccard(Q_{parent}, Q) +  \frac{ \left( getSelect(Q_{child}) \setminus getSelect(Q_{parent}) \right) \cap getSelect(Q)  } {getSelect(Q_{parent}) \cup getSelect(Q)}  $\\
+%$\Rightarrow distance(Q_{child},Q) )  \geq  distance(Q_{parent},Q) -  \frac{ \left( getSelect(Q_{child}) \setminus getSelect(Q_{parent}) \right) \cap getSelect(Q)  } {getSelect(Q_{parent}) \cup getSelect(Q)} $
+\end{proof}
+
+
+
+\paragraph*{Proof parenthood lower bound Drill/Drill-down}
+\begin{proof}
+This proof applies for edge $e$ between $X_{parent}$ to $X_{child}$ having ``Drill'' or ``Drill down''  as label for the operation type. 
+
+Let $getSelect(Q) = \{a, f(m)\}$, $getSelect(Q_{parent}) = \{ a_p, f_p(m_p)\}$ and $Q_{child} = \{a_c, a_g, f_p(m_p)\}$. Note that the select clauses of $Q_{parent}$ and $Q_{child}$ are guaranteed to overlap only in $f_p(m_p)$) based on our derivation rules %(see Tab.~\ref{tab:Recqueries}). 
+(cf.~Figure~\ref{fig:QueryDER})
+
+\[Jaccard(Q_{child},Q)=  \frac{  \{a, f(m)\} \cap  \{ a_c, a_g,f_p(m_p) \} } {\{ a, f(m), a_c,a_g, f_p(m_p) \}}\]
+
+By removing $a_c$ and $a_g$ from the denominator, $ Jaccard(Q_{child},Q) \leq  \frac{  \{a, f(m)\} \cap  \{ a_c, a_g,f_p(m_p) \} } {\{ a, f(m),  f_p(m_p) \}}$
+By adding $a_p$ to the numerator and to the the denominator,  $ Jaccard(Q_{child},Q) \leq  \frac{  \{a_p,a, f(m)\} \cap  \{ a_p,a_c, a_g,f_p(m_p) \} } {\{a_p, a, f(m),  f_p(m_p) \}}$
+
+
+
+This is equivalent to: 
+
+%$Jaccard(Q_{child},Q)   \leq    \frac{ \{a, a_p,f(m) \} \cap \left(\{ a_c,a_p, f_p(m_p) \}   \right) }{\{  a,a_p, f(m),  f_p(m_p)  \} }  $\\
+
+$Jaccard(Q_{child},Q)   \leq    \frac{\left( \{a_p, a,f(m) \} \cap \{ a_p, f_p(m_p) \}   \right) \cup \left(  \{a_p,a,f(m) \} \cap \{ a_c,a_g \}  \right)}{\{  a,a_p, f(m),  f_p(m_p)  \} }  $\\
+
+
+$Jaccard(Q_{child},Q)   \leq    \frac{\left( \left( \{a,f(m) \} \cap \{ a_p, f_p(m_p) \} \right) \cup  \left( \{a_p \} \cap \{ a_p, f_p(m_p) \} \right) \right) \cup \left(  \{a_p,a,f(m) \} \cap \{ a_c,a_g \}  \right)}{\{  a,a_p, f(m),  f_p(m_p)  \} }  $\\
+
+
+$\Rightarrow Jaccard(Q_{child},Q)   \leq   Jaccard(Q_{parent}, Q) +  \frac{ \{a_p \} \cap \{ a_p, f_p(m_p) \}}{\{  a,a_p, f(m),  f_p(m_p)  \} } + \frac{\{a_p,a,f(m) \} \cap \{ a_c,a_g \} }{\{  a,a_p, f(m),  f_p(m_p)  \} }  $\\
+
+$\Rightarrow Jaccard(Q_{child},Q)   \leq   Jaccard(Q_{parent}, Q) +  \frac{a_p }{\{  a,a_p, f(m),  f_p(m_p)  \} } + \frac{\{a_p,a,f(m) \} \cap \{ a_c,a_g \} }{\{  a,a_p, f(m),  f_p(m_p)  \} }  $\\
+
+$\Rightarrow Jaccard(Q_{child},Q)   \leq   Jaccard(Q_{parent}, Q) +   \frac{ \{ a_p\} \cup  \left( \{a_p,a,f(m) \} \cap \{ a_c,a_g \} \right)}{\{  a,a_p, f(m),  f_p(m_p)  \} }  $\\
+
+$\Rightarrow Jaccard(Q_{child},Q)   \leq   Jaccard(Q_{parent}, Q) +   \frac{   \{a,f(m) \} \cap \{ a_c,a_g \} }{\{  a, f(m),  f_p(m_p)  \} }  $\\
+
+\end{proof}

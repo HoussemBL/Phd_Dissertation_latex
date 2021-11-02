@@ -1,0 +1,262 @@
+\section{Visualization resource storage}
+Inspired by~\cite{WuPMZR17}, we record meta-data about \emph{visual exploration resources} in a relational database whose schema is depicted in Figure~\ref{fig:VisSchema}.
+ 
+% \hou{write schema description here}
+ 
+  \begin{figure}[t]
+\centering
+  \scalebox{.7}{\includegraphics{figures/evoDM/DB_EVOlutionProv.pdf}}
+\caption{Relational schema modelling visualizations}
+\label{fig:VisSchema}
+\end{figure}
+ 
+ 
+\begin{example}
+\label{ex:vis-resource}
+Let us consider the exploration step $X=(Q,V)$ whose exploration query $Q$ and its associated visualization $V$ are discussed  in the Examples~\ref{ex:query} and~\ref{ex:VIS}.
+ Figure~\ref{fig:tables1} shows the corresponding tables describing the visualization resources at this stage. As the relations Query (a), Visualization (b) and Dataset(c) are self-explanatory, we focus on the discussion of tables Scale (c), Axis (d), Mark (e), and Channel (f). Scale specifies two scales for the visualization V1 in order to specify the geometric position of a rendered result. A third scale is used to define the green color used to visualize the data set. 
+ To render this data set as a bar chart, we use one mark that defines the bars (M1). For this latter several channels are used. Indeed, there are two encoding channels $C1$ and $C2$ to specify the x-position of the bar (here, it is with respect to the state attribute).
+ Likewise, two other encoding channels $C3$ and $C4$ are used to depict the height of the bar on the y-axis (depending on the flights number). Finally, we use a fifth channel $C5$ to render bars in green color.  
+\end{example}
+
+
+\begin{figure}[h]
+\centering \scriptsize
+\begin{tabular}{c}
+\begin{tabular}{ccc}
+\begin{tabular}{|c|c|}\hline
+QID & description \\ \hline
+Q1 & $Q$ \\ \hline
+\end{tabular}
+ 
+& 
+\begin{tabular}{|c|c|c|c|}  \hline
+VID & QID & width & height \\ \hline
+V1 & Q1 & 500 & 700 \\ \hline
+\end{tabular}
+
+& 
+\begin{tabular}{|c|c|}  \hline
+DSID & content  \\ \hline
+DS1 & Q1(D) \\ \hline
+\end{tabular}
+ \\
+ 
+ (a) Query & (b) Visualization &(c) Dataset \\ 
+ \end{tabular}
+ 
+ \\ \\
+
+ 
+\begin{tabular}{|c|c|c|c|c|c|c|}  \hline
+SID & VID &DSID& scType & fName & range \\ \hline
+xsc & V1 &DS1& ordinal & state & [0, width] \\
+ysc & V1 &DS1& linear & flights\_number & [0,height] \\
+colorsc & V1 &DS1& ordinal & state & [green] \\
+ \hline
+\end{tabular} \\
+(d) Scale 
+\\ \\
+\begin{tabular}{cc}
+
+\begin{tabular} {|c|c|c|} \hline
+MID & mType & VID \\ \hline
+M1 & bar & V1 \\ \hline
+%M2 & text & V1 \\ \hline
+\end{tabular} 
+&
+\begin{tabular}{|c|c|c|} \hline
+AID &  SID & title\\ \hline
+A1 & xsc &  state of departure\\ 
+A2 & ysc &  flights\_number
+ \\ \hline
+
+\end{tabular}
+
+
+\\
+ (e) Mark & (f) Axis
+\end{tabular}
+\\
+ \\ \\
+\begin{tabular}{cc}
+\begin{tabular}{|c|c|c|}\hline
+Ch\_U\_ID & ChID&MID \\ \hline
+ChU1 & C1&M1 \\ 
+ChU2 & C2&M1 \\ 
+ChU3 & C3&M1 \\ 
+ChU4 & C4&M1 \\ 
+ChU5 & C5&M1 \\ 
+\hline
+\end{tabular}
+ 
+& 
+\begin{tabular}{|c|c|c|c|}  \hline
+A\_U\_ID & AID&VID&usage\_type\\ \hline
+AU1 & A1 & V1&x\\ 
+AU2 & A2 & V1&y\\ 
+\hline
+\end{tabular}
+
+ \\
+ 
+ (g) ChannelUsage & (h) AxisUsage  \\ 
+ \end{tabular}
+ 
+ \\ \\
+
+
+
+\begin{tabular}{|c|c|c|c|c|} \hline
+CID &  chType & ch\_field & SID\\ \hline
+C1 &  X &  state &xsc \\
+C2 &  width & $\bot$ & xsc \\
+C3 &  Y &  flights\_number&xsc \\
+C4 &  Y2 & $\bot$ & ysc \\
+C5 &  fill & state&green\\
+
+\hline
+\end{tabular}\\
+(i) Channel
+
+\end{tabular}
+\caption{Sample visual exploration resource representation}
+\label{fig:tables1}
+\end{figure}
+
+ 
+ 
+ \section{Evolution provenance storage}
+ \label{app:evoDM-storage}
+ 
+ 	 \begin{figure}[t]
+\centering
+  \scalebox{.5}{\includegraphics{figures/evoDM/evo.pdf}}
+\caption{Relational schema modeling the evolution provenance}
+\label{fig:SchemaEvo}
+\end{figure}	
+
+We store evolution provenance in relational database. To this end, we extend the relational schema (depicted in Figure~\ref{fig:VisSchema}) initially used to store the visualization information rendered within an exploration session.
+The new schema is depicted in Figure~\ref{fig:SchemaEvo}.
+It contains four new tables. Tables ``Query\_selecttable'', ``Query\_conditiontable'' and ``Query\_fromtable'' record information about SELECT, CONDITION AND FROM clauses consecutively. 
+The ``Querypath'' table is the crux of the evolution provenance storage. It is used to form the DAG of the user's exploration session. It saves all navigations as well as the three annotations of edges as specified in the Definition~\ref{def:session}.
+
+\begin{figure}[t]
+\centering \scriptsize
+\begin{tabular}{c}
+
+
+
+\begin{tabular}{cc}
+\begin{tabular}{|c|c|c|c|c|}  \hline
+CID & QID & attribute&operator&value \\ \hline
+C1&Q& depdelay&<&0\\ 
+C2&$Q_1$& depdelay&<&0\\ 
+C3&$Q_1$& AirlineID& in & [UA,WN,OO]\\ 
+C4&$Q_2$& depdelay&<&0\\ 
+C5&$Q_2$& AirlineID& in & [UA,WN,OO]\\ 
+C6&$Q_3$& depdelay&<&0\\ 
+C7&$Q_3$& AirlineID& in & [UA,WN,OO]\\ 
+C8&$Q_4$& depdelay&<&0\\ 
+\hline
+\end{tabular}
+
+&
+\begin{tabular}{|c|c|}\hline
+QID & description \\ \hline
+$Q$ & seed \\ 
+$Q_1$ & $\bot$ \\ 
+$Q_2$& $\bot$ \\ 
+$Q_3$ & $\bot$ \\
+$Q_4$ & $\bot$ \\
+\hline
+\end{tabular}
+\\
+(e) query\_conditiontable&(e) query
+
+\end{tabular}
+
+ \\ \\
+\begin{tabular}{ccc}
+
+
+\begin{tabular}{|c|c|c|}  \hline
+SID & QID & clause \\ \hline
+S1&Q& count(*)\\ 
+S2&Q& state\\ 
+S3&$Q_1$& count(*)\\ 
+S4&$Q_1$& state\\ 
+S5&$Q_1$& state\\ 
+S6&$Q_2$& count(*)\\ 
+S7&$Q_2$& airlineID\\ 
+S8&$Q_3$& count(*)\\ 
+S9&$Q_3$& year\\ 
+S10&$Q_4$& count(*)\\ 
+S11&$Q_4$& airlineID\\ 
+
+\hline
+\end{tabular}
+ 
+& 
+\begin{tabular}{|c|c|c|}  \hline
+FID & QID & clause \\ \hline
+F1&Q& Airports\\ 
+F2&Q& Flights\\ 
+F3&$Q_1$& Airports\\ 
+F4&$Q_1$& Flights\\ 
+F5&$Q_1$& Airports\\ 
+F6&$Q_2$& Flights\\ 
+F7&$Q_2$& Airport\\ 
+F8&$Q_3$& Airport\\ 
+F9&$Q_3$& Flights\\ 
+F10&$Q_4$& Airport\\ 
+F11&$Q_4$& Flights\\ 
+\hline
+\end{tabular}
+
+
+ \\
+ 
+ (a) query\_selecttable&(b) query\_fromtable \\ 
+ \end{tabular}
+ 
+ \\ \\
+
+
+\begin{tabular}{c}
+
+
+\begin{tabular}{|c|c|c|c|c|c|} \hline
+PID &  parent\_query\_id & q\_id&attribute&operation&score\\ \hline
+P1 & Q &  $Q_1$ & airlineID&Extension-airport&1 \\ 
+P2 & Q&  $Q_2$ & airlineID&Zoom-In Slice&2 \\ 
+P3& $Q_2$ & $Q_3$ & year&Zoom-In Slice&1 \\ 
+P4 & Q&  $Q_4$ & airlineID&ExtensionSlice-Airlines&2 \\ 
+P5& $Q_4$ & $Q_3$ & year&Zoom-In Slice&1 \\ 
+\hline
+
+\end{tabular}
+
+
+\\
+(d) QueryPath
+\end{tabular}
+\\
+
+
+
+\end{tabular}
+\caption{Sample evolution provenance representation}
+\label{fig:tablesEvo}
+\end{figure}
+
+	
+
+\begin{example}
+\label{exm1}
+Let us consider the exploration session depicted in Figure~\ref{fig:session}.  Example~\ref{ex:vis-resource} discussed already an excerpt of information describing the evolution provenance collected from this exploration session. 
+To this end, we dedicate this example to discuss remaining information stored as a part of the evolution provenance. More precisely, we discuss tables ``Query'', ``Querypath'',``Query\_selecttable'', ``Query\_conditiontable'' and ``Query\_fromtable''.
+Figure~\ref{fig:tablesEvo} shows the content of the four aforementioned tables associated to the evolution provenance of the exploration session depicted in Figure~\ref{fig:session}. 
+Indeed, the table ``Query'' contains four exploration queries as shown in Figure~\ref{fig:tablesEvo}.
+The clauses of these queries are further detailed in Tables ``Query\_selecttable'', ``Query\_conditiontable'' and ``Query\_fromtable''. Finally, the table ``Querypath'' depicted in Figure~\ref{fig:tablesEvo} stores navigations made within the exploration session shown in Figure~\ref{fig:session}. Thereby, we find in this table three tuples describing the three navigation edges depicted in Figure~\ref{fig:session}.
+ \end{example}

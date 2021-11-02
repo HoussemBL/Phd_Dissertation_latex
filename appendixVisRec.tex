@@ -1,0 +1,73 @@
+We provide in this appendix further details about our visual recommendation approach discussed in Section~\ref{sec:vis-rec}.
+More specifically, we show in this appendix the pseudocode of the $ReuseVIS$ function that is invoked when recommending visualizations in \prototype{}, the instance of our framework meant  to explore data warehouses.
+Note that this function is invoked in Algorithm~\ref{fig:algVisRec}. It consists on maximizing the usage of visual encodings properties generated previously in order to increase consistency between visualizations output by our framework \framework{}.
+Algorithm~\ref{fig:algVisRec} describes this function $ReuseVIS$.
+It receives initially two inputs that are the recommended visualization under construction $V_{curr}$ and a previous visualization $V_i$. 
+Note that the recommended visualization $V_{curr}$ is not yet completely specified. Hence, it contains some missing visual components.
+%The goal now is to maximize the consistency between the two visualziations.
+The goal of Algorithm~\ref{fig:algVisRec} is to complete the recommended visualization $V_{curr}$ by re-using information available in the visualization $V_i$.
+To do that, we adopt in Algorithm~\ref{fig:algVisRec} a rule-based strategy to construct the recommended visualization.
+At each condition (see Lines~\ref{line:cond1},~\ref{line:cond2},~\ref{line:cond3},~\ref{line:cond4},~\ref{line:cond5}), we check first whether a specific visual component is already constructed or not for the recommended visualization.
+If such visual encoding is not yet designed for the recommended visualization $V_{curr}$, we verify further conditions (e.g, in lines~\ref{line:cond3},~\ref{line:cond4}, and~\ref{line:cond5}) to verify the feasibility of re-suing such visual encoding from $V_i$.
+If these conditions are fulfilled, the previous visual encoding allocated for $V_i$, is re-used again in the recommended visualization $V_{curr}$.
+
+
+  \begin{algorithm}[h]
+   \caption{ReuseVis($V_{curr},V_{i}$)}
+    \label{fig:algVisRecApp}
+  \KwIn{$V_{curr}$: recommended visualization under construction ,$V_{i}$: a previous visualization whose resources will be re-used}
+  \KwOut{$V_{curr}$: Recommended visualization associated to $Q_{curr}$}  
+
+    
+
+            \If{($V_{curr}$.getLength().isEmpty)}{ \label{line:cond1}
+		   
+		    $V_{curr} \leftarrow  \text{SetLength(} V_i\text{.length)}$ \;
+		   }
+		   
+		     \If{($V_{curr}$.getWidth().isEmpty)}{  \label{line:cond2}
+		   
+		    $V_{curr} \leftarrow  \text{SetWidth(} V_i\text{.length)}$ \;
+		   }
+         
+           \If{($V_{curr}.ScaleX.isEmpty\text{ AND }groupBy(Q_{curr})$=$groupBy(Q_{i}))$}{ \label{line:cond3}
+		   
+
+		    
+		   $V_{curr} \leftarrow \text{SetScaleX(} V_i\text{.scaleX)}$\;
+		      $V_{curr}.getMark.encodingX \leftarrow V_{i}.getMark.encodingX$\;
+		    $V_{curr} \leftarrow \text{SetXAxe(} V_i\text{.getX)}$\;
+
+		   }
+     
+     
+     
+         \If{($V_{curr}.ScaleY.isEmpty\text{ AND }aggFct(Q_{curr})$=$aggFct(Q_{i})\text{ AND }\newline \hspace{2cm} \label{line:cond4}whereClause(Q_{curr})$=$  whereClause(Q_{i}))$}
+                        {
+		   
+			 $V_{curr} \leftarrow \text{SetScaleY(} V_i\text{.scaleY)}$ \;
+		     $V_{curr}.getMark.encodingY \leftarrow V_{i}.getMark.encodingY$ \;
+		   $V_{curr} \leftarrow \text{SetYAxe(} V_i\text{.getY)}$ \;
+
+		   }
+     
+                  \If{($V_{curr}.ScaleZ.isEmpty\text{ AND }\newline groupBy(Q_{curr}).get(2)$=$groupBy(Q_{i}).get(2) $)}{ \label{line:cond5}
+		   
+		      \If{($V_i.hasColorScale)$} {
+		       $V_{curr} \leftarrow \text{SetScaleColor(} V_i\text{.scaleColor)}$\;
+			 $V_{curr}.getMark.encodingfill \leftarrow V_{i}.getMark.encodingfill$\;
+		      }
+		      
+		       \ElseIf{($V_i.hasColorSize$)}{
+		 	  $V_{curr} \leftarrow \text{SetScaleSize(} V_i\text{.scaleSize)}$\;
+                           $V_{curr}.getMark.encodingsize \leftarrow V_{i}.getMark.encodingsize$\
+                          }
+		   \Else{
+		           $V_{curr} \leftarrow \text{SetScaleShape(} V_i\text{.scaleShape)}$\;
+             	          $V_{curr}\text{.getMark.encodingShape}\leftarrow V_{i}\text{.getMark.encodingShape}$\;
+                           }
+		   }
+  
+ \textbf{Return} $V_{curr}$\;
+    \end{algorithm}
+

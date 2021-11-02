@@ -1,0 +1,58 @@
+Visual data exploration helps users in finding interesting information in data sets when they do not know beforehand what useful information hides in their data. It thus supports humans in understanding and interpreting data in an investigative way.
+Typically, visual data exploration systems assume that users have the prerequisite knowledge to issue exploration queries and to construct suitable visualizations to render their results. Nevertheless, these tasks are usually time-consuming, making manual visual data exploration a tedious and time-consuming process.
+ %However, this assumption usually breaks down as users may lack querying, visualizations or both knowledges.
+%Furthermore, users meeting this perquisite (having sufficient querying and visualizations knowledge) need to spend considerable time specifying manually exploration queries and designing visualizations in convenient way.
+%Furthermore, such users need to spend considerable time to manually specify exploration queries and to design suited visualizations.
+%Overall, manual visual data exploration is a tedious and time-consuming process.
+Clearly, this is not convenient in real life scenarios where users often have limited time for visual data exploration. 
+
+
+To improve the efficiency of the visual data exploration process, this dissertation presents a visual data exploration framework that supports users based on recommendations throughout the whole exploration process.
+%
+The framework leverages provenance, a term generally used to designate metadata that describes the process that leads to some data. 
+%This particular type of data was shown in~\cite{Herschel2017survey} as an interesting information that serve in various applications.
+%Accordingly, 
+In our setting, we capture provenance in order to document and annotate different stages of the visual data exploration process.  
+The collected provenance is then leveraged to assist users during the visual data exploration.
+
+%%%%%%%%%\mel{Instead of describing the structure, I suggest focusing the summary on main contributions (structure follows these more or less) and results.}
+%We provide initially an overview of different concepts and paradigms necessary to grasp our contributions. 
+%Thereafter, we introduce our novel provenance-based visual data exploration framework that offers a holistic approach to assist users in the whole process of exploration.
+%
+%To clarify the general idea of our framework, we introduce a running example that targets the visual exploration of a data warehouse. 
+%This running example serves to further illustrate our scientific contributions proposed in this thesis.
+%
+%Later, we propose a new \emph{evolution provenance} model that captures all important aspects related to the visual data exploration process such as users' exploration queries, users' interactions and visual encoding parameters of corresponding visualizations.
+%
+%Based on this model and on another type of provenance, we propose  various novel recommendation approaches that help users efficiently exploring data.
+%{\color{Fuchsia}These novel approaches produce various types of recommendations that cover the whole data space of the explored dataset and that enable users to inspect readily rendered results.
+%
+%
+%
+%All these novel approaches are integrated through our provenance-based framework that provides a holistic approach to support users in all stages of the visual data exploration process.
+%
+%
+%Finally, inspired by the crucial role played by the analysis of provenance information in supporting the visual exploration process, we propose a provenance aggregation approach that summarizes provenance traces that follows the W3C PROV standard.
+%Accordingly, we discuss our summary provenance solution as well as possible visual analytics tasks that may be applied on this type of summary.} 
+
+%{\color{Fuchsia}
+The contributions of this thesis are summarized as follows. We first propose a new \emph{evolution provenance} model that captures all important aspects related to the visual data exploration process such as users' exploration queries, users' interactions and visual encoding parameters of corresponding visualizations.
+
+Based on this model and on another type of established provenance, we propose various novel \emph{recommendation approaches} that assist users in querying and visualizing data.
+These approaches produce various types of recommendations that cover the whole data space of the explored dataset and that enable users to inspect readily rendered results.
+
+Using our provenance-based recommendation approaches, users continuously receive sets of recommendations at the different stages of the visual data exploration process. Accordingly, we contribute a \emph{quantification approach} that assesses the interestingness of each recommendation. The rationale behind that is to guide the user to select most interesting recommendations worth inspecting next. 
+
+All these approaches are integrated in our provenance-based framework that provides a holistic approach to support users in all stages of the visual data exploration process. We evaluate these approaches both quantitatively and qualitatively, demonstrating that our solutions improve the visual data exploration process compared to the state-of-the art and are effective in supporting users to make interesting findings during exploration. 
+
+
+While the previous contributions focus on using provenance for visual data exploration, we noticed during our research that there is a more general research question of analyzing sets of provenance traces. 
+To pave the way for follow-up research, we therefore propose a \emph{provenance aggregation approach} that summarizes provenance traces and discuss possible visual analytics tasks that may be applied on this type of summary.
+%} 
+
+
+~~\\
+\textbf{Keywords: }Visual data exploration, provenance, query recommendation, visualization recommendation, provenance aggregation
+
+
+

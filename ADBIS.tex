@@ -1,0 +1,47 @@
+%\section{Evolution provenance Aggregation}
+%		\section{Collaborative-filtering Recommendation}
+
+
+
+
+
+%\begin{abstract}
+%In interactive visual data exploration, users rely on recommendations on what data to explore next. In our recently proposed \prototype{}  system, these recommendations take the form of queries that retrieve these data for the next exploration step, paired with suited visualizations. This paper extends the content-based recommendation techniques used for query recommendations in \prototype{} so far with recommendations leveraging collaborative filtering.
+%To this end,  we leverage evolution provenance, which tracks users' interactions during interactive visual data exploration. In a first offline step, we merge evolution provenance graphs that each tracks an individual user's exploration session with a global multi-user graph, effectively integrating all exploration sessions over the same dataset. Then, during online recommendation, where we recommend next queries for a given user query, we search for similar queries in the global graph and give preference to queries that have been previously explored in an exploration step succeeding those similar queries. We propose several algorithms and optimizations for both the merge step and the recommendation step. An experimental evaluation validates that the solutions we propose are efficient and effective for interactive visual data exploration.
+%\keywords{Visual data exploration, collaborative recommendation, evolution provenance, graph analysis}
+%\end{abstract}
+
+
+\input{chapter5/introduction}
+\input{chapter5/SysOverview}
+\label{sec:prem}
+\input{chapter5/Fusion}
+
+
+\input{chapter5/Finding}
+
+
+\section{Implementation and evaluation}
+\label{sec:experiments}
+\input{chapter5/Evaluation}
+
+\section{Related work}
+\label{sec:related}
+\input{chapter5/related}
+
+\section{Conclusion}
+\label{sec:conclusion}
+\input{chapter5/conclusion}
+		
+		\paragraph*{Experiments}
+\begin{itemize}
+\item Merge algorithms runtime, fusion rate  vs threshold similarity
+\item Merge algorithms runtime, fusion rate  vs session size
+\item recommendation algorithms runtimes
+\item recommendation algorithms scalabiliy
+\item  {\color{red}Recommendation algorithms vs top-k}
+\item  {\color{red}Recommendation algorithms vs  threshold similarity}
+\item  {\color{red}Top-k recall and precision of the optimized version of recommendation algorithm}
+\item User study: EVLIN VS EVLIN++ 
+\item User study: Voyager VS EVLIN++ 
+\end{itemize}
